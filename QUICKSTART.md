@@ -37,11 +37,22 @@ Server will start at: **http://localhost:3000**
 
 ## 🎯 What's Available
 
+### Global Navigation
+
+All pages include a unified navigation bar at the top with:
+- **Logo** - Spark Learning branding
+- **Links** - Browse Content, Ask Question, Practice Tests
+- **Settings** - Gear icon for user settings
+- **Auth Buttons** - Sign In and Get Started
+- **Mobile Menu** - Responsive hamburger menu
+
 ### Pages You Can Visit
 
 1. **Homepage** - `/`
    - Landing page with features
    - Call-to-action buttons
+   - Stats section
+   - Footer with links
 
 2. **Login** - `/login`
    - Email/phone authentication
@@ -59,36 +70,79 @@ Server will start at: **http://localhost:3000**
    - Step 3: Terms and preferences
    - Success screen with role-based redirect
 
-4. **Student Dashboard** - `/dashboard/student`
+4. **Password Reset** - `/reset-password`
+   - Step 1: Enter email
+   - Step 2: Verify code
+   - Step 3: Set new password
+   - Step 4: Success confirmation
+
+5. **Browse Content** - `/content`
+   - Search bar with filters (subject, grade, type)
+   - Content cards with metadata
+   - Download and preview buttons
+   - Rating and download count
+   - Verified badge for approved content
+   - "Back to Dashboard" button
+
+6. **Ask Question** - `/questions/ask`
+   - Subject selection dropdown
+   - Question title and details
+   - Urgency level (low, medium, high)
+   - File attachment (UI)
+   - Form validation
+   - Success screen with confirmation
+
+7. **Practice Tests** - `/practice`
+   - Test selection screen with difficulty badges
+   - Timer countdown during test
+   - Question navigator
+   - Progress bar
+   - Multiple choice answers
+   - Results screen with score breakdown
+   - "Back to Dashboard" button
+
+8. **Student Dashboard** - `/dashboard/student`
    - Profile overview with avatar
    - 4 stat cards (streak, downloads, questions, practice)
    - Recent activity timeline
    - Downloaded content with progress bars
    - Learning goals tracker
    - Achievement badges (locked/unlocked)
-   - Quick action buttons (Browse Content, Ask Question, Start Practice)
+   - Quick action buttons
 
-5. **Educator Dashboard** - `/dashboard/educator`
+9. **Educator Dashboard** - `/dashboard/educator`
    - Profile with subject expertise and rating
    - 4 stat cards (uploaded, verified, students reached, avg rating)
    - Pending verification queue with urgency levels
    - Recent uploads with download stats
    - Student engagement by subject
-   - Quick actions (Upload Content, Verify Submissions, Analytics)
+   - Quick actions
 
-6. **Mentor Dashboard** - `/dashboard/mentor`
-   - Profile with expertise and helpful rating
-   - 4 stat cards (questions answered, students helped, response time, helpful %)
-   - Question queue with urgency indicators
-   - Recent answers with helpful votes
-   - Subject breakdown chart
-   - Achievement badges
-   - Quick actions (Browse Questions, View Students, Set Availability)
+10. **Mentor Dashboard** - `/dashboard/mentor`
+    - Profile with expertise and helpful rating
+    - 4 stat cards (questions answered, students helped, response time, helpful %)
+    - Question queue with urgency indicators
+    - Recent answers with helpful votes
+    - Subject breakdown chart
+    - Achievement badges
+    - Quick actions
+
+11. **Student Profile** - `/dashboard/student/profile`
+    - Edit profile form
+    - Personal information
+    - Grade level and school
+    - Form validation
+
+12. **Student Settings** - `/dashboard/student/settings`
+    - Notification preferences
+    - Data saver mode
+    - Language selection
+    - Privacy settings
 
 ### UI Components Available
 
 Located in `components/ui/`:
-- `Button` - Multiple variants (default, outline, ghost, link)
+- `Button` - Multiple variants (default, outline, ghost, link) with loading states
 - `Input` - With icon support and error messages
 - `Card` - Content containers with header/footer
 - `Badge` - Status indicators (success, warning, offline, online)
@@ -97,9 +151,17 @@ Located in `components/ui/`:
 
 ### Special Components
 
-- `ConnectionStatus` - Shows online/offline/syncing states
+- `Navigation` - Global navigation bar (located in `components/`)
+  - Sticky top positioning
+  - Logo and branding
+  - Main navigation links
+  - Settings icon
+  - Auth buttons
+  - Mobile-responsive menu
+
+- `ConnectionStatus` - Shows online/offline/syncing states (optional, not in layout)
   - Auto-detects network status
-  - Shows banner at top of screen
+  - Banner display
   - Different colors for each state
 
 ## 📱 Testing Responsive Design

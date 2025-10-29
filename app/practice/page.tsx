@@ -273,29 +273,21 @@ export default function PracticePage() {
 
     return (
       <div className="min-h-screen bg-gray-50">
-        {/* Header */}
-        <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
-          <div className="container mx-auto px-4 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <h1 className="text-lg font-bold text-gray-900">
-                  Question {currentQuestion + 1} of {mockQuestions.length}
-                </h1>
-              </div>
-              <div className="flex items-center gap-4">
-                <Badge variant={timeLeft < 300 ? "destructive" : "secondary"} className="text-base px-4 py-2">
-                  <Clock className="h-4 w-4 mr-2" />
-                  {formatTime(timeLeft)}
-                </Badge>
-                <Button variant="outline" size="sm" onClick={handleSubmitTest}>
-                  Submit Test
-                </Button>
-              </div>
+        <div className="container mx-auto px-4 py-8 max-w-4xl">
+          <div className="flex items-center justify-between mb-6 bg-white p-4 rounded-lg shadow-sm">
+            <h1 className="text-lg font-bold text-gray-900">
+              Question {currentQuestion + 1} of {mockQuestions.length}
+            </h1>
+            <div className="flex items-center gap-4">
+              <Badge variant={timeLeft < 300 ? "destructive" : "secondary"} className="text-base px-4 py-2">
+                <Clock className="h-4 w-4 mr-2" />
+                {formatTime(timeLeft)}
+              </Badge>
+              <Button variant="outline" size="sm" onClick={handleSubmitTest}>
+                Submit Test
+              </Button>
             </div>
           </div>
-        </header>
-
-        <div className="container mx-auto px-4 py-8 max-w-4xl">
           {/* Progress Bar */}
           <Card className="mb-6">
             <CardContent className="pt-6">
@@ -418,26 +410,12 @@ export default function PracticePage() {
   // Test Selection Screen
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Link href="/dashboard/student">
-                <div className="w-10 h-10 bg-spark-blue rounded-lg flex items-center justify-center">
-                  <BookOpen className="w-6 h-6 text-white" />
-                </div>
-              </Link>
-              <h1 className="text-xl font-bold text-gray-900">Practice Tests</h1>
-            </div>
-            <Link href="/dashboard/student">
-              <Button variant="outline">Back to Dashboard</Button>
-            </Link>
-          </div>
-        </div>
-      </header>
-
       <div className="container mx-auto px-4 py-8">
+        <div className="flex justify-end mb-4">
+          <Link href="/dashboard/student">
+            <Button variant="outline">Back to Dashboard</Button>
+          </Link>
+        </div>
         <Card className="mb-8">
           <CardContent className="pt-6">
             <div className="flex items-start gap-3">

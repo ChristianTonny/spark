@@ -144,26 +144,12 @@ export default function ContentBrowsePage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Link href="/dashboard/student">
-                <div className="w-10 h-10 bg-spark-blue rounded-lg flex items-center justify-center">
-                  <BookOpen className="w-6 h-6 text-white" />
-                </div>
-              </Link>
-              <h1 className="text-xl font-bold text-gray-900">Browse Content</h1>
-            </div>
-            <Link href="/dashboard/student">
-              <Button variant="outline">Back to Dashboard</Button>
-            </Link>
-          </div>
-        </div>
-      </header>
-
       <div className="container mx-auto px-4 py-8">
+        <div className="flex justify-end mb-4">
+          <Link href="/dashboard/student">
+            <Button variant="outline">Back to Dashboard</Button>
+          </Link>
+        </div>
         {/* Search and Filters */}
         <Card className="mb-8">
           <CardHeader>

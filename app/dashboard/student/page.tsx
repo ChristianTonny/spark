@@ -128,32 +128,6 @@ export default function StudentDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-10 z-40">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Link href="/">
-                <div className="w-10 h-10 bg-spark-blue rounded-lg flex items-center justify-center">
-                  <BookOpen className="w-6 h-6 text-white" />
-                </div>
-              </Link>
-              <h1 className="text-xl font-bold text-gray-900">Student Dashboard</h1>
-            </div>
-            <div className="flex items-center gap-3">
-              <Badge variant="online" className="hidden sm:flex">
-                Connected
-              </Badge>
-              <Link href="/dashboard/student/settings">
-                <Button variant="ghost" size="icon">
-                  <Settings className="h-5 w-5" />
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </header>
-
       <div className="container mx-auto px-4 py-8">
         {/* Profile Section */}
         <Card className="mb-8">
