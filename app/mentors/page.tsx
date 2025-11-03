@@ -151,12 +151,19 @@ export default function MentorsPage() {
                     </div>
 
                     {/* CTA Button */}
-                    <Link href={`/mentors/${mentor.id}`}>
-                      <button className="w-full px-4 py-3 bg-primary text-white font-bold uppercase text-sm border-3 border-black shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all flex items-center justify-center gap-2">
-                        <Calendar className="w-4 h-4" />
-                        Book Session
-                      </button>
-                    </Link>
+                    <button 
+                      onClick={() => {
+                        if (mentor.calendlyUrl) {
+                          window.open(mentor.calendlyUrl, '_blank', 'noopener,noreferrer');
+                        } else {
+                          alert(`Booking with ${mentor.name} - Calendly link not available yet.`);
+                        }
+                      }}
+                      className="w-full px-4 py-3 bg-primary text-white font-bold uppercase text-sm border-3 border-black shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all flex items-center justify-center gap-2"
+                    >
+                      <Calendar className="w-4 h-4" />
+                      Book Session
+                    </button>
                   </div>
                 </div>
               );

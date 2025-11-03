@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Search, Filter, ArrowRight, Bookmark } from 'lucide-react';
 import { careers, getCategories } from '@/lib/data';
@@ -9,8 +9,33 @@ export default function CareersPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [salaryFilter, setSalaryFilter] = useState('all');
+  const [bookmarkedCareers, setBookmarkedCareers] = useState<string[]>([]);
 
   const categories = ['All', ...getCategories()];
+
+  // Load bookmarks from localStorage on mount
+  useEffect(() => {
+    const bookmarks = JSON.parse(localStorage.getItem('bookmarkedCareers') || '[]');
+    setBookmarkedCareers(bookmarks);
+  }, []);
+
+  // Toggle bookmark
+  const handleBookmark = (e: React.MouseEvent, careerId: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const bookmarks = JSON.parse(localStorage.getItem('bookmarkedCareers') || '[]');
+    let newBookmarks;
+    
+    if (bookmarks.includes(careerId)) {
+      newBookmarks = bookmarks.filter((id: string) => id !== careerId);
+    } else {
+      newBookmarks = [...bookmarks, careerId];
+    }
+    
+    localStorage.setItem('bookmarkedCareers', JSON.stringify(newBookmarks));
+    setBookmarkedCareers(newBookmarks);
+  };
 
   // Filter careers
   const filteredCareers = careers.filter((career) => {
@@ -78,11 +103,15 @@ export default function CareersPage() {
 
             {/* Salary Filter */}
             <div className="md:w-64">
-              <label className="block font-black text-sm uppercase mb-2">Salary Range</label>
+              <label className="block font-black text-sm uppercase mb-2" htmlFor="salary-filter">
+                Salary Range
+              </label>
               <select
+                id="salary-filter"
                 value={salaryFilter}
                 onChange={(e) => setSalaryFilter(e.target.value)}
                 className="w-full px-4 py-3 font-bold border-3 border-brutal-border shadow-brutal focus:shadow-brutal-lg focus:outline-none"
+                aria-label="Filter by salary range"
               >
                 <option value="all">All Salaries</option>
                 <option value="low">Under 5M RWF</option>
@@ -122,8 +151,15 @@ export default function CareersPage() {
                         {career.category}
                       </span>
                     </div>
-                    <button className="absolute top-3 left-3 p-2 bg-white border-2 border-brutal-border shadow-brutal-sm hover:bg-brutal-yellow transition-colors">
-                      <Bookmark className="w-5 h-5" />
+                    <button 
+                      onClick={(e) => handleBookmark(e, career.id)}
+                      className={`absolute top-3 left-3 p-2 border-2 border-brutal-border shadow-brutal-sm hover:bg-brutal-yellow transition-colors ${
+                        bookmarkedCareers.includes(career.id) ? 'bg-brutal-yellow' : 'bg-white'
+                      }`}
+                      aria-label={bookmarkedCareers.includes(career.id) ? 'Remove bookmark' : 'Add bookmark'}
+                      title={bookmarkedCareers.includes(career.id) ? 'Remove bookmark' : 'Add bookmark'}
+                    >
+                      <Bookmark className={`w-5 h-5 ${bookmarkedCareers.includes(career.id) ? 'fill-current' : ''}`} />
                     </button>
                   </div>
 

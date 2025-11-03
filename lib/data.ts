@@ -233,6 +233,7 @@ export const professionals: Professional[] = [
     availability: [
       { dayOfWeek: 1, startTime: "09:00", endTime: "17:00" },
     ],
+    calendlyUrl: "https://calendly.com/opportunitymap-demo/15min",
   },
   {
     id: "prof-2",
@@ -248,6 +249,7 @@ export const professionals: Professional[] = [
     availability: [
       { dayOfWeek: 2, startTime: "10:00", endTime: "16:00" },
     ],
+    calendlyUrl: "https://calendly.com/opportunitymap-demo/15min",
   },
   {
     id: "prof-3",
@@ -263,6 +265,7 @@ export const professionals: Professional[] = [
     availability: [
       { dayOfWeek: 1, startTime: "13:00", endTime: "17:00" },
     ],
+    calendlyUrl: "https://calendly.com/opportunitymap-demo/15min",
   },
   {
     id: "prof-5",
@@ -278,6 +281,7 @@ export const professionals: Professional[] = [
     availability: [
       { dayOfWeek: 1, startTime: "08:00", endTime: "12:00" },
     ],
+    calendlyUrl: "https://calendly.com/opportunitymap-demo/15min",
   },
   {
     id: "prof-6",
@@ -293,6 +297,7 @@ export const professionals: Professional[] = [
     availability: [
       { dayOfWeek: 0, startTime: "10:00", endTime: "14:00" },
     ],
+    calendlyUrl: "https://calendly.com/opportunitymap-demo/15min",
   },
   {
     id: "prof-8",
@@ -308,6 +313,7 @@ export const professionals: Professional[] = [
     availability: [
       { dayOfWeek: 2, startTime: "14:00", endTime: "17:00" },
     ],
+    calendlyUrl: "https://calendly.com/opportunitymap-demo/15min",
   },
   {
     id: "prof-9",
@@ -323,6 +329,7 @@ export const professionals: Professional[] = [
     availability: [
       { dayOfWeek: 1, startTime: "10:00", endTime: "14:00" },
     ],
+    calendlyUrl: "https://calendly.com/opportunitymap-demo/15min",
   },
 ];
 

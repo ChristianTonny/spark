@@ -1,9 +1,31 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Brain, Sparkles, Target, Clock, ArrowRight } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Brain, Sparkles, Target, Clock, ArrowRight, History, TrendingUp, Eye, Trash2 } from 'lucide-react';
+import { getAssessmentResults, formatAssessmentDate, deleteAssessmentResult, type AssessmentResult } from '@/lib/assessment-storage';
+import { careers } from '@/lib/data';
 
 export default function AssessmentsPage() {
+  const router = useRouter();
+  const [previousResults, setPreviousResults] = useState<AssessmentResult[]>([]);
+  const [showHistory, setShowHistory] = useState(false);
+
+  useEffect(() => {
+    const results = getAssessmentResults();
+    setPreviousResults(results);
+    setShowHistory(results.length > 0);
+  }, []);
+
+  const handleDelete = (id: string) => {
+    if (confirm('Are you sure you want to delete this assessment result?')) {
+      deleteAssessmentResult(id);
+      const results = getAssessmentResults();
+      setPreviousResults(results);
+      setShowHistory(results.length > 0);
+    }
+  };
   return (
     <div className="min-h-screen bg-background py-12 px-4">
       <div className="container mx-auto max-w-4xl">
@@ -119,11 +141,78 @@ export default function AssessmentsPage() {
           {/* CTA Button */}
           <Link href="/assessment/questions">
             <button className="w-full px-8 py-6 bg-primary text-white font-black uppercase text-2xl border-3 border-black shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-4px] hover:translate-y-[-4px] transition-all flex items-center justify-center gap-4">
-              Start Assessment
+              {previousResults.length > 0 ? 'Retake Assessment' : 'Start Assessment'}
               <ArrowRight className="w-8 h-8" />
             </button>
           </Link>
         </div>
+
+        {/* Previous Results Section */}
+        {showHistory && previousResults.length > 0 && (
+          <div className="mb-8">
+            <div className="bg-white border-3 border-black shadow-brutal-lg p-8">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <History className="w-8 h-8" />
+                  <h2 className="text-3xl font-black uppercase">Previous Results</h2>
+                </div>
+                <span className="px-3 py-1 bg-brutal-yellow text-black font-bold border-2 border-black">
+                  {previousResults.length} {previousResults.length === 1 ? 'result' : 'results'}
+                </span>
+              </div>
+
+              <div className="space-y-4">
+                {previousResults.map((result) => {
+                  const topMatch = result.topMatches[0];
+                  const topCareer = careers.find(c => c.id === topMatch?.careerId);
+                  
+                  return (
+                    <div 
+                      key={result.id}
+                      className="border-2 border-black p-6 hover:shadow-brutal transition-all"
+                    >
+                      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <span className="text-sm font-bold text-gray-600">
+                              {formatAssessmentDate(result.completedAt)}
+                            </span>
+                            <span className="px-2 py-1 bg-brutal-green text-black text-xs font-bold border-2 border-black">
+                              {topMatch?.matchScore || 0}% Match
+                            </span>
+                          </div>
+                          <h3 className="text-xl font-black mb-1">
+                            Top Match: {topCareer?.title || 'Unknown Career'}
+                          </h3>
+                          <p className="text-sm text-gray-700 font-bold">
+                            {topCareer?.shortDescription || 'No description available'}
+                          </p>
+                        </div>
+
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => router.push(`/assessment/results?id=${result.id}`)}
+                            className="px-4 py-2 bg-white border-2 border-black shadow-brutal-sm hover:shadow-brutal transition-all flex items-center gap-2 font-bold"
+                          >
+                            <Eye className="w-4 h-4" />
+                            View Results
+                          </button>
+                          <button
+                            onClick={() => handleDelete(result.id)}
+                            className="px-4 py-2 bg-white border-2 border-black shadow-brutal-sm hover:shadow-brutal hover:bg-red-50 transition-all"
+                            title="Delete result"
+                          >
+                            <Trash2 className="w-4 h-4 text-red-600" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Additional Info */}
         <div className="grid md:grid-cols-2 gap-6">

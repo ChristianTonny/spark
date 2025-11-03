@@ -1,18 +1,64 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Sparkles, ArrowRight, Bookmark, RotateCcw } from 'lucide-react';
 import { careers } from '@/lib/data';
+import { saveAssessmentResult, getAssessmentResult, type AssessmentResult } from '@/lib/assessment-storage';
 
 export default function AssessmentResultsPage() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const resultId = searchParams.get('id');
+  
+  const [savedResult, setSavedResult] = useState<AssessmentResult | null>(null);
+
   // Mock results - in real app, these would be calculated based on answers
   const topMatches = [
-    { career: careers[0], matchScore: 95 }, // Software Developer
-    { career: careers[1], matchScore: 88 }, // Data Scientist
-    { career: careers[6], matchScore: 82 }, // Teacher
-    { career: careers[9], matchScore: 78 }, // Graphic Designer
-    { career: careers[3], matchScore: 75 }, // Medical Doctor
+    { career: careers[0], matchScore: 95, reasons: ['Strong problem-solving skills', 'Interest in technology'] }, // Software Developer
+    { career: careers[1], matchScore: 88, reasons: ['Analytical thinking', 'Data-oriented mindset'] }, // Data Scientist
+    { career: careers[6], matchScore: 82, reasons: ['Communication skills', 'Passion for helping others'] }, // Teacher
+    { career: careers[9], matchScore: 78, reasons: ['Creative thinking', 'Visual design interest'] }, // Graphic Designer
+    { career: careers[3], matchScore: 75, reasons: ['Healthcare interest', 'Helping people'] }, // Medical Doctor
   ].filter(match => match.career); // Filter out any undefined careers
+
+  useEffect(() => {
+    // If viewing a specific result, load it
+    if (resultId) {
+      const result = getAssessmentResult(resultId);
+      if (result) {
+        setSavedResult(result);
+      } else {
+        // If result not found, redirect to new assessment
+        router.push('/assessment/results');
+      }
+    } else {
+      // Save new result
+      const newResult: AssessmentResult = {
+        id: `result-${Date.now()}`,
+        assessmentId: 'assessment-1',
+        completedAt: new Date().toISOString(),
+        answers: {}, // Would contain actual answers from questions page
+        topMatches: topMatches.map(match => ({
+          careerId: match.career.id,
+          matchScore: match.matchScore,
+          matchReasons: match.reasons,
+        })),
+      };
+      
+      saveAssessmentResult(newResult);
+      setSavedResult(newResult);
+    }
+  }, [resultId, router]);
+
+  // Use saved result if available, otherwise use mock data
+  const displayMatches = savedResult 
+    ? savedResult.topMatches.map(m => {
+        const career = careers.find(c => c.id === m.careerId);
+        return career ? { career, matchScore: m.matchScore, reasons: m.matchReasons } : null;
+      }).filter(Boolean) as { career: any; matchScore: number; reasons: string[] }[]
+    : topMatches;
 
   return (
     <div className="min-h-screen bg-background py-12 px-4">
@@ -32,8 +78,8 @@ export default function AssessmentResultsPage() {
 
         {/* Results Grid */}
         <div className="space-y-6 mb-12">
-          {topMatches.map((match, index) => {
-            const { career, matchScore } = match;
+          {displayMatches.map((match, index) => {
+            const { career, matchScore, reasons } = match;
             const rankColors = [
               'bg-accent', // 1st - yellow
               'bg-primary', // 2nd - orange
@@ -76,6 +122,21 @@ export default function AssessmentResultsPage() {
                               {(career.salaryMin / 1000000).toFixed(1)}M - {(career.salaryMax / 1000000).toFixed(1)}M RWF
                             </span>
                           </div>
+
+                          {/* Match Reasons */}
+                          {reasons && reasons.length > 0 && (
+                            <div className="mb-4">
+                              <p className="text-xs font-black uppercase text-gray-600 mb-2">Why this matches:</p>
+                              <ul className="space-y-1">
+                                {reasons.map((reason, idx) => (
+                                  <li key={idx} className="text-sm text-gray-700 font-bold flex items-start gap-2">
+                                    <span className="text-brutal-green">✓</span>
+                                    {reason}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
                         </div>
 
                         {/* Match Score */}

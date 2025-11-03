@@ -74,6 +74,7 @@ export interface Professional {
   availability: AvailabilitySlot[];
   bio?: string;
   yearsExperience?: number;
+  calendlyUrl?: string; // Calendly booking link
 }
 
 export interface AvailabilitySlot {
