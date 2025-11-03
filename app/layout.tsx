@@ -6,10 +6,10 @@ import Navigation from "@/components/navigation";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Spark Learning Platform",
-  description: "Offline-capable educational platform for rural students in Sub-Saharan Africa",
+  title: "OpportunityMap - Discover Your Future Career in Rwanda",
+  description: "Explore 100+ careers, take assessments, and book 15-min chats with professionals to discover your path.",
   manifest: "/manifest.json",
-  themeColor: "#2563EB",
+  themeColor: "#FF6B35",
   viewport: {
     width: "device-width",
     initialScale: 1,
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Spark Learning",
+    title: "OpportunityMap",
   },
 };
 

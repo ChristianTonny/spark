@@ -51,21 +51,13 @@ const config: Config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        spark: {
-          blue: "#2563EB",
-          "blue-dark": "#1E40AF",
-          green: "#10B981",
-          orange: "#F59E0B",
-          purple: "#8B5CF6",
-        },
-        offline: {
-          bg: "#FEF3C7",
-          text: "#92400E",
-        },
-        online: {
-          bg: "#D1FAE5",
-          text: "#065F46",
-        },
+        // OpportunityMap Neobrutalist Colors
+        'brutal-orange': '#FF6B35',
+        'brutal-blue': '#004E89',
+        'brutal-yellow': '#F7FD04',
+        'brutal-bg': '#FFFEF2',
+        'brutal-text': '#1A1A1A',
+        'brutal-border': '#000000',
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -118,6 +110,15 @@ const config: Config = {
         md: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
         lg: "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
         card: "0 4px 24px rgba(37, 99, 235, 0.08)",
+        // Neobrutalist shadows (solid, offset)
+        'brutal': '4px 4px 0px #000',
+        'brutal-sm': '2px 2px 0px #000',
+        'brutal-lg': '8px 8px 0px #000',
+        'brutal-xl': '12px 12px 0px #000',
+      },
+      borderWidth: {
+        '3': '3px',
+        '4': '4px',
       },
       keyframes: {
         "accordion-down": {
