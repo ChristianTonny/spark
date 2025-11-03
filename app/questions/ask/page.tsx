@@ -105,9 +105,9 @@ export default function AskQuestionPage() {
               <div>
                 <h3 className="font-semibold text-gray-900 mb-1">Tips for Getting Great Answers</h3>
                 <ul className="text-sm text-gray-700 space-y-1">
-                  <li>• Be specific about what you're struggling with</li>
+                  <li>• Be specific about what you&apos;re struggling with</li>
                   <li>• Include relevant context (textbook page, class notes, etc.)</li>
-                  <li>• Show what you've tried so far</li>
+                  <li>• Show what you&apos;ve tried so far</li>
                   <li>• One question per submission works best</li>
                 </ul>
               </div>
@@ -297,7 +297,7 @@ export default function AskQuestionPage() {
               </li>
               <li className="flex items-start gap-2">
                 <CheckCircle className="h-4 w-4 text-spark-green flex-shrink-0 mt-0.5" />
-                <span>Don't ask for direct answers to homework - ask for help understanding</span>
+                <span>Don&apos;t ask for direct answers to homework - ask for help understanding</span>
               </li>
               <li className="flex items-start gap-2">
                 <CheckCircle className="h-4 w-4 text-spark-green flex-shrink-0 mt-0.5" />

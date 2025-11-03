@@ -275,7 +275,7 @@ export default function MentorDashboard() {
                 <div className="flex items-center justify-between">
                   <div>
                     <CardTitle>Your Recent Answers</CardTitle>
-                    <CardDescription>Questions you've helped with recently</CardDescription>
+                    <CardDescription>Questions you&apos;ve helped with recently</CardDescription>
                   </div>
                   <Link href="/dashboard/mentor/history">
                     <Button variant="outline" size="sm">
@@ -414,7 +414,7 @@ export default function MentorDashboard() {
                 <Link href="/dashboard/mentor/students">
                   <Button variant="outline" className="w-full justify-start">
                     <Users className="h-4 w-4 mr-2" />
-                    Students I've Helped
+                    Students I&apos;ve Helped
                   </Button>
                 </Link>
                 <Link href="/dashboard/mentor/availability">

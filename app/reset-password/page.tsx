@@ -23,7 +23,7 @@ const passwordSchema = z.object({
   password: z.string().min(6, "Password must be at least 6 characters"),
   confirmPassword: z.string(),
 }).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
+  message: "Passwords don&apos;t match",
   path: ["confirmPassword"],
 });
 
@@ -96,7 +96,7 @@ export default function ResetPasswordPage() {
           <Card>
             <CardHeader>
               <CardTitle>Email Address</CardTitle>
-              <CardDescription>We'll send you a verification code</CardDescription>
+              <CardDescription>We&apos;ll send you a verification code</CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={emailForm.handleSubmit(handleEmailSubmit)} className="space-y-4">

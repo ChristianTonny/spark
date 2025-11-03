@@ -229,7 +229,7 @@ export default function ContentBrowsePage() {
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="text-sm text-gray-600">Active filters:</span>
                   {searchQuery && (
-                    <Badge variant="secondary">Search: "{searchQuery}"</Badge>
+                    <Badge variant="secondary">Search: &quot;{searchQuery}&quot;</Badge>
                   )}
                   {selectedSubject !== "all" && (
                     <Badge variant="secondary">Subject: {selectedSubject}</Badge>

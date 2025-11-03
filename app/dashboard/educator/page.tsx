@@ -250,7 +250,7 @@ export default function EducatorDashboard() {
                 <div className="flex items-center justify-between">
                   <div>
                     <CardTitle>Your Recent Uploads</CardTitle>
-                    <CardDescription>Content you've created and uploaded</CardDescription>
+                    <CardDescription>Content you&apos;ve created and uploaded</CardDescription>
                   </div>
                   <Link href="/dashboard/educator/content">
                     <Button variant="outline" size="sm">
