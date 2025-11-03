@@ -4,12 +4,18 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Search, Filter, ArrowRight, Bookmark } from 'lucide-react';
 import { careers, getCategories } from '@/lib/data';
+import { CareerCardSkeleton } from '@/components/loading-skeleton';
+import { EmptyState } from '@/components/error-state';
+import { useToast } from '@/lib/use-toast';
+import { ToastContainer } from '@/components/toast-container';
 
 export default function CareersPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [salaryFilter, setSalaryFilter] = useState('all');
   const [bookmarkedCareers, setBookmarkedCareers] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const toast = useToast();
 
   const categories = ['All', ...getCategories()];
 
@@ -17,6 +23,8 @@ export default function CareersPage() {
   useEffect(() => {
     const bookmarks = JSON.parse(localStorage.getItem('bookmarkedCareers') || '[]');
     setBookmarkedCareers(bookmarks);
+    // Simulate loading delay for demonstration
+    setTimeout(() => setIsLoading(false), 800);
   }, []);
 
   // Toggle bookmark
@@ -25,12 +33,15 @@ export default function CareersPage() {
     e.stopPropagation();
     
     const bookmarks = JSON.parse(localStorage.getItem('bookmarkedCareers') || '[]');
+    const careerTitle = careers.find(c => c.id === careerId)?.title || 'Career';
     let newBookmarks;
     
     if (bookmarks.includes(careerId)) {
       newBookmarks = bookmarks.filter((id: string) => id !== careerId);
+      toast.success(`Removed ${careerTitle} from bookmarks`);
     } else {
       newBookmarks = [...bookmarks, careerId];
+      toast.success(`Added ${careerTitle} to bookmarks`);
     }
     
     localStorage.setItem('bookmarkedCareers', JSON.stringify(newBookmarks));
@@ -64,6 +75,36 @@ export default function CareersPage() {
             Browse {careers.length}+ career paths and find your future
           </p>
         </div>
+
+        {/* Saved Careers Section */}
+        {bookmarkedCareers.length > 0 && (
+          <div className="mb-8 p-6 bg-brutal-yellow border-3 border-brutal-border shadow-brutal-lg">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Bookmark className="w-6 h-6" />
+                <h2 className="text-2xl font-black uppercase">Your Saved Careers</h2>
+              </div>
+              <Link
+                href="/dashboard/student"
+                className="px-4 py-2 bg-white border-2 border-brutal-border shadow-brutal-sm hover:shadow-brutal transition-all font-bold text-sm uppercase"
+              >
+                View All →
+              </Link>
+            </div>
+            <div className="grid md:grid-cols-3 gap-4">
+              {careers.filter(c => bookmarkedCareers.includes(c.id)).slice(0, 3).map((career) => (
+                <Link
+                  key={career.id}
+                  href={`/careers/${career.id}`}
+                  className="p-4 bg-white border-2 border-brutal-border hover:shadow-brutal transition-all"
+                >
+                  <h3 className="font-black text-lg mb-1">{career.title}</h3>
+                  <p className="text-sm text-gray-600 font-bold">{career.category}</p>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Search and Filters */}
         <div className="mb-8 space-y-4">
@@ -130,7 +171,13 @@ export default function CareersPage() {
         </div>
 
         {/* Career Grid */}
-        {filteredCareers.length > 0 ? (
+        {isLoading ? (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <CareerCardSkeleton key={i} />
+            ))}
+          </div>
+        ) : filteredCareers.length > 0 ? (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredCareers.map((career, index) => (
               <Link
@@ -207,25 +254,18 @@ export default function CareersPage() {
             ))}
           </div>
         ) : (
-          <div className="text-center py-16">
-            <div className="inline-block p-8 bg-white border-3 border-brutal-border shadow-brutal">
-              <Filter className="w-16 h-16 mx-auto mb-4 text-gray-400" />
-              <h3 className="text-2xl font-black mb-2">No careers found</h3>
-              <p className="text-gray-700 mb-4">
-                Try adjusting your filters or search query
-              </p>
-              <button
-                onClick={() => {
-                  setSearchQuery('');
-                  setSelectedCategory('All');
-                  setSalaryFilter('all');
-                }}
-                className="px-6 py-3 bg-brutal-orange text-white font-bold uppercase border-3 border-brutal-border shadow-brutal hover:shadow-brutal-lg transition-all"
-              >
-                Clear Filters
-              </button>
-            </div>
-          </div>
+          <EmptyState
+            title="No careers found"
+            message="Try adjusting your search query or filters to find more careers."
+            action={{
+              label: 'Clear Filters',
+              onClick: () => {
+                setSearchQuery('');
+                setSelectedCategory('All');
+                setSalaryFilter('all');
+              }
+            }}
+          />
         )}
 
         {/* CTA Section */}
@@ -246,6 +286,9 @@ export default function CareersPage() {
           </div>
         )}
       </div>
+      
+      {/* Toast Notifications */}
+      <ToastContainer toasts={toast.toasts} onClose={toast.removeToast} />
     </div>
   );
 }

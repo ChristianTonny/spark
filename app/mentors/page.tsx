@@ -1,13 +1,21 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Search, Star, Calendar, MessageCircle, Filter } from 'lucide-react';
 import { professionals, careers } from '@/lib/data';
+import { MentorCardSkeleton } from '@/components/loading-skeleton';
+import { EmptyState } from '@/components/error-state';
 
 export default function MentorsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCareer, setSelectedCareer] = useState('All');
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Simulate loading delay
+    setTimeout(() => setIsLoading(false), 600);
+  }, []);
 
   // Get unique careers from professionals
   const careerOptions = ['All', ...new Set(
@@ -86,7 +94,13 @@ export default function MentorsPage() {
         </div>
 
         {/* Mentors Grid */}
-        {filteredMentors.length > 0 ? (
+        {isLoading ? (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <MentorCardSkeleton key={i} />
+            ))}
+          </div>
+        ) : filteredMentors.length > 0 ? (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredMentors.map((mentor) => {
               const mentorCareers = mentor.careerIds
@@ -170,24 +184,17 @@ export default function MentorsPage() {
             })}
           </div>
         ) : (
-          <div className="text-center py-16">
-            <div className="inline-block p-8 bg-white border-3 border-black shadow-brutal">
-              <Filter className="w-16 h-16 mx-auto mb-4 text-gray-400" />
-              <h3 className="text-2xl font-black mb-2">No mentors found</h3>
-              <p className="text-gray-700 mb-4">
-                Try adjusting your filters or search query
-              </p>
-              <button
-                onClick={() => {
-                  setSearchQuery('');
-                  setSelectedCareer('All');
-                }}
-                className="px-6 py-3 bg-primary text-white font-bold uppercase border-3 border-black shadow-brutal hover:shadow-brutal-lg transition-all"
-              >
-                Clear Filters
-              </button>
-            </div>
-          </div>
+          <EmptyState
+            title="No mentors found"
+            message="Try adjusting your search or filter to find mentors in different career paths."
+            action={{
+              label: 'Clear Filters',
+              onClick: () => {
+                setSearchQuery('');
+                setSelectedCareer('All');
+              }
+            }}
+          />
         )}
 
         {/* Info Section */}

@@ -19,6 +19,8 @@ import {
 } from "lucide-react";
 import { careers, professionals } from "@/lib/data";
 import { useState, useEffect } from "react";
+import { CareerDetailSkeleton } from "@/components/loading-skeleton";
+import { NotFoundError } from "@/components/error-state";
 
 export default function CareerDetailPage() {
   const params = useParams();
@@ -28,11 +30,14 @@ export default function CareerDetailPage() {
   const career = careers.find(c => c.id === careerId);
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [showVideo, setShowVideo] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Check if career is bookmarked on mount
   useEffect(() => {
     const bookmarks = JSON.parse(localStorage.getItem('bookmarkedCareers') || '[]');
     setIsBookmarked(bookmarks.includes(careerId));
+    // Simulate loading delay
+    setTimeout(() => setIsLoading(false), 700);
   }, [careerId]);
 
   // Handle bookmark toggle
@@ -64,18 +69,12 @@ export default function CareerDetailPage() {
 
   // 404 if career not found
   if (!career) {
-    return (
-      <div className="min-h-screen bg-white flex items-center justify-center p-4">
-        <div className="text-center">
-          <h1 className="text-4xl font-bold mb-4">Career Not Found</h1>
-          <p className="text-gray-600 mb-6">The career you're looking for doesn't exist.</p>
-          <Button onClick={() => router.push('/careers')}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Careers
-          </Button>
-        </div>
-      </div>
-    );
+    return <NotFoundError type="career" onGoBack={() => router.push('/careers')} />;
+  }
+
+  // Show loading state
+  if (isLoading) {
+    return <CareerDetailSkeleton />;
   }
 
   return (
@@ -165,7 +164,7 @@ export default function CareerDetailPage() {
                 <MapPin className="h-8 w-8 mb-2 text-brutal-pink" />
                 <p className="text-sm text-gray-600 mb-1">Location</p>
                 <p className="font-bold text-lg">
-                  {career.location || "Rwanda"}
+                  Rwanda
                 </p>
               </CardContent>
             </Card>

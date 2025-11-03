@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Menu, X, Compass, BookOpen, Users } from 'lucide-react';
+import { Menu, X, Compass, BookOpen, Users, LayoutDashboard, Settings, User } from 'lucide-react';
 import { useState } from 'react';
 
 export default function Navigation() {
@@ -11,6 +11,7 @@ export default function Navigation() {
     { href: '/careers', label: 'Careers', icon: Compass },
     { href: '/assessments', label: 'Assessments', icon: BookOpen },
     { href: '/mentors', label: 'Mentors', icon: Users },
+    { href: '/dashboard/student', label: 'Dashboard', icon: LayoutDashboard },
   ];
 
   return (
@@ -40,8 +41,24 @@ export default function Navigation() {
                 </Link>
               );
             })}
-            
+
             <div className="ml-4 flex items-center gap-2">
+              {/* Profile & Settings Icons */}
+              <Link
+                href="/dashboard/student"
+                className="p-2 border-2 border-brutal-border hover:shadow-brutal-sm transition-all"
+                title="Dashboard"
+              >
+                <User className="w-5 h-5" />
+              </Link>
+              <Link
+                href="/dashboard/student/settings"
+                className="p-2 border-2 border-brutal-border hover:shadow-brutal-sm transition-all"
+                title="Settings"
+              >
+                <Settings className="w-5 h-5" />
+              </Link>
+              
               <Link
                 href="/login"
                 className="px-4 py-2 font-bold uppercase text-sm border-2 border-brutal-border hover:shadow-brutal-sm transition-all"

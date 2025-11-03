@@ -6,16 +6,20 @@ import { useRouter } from 'next/navigation';
 import { Brain, Sparkles, Target, Clock, ArrowRight, History, TrendingUp, Eye, Trash2 } from 'lucide-react';
 import { getAssessmentResults, formatAssessmentDate, deleteAssessmentResult, type AssessmentResult } from '@/lib/assessment-storage';
 import { careers } from '@/lib/data';
+import { AssessmentResultSkeleton } from '@/components/loading-skeleton';
 
 export default function AssessmentsPage() {
   const router = useRouter();
   const [previousResults, setPreviousResults] = useState<AssessmentResult[]>([]);
   const [showHistory, setShowHistory] = useState(false);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(true);
 
   useEffect(() => {
     const results = getAssessmentResults();
     setPreviousResults(results);
     setShowHistory(results.length > 0);
+    // Simulate loading delay
+    setTimeout(() => setIsLoadingHistory(false), 500);
   }, []);
 
   const handleDelete = (id: string) => {
@@ -147,22 +151,30 @@ export default function AssessmentsPage() {
           </Link>
         </div>
 
-        {/* Previous Results Section */}
-        {showHistory && previousResults.length > 0 && (
-          <div className="mb-8">
-            <div className="bg-white border-3 border-black shadow-brutal-lg p-8">
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-3">
-                  <History className="w-8 h-8" />
-                  <h2 className="text-3xl font-black uppercase">Previous Results</h2>
-                </div>
+        {/* Previous Results Section - Always show with empty state */}
+        <div className="mb-8">
+          <div className="bg-white border-3 border-black shadow-brutal-lg p-8">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <History className="w-8 h-8" />
+                <h2 className="text-3xl font-black uppercase">Previous Results</h2>
+              </div>
+              {previousResults.length > 0 && (
                 <span className="px-3 py-1 bg-brutal-yellow text-black font-bold border-2 border-black">
                   {previousResults.length} {previousResults.length === 1 ? 'result' : 'results'}
                 </span>
-              </div>
+              )}
+            </div>
 
-              <div className="space-y-4">
-                {previousResults.map((result) => {
+            {isLoadingHistory ? (
+                <div className="space-y-4">
+                  {Array.from({ length: 2 }).map((_, i) => (
+                    <AssessmentResultSkeleton key={i} />
+                  ))}
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {previousResults.map((result) => {
                   const topMatch = result.topMatches[0];
                   const topCareer = careers.find(c => c.id === topMatch?.careerId);
                   
@@ -210,9 +222,17 @@ export default function AssessmentsPage() {
                   );
                 })}
               </div>
-            </div>
+            )}
+            
+            {/* Empty State */}
+            {!isLoadingHistory && previousResults.length === 0 && (
+              <div className="text-center py-8">
+                <p className="text-gray-600 font-bold mb-4">No assessment results yet</p>
+                <p className="text-sm text-gray-500">Complete your first assessment to see results here!</p>
+              </div>
+            )}
           </div>
-        )}
+        </div>
 
         {/* Additional Info */}
         <div className="grid md:grid-cols-2 gap-6">

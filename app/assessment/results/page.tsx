@@ -1,18 +1,20 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Sparkles, ArrowRight, Bookmark, RotateCcw } from 'lucide-react';
 import { careers } from '@/lib/data';
 import { saveAssessmentResult, getAssessmentResult, type AssessmentResult } from '@/lib/assessment-storage';
+import { Spinner } from '@/components/loading-skeleton';
 
-export default function AssessmentResultsPage() {
+function AssessmentResultsContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const resultId = searchParams.get('id');
   
   const [savedResult, setSavedResult] = useState<AssessmentResult | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Mock results - in real app, these would be calculated based on answers
   const topMatches = [
@@ -50,6 +52,9 @@ export default function AssessmentResultsPage() {
       saveAssessmentResult(newResult);
       setSavedResult(newResult);
     }
+    
+    // Simulate loading
+    setTimeout(() => setIsLoading(false), 1000);
   }, [resultId, router]);
 
   // Use saved result if available, otherwise use mock data
@@ -59,6 +64,19 @@ export default function AssessmentResultsPage() {
         return career ? { career, matchScore: m.matchScore, reasons: m.matchReasons } : null;
       }).filter(Boolean) as { career: any; matchScore: number; reasons: string[] }[]
     : topMatches;
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <Spinner size="lg" />
+          <p className="mt-4 text-xl font-bold">Analyzing your responses...</p>
+          <p className="text-gray-600 font-medium">Finding your perfect career matches</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background py-12 px-4">
@@ -231,5 +249,20 @@ export default function AssessmentResultsPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function AssessmentResultsPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <Spinner size="lg" />
+          <p className="mt-4 text-xl font-bold">Loading results...</p>
+        </div>
+      </div>
+    }>
+      <AssessmentResultsContent />
+    </Suspense>
   );
 }
