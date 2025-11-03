@@ -66,40 +66,40 @@ export default function CareersPage() {
   });
 
   return (
-    <div className="min-h-screen py-8">
+    <div className="min-h-screen py-4 sm:py-8">
       <div className="container mx-auto px-4 max-w-7xl">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-5xl md:text-6xl font-black mb-4">Explore Careers</h1>
-          <p className="text-xl text-gray-700">
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black mb-3 sm:mb-4">Explore Careers</h1>
+          <p className="text-base sm:text-lg md:text-xl text-gray-700">
             Browse {careers.length}+ career paths and find your future
           </p>
         </div>
 
         {/* Saved Careers Section */}
         {bookmarkedCareers.length > 0 && (
-          <div className="mb-8 p-6 bg-brutal-yellow border-3 border-brutal-border shadow-brutal-lg">
-            <div className="flex items-center justify-between mb-4">
+          <div className="mb-6 sm:mb-8 p-4 sm:p-6 bg-brutal-yellow border-3 border-brutal-border shadow-brutal-lg">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
               <div className="flex items-center gap-2">
-                <Bookmark className="w-6 h-6" />
-                <h2 className="text-2xl font-black uppercase">Your Saved Careers</h2>
+                <Bookmark className="w-5 h-5 sm:w-6 sm:h-6" />
+                <h2 className="text-xl sm:text-2xl font-black uppercase">Your Saved Careers</h2>
               </div>
               <Link
                 href="/dashboard/student"
-                className="px-4 py-2 bg-white border-2 border-brutal-border shadow-brutal-sm hover:shadow-brutal transition-all font-bold text-sm uppercase"
+                className="px-4 py-2 min-h-[44px] bg-white border-2 border-brutal-border shadow-brutal-sm hover:shadow-brutal transition-all font-bold text-xs sm:text-sm uppercase text-center"
               >
                 View All →
               </Link>
             </div>
-            <div className="grid md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
               {careers.filter(c => bookmarkedCareers.includes(c.id)).slice(0, 3).map((career) => (
                 <Link
                   key={career.id}
                   href={`/careers/${career.id}`}
                   className="p-4 bg-white border-2 border-brutal-border hover:shadow-brutal transition-all"
                 >
-                  <h3 className="font-black text-lg mb-1">{career.title}</h3>
-                  <p className="text-sm text-gray-600 font-bold">{career.category}</p>
+                  <h3 className="font-black text-base sm:text-lg mb-1">{career.title}</h3>
+                  <p className="text-xs sm:text-sm text-gray-600 font-bold">{career.category}</p>
                 </Link>
               ))}
             </div>
@@ -107,30 +107,30 @@ export default function CareersPage() {
         )}
 
         {/* Search and Filters */}
-        <div className="mb-8 space-y-4">
+        <div className="mb-6 sm:mb-8 space-y-4">
           {/* Search Bar */}
           <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-6 h-6 text-gray-500" />
+            <Search className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-5 h-5 sm:w-6 sm:h-6 text-gray-500" />
             <input
               type="text"
               placeholder="Search careers..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-14 pr-4 py-4 text-lg font-bold border-3 border-brutal-border shadow-brutal focus:shadow-brutal-lg focus:outline-none transition-all"
+              className="w-full pl-12 sm:pl-14 pr-4 py-3 sm:py-4 min-h-[44px] text-base sm:text-lg font-bold border-3 border-brutal-border shadow-brutal focus:shadow-brutal-lg focus:outline-none transition-all"
             />
           </div>
 
           {/* Filters */}
-          <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex flex-col lg:flex-row gap-4">
             {/* Category Filter */}
             <div className="flex-1">
-              <label className="block font-black text-sm uppercase mb-2">Category</label>
+              <label className="block font-black text-xs sm:text-sm uppercase mb-2">Category</label>
               <div className="flex flex-wrap gap-2">
                 {categories.map((category) => (
                   <button
                     key={category}
                     onClick={() => setSelectedCategory(category)}
-                    className={`px-4 py-2 font-bold uppercase text-sm border-3 border-brutal-border transition-all ${
+                    className={`px-3 sm:px-4 py-2 min-h-[44px] font-bold uppercase text-xs sm:text-sm border-3 border-brutal-border transition-all ${
                       selectedCategory === category
                         ? 'bg-brutal-orange text-white shadow-brutal'
                         : 'bg-white hover:shadow-brutal-sm'
@@ -143,15 +143,15 @@ export default function CareersPage() {
             </div>
 
             {/* Salary Filter */}
-            <div className="md:w-64">
-              <label className="block font-black text-sm uppercase mb-2" htmlFor="salary-filter">
+            <div className="lg:w-64">
+              <label className="block font-black text-xs sm:text-sm uppercase mb-2" htmlFor="salary-filter">
                 Salary Range
               </label>
               <select
                 id="salary-filter"
                 value={salaryFilter}
                 onChange={(e) => setSalaryFilter(e.target.value)}
-                className="w-full px-4 py-3 font-bold border-3 border-brutal-border shadow-brutal focus:shadow-brutal-lg focus:outline-none"
+                className="w-full px-3 sm:px-4 py-2 sm:py-3 min-h-[44px] font-bold border-3 border-brutal-border shadow-brutal focus:shadow-brutal-lg focus:outline-none text-sm sm:text-base"
                 aria-label="Filter by salary range"
               >
                 <option value="all">All Salaries</option>
@@ -165,20 +165,20 @@ export default function CareersPage() {
 
         {/* Results Count */}
         <div className="mb-6">
-          <p className="text-lg font-bold">
+          <p className="text-base sm:text-lg font-bold text-gray-600">
             {filteredCareers.length} {filteredCareers.length === 1 ? 'career' : 'careers'} found
           </p>
         </div>
 
         {/* Career Grid */}
         {isLoading ? (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {Array.from({ length: 6 }).map((_, i) => (
               <CareerCardSkeleton key={i} />
             ))}
           </div>
         ) : filteredCareers.length > 0 ? (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {filteredCareers.map((career, index) => (
               <Link
                 key={career.id}
@@ -187,20 +187,20 @@ export default function CareersPage() {
               >
                 <div className="bg-white border-3 border-brutal-border shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all overflow-hidden h-full flex flex-col">
                   {/* Image */}
-                  <div className="relative h-48 overflow-hidden border-b-3 border-brutal-border">
+                  <div className="relative h-40 sm:h-48 overflow-hidden border-b-3 border-brutal-border">
                     <img
                       src={career.videoThumbnail}
                       alt={career.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
-                    <div className="absolute top-3 right-3">
-                      <span className="px-3 py-1 bg-white text-brutal-text text-sm font-bold uppercase border-2 border-brutal-border shadow-brutal-sm">
+                    <div className="absolute top-2 sm:top-3 right-2 sm:right-3">
+                      <span className="px-2 sm:px-3 py-1 bg-white text-brutal-text text-xs sm:text-sm font-bold uppercase border-2 border-brutal-border shadow-brutal-sm">
                         {career.category}
                       </span>
                     </div>
-                    <button 
+                    <button
                       onClick={(e) => handleBookmark(e, career.id)}
-                      className={`absolute top-3 left-3 p-2 border-2 border-brutal-border shadow-brutal-sm hover:bg-brutal-yellow transition-colors ${
+                      className={`absolute top-2 sm:top-3 left-2 sm:left-3 p-2 min-h-[40px] min-w-[40px] border-2 border-brutal-border shadow-brutal-sm hover:bg-brutal-yellow transition-colors ${
                         bookmarkedCareers.includes(career.id) ? 'bg-brutal-yellow' : 'bg-white'
                       }`}
                       aria-label={bookmarkedCareers.includes(career.id) ? 'Remove bookmark' : 'Add bookmark'}
@@ -211,14 +211,14 @@ export default function CareersPage() {
                   </div>
 
                   {/* Content */}
-                  <div className="p-6 flex-1 flex flex-col">
-                    <h3 className="text-2xl font-black mb-2 group-hover:text-brutal-orange transition-colors">
+                  <div className="p-4 sm:p-6 flex-1 flex flex-col">
+                    <h3 className="text-xl sm:text-2xl font-black mb-2 group-hover:text-brutal-orange transition-colors">
                       {career.title}
                     </h3>
-                    <p className="text-gray-700 mb-4 line-clamp-3 flex-1">
+                    <p className="text-sm sm:text-base text-gray-700 mb-4 line-clamp-3 flex-1">
                       {career.shortDescription}
                     </p>
-                    
+
                     {/* Skills */}
                     <div className="mb-4">
                       <div className="flex flex-wrap gap-2">

@@ -54,9 +54,9 @@ export default function StudentDashboard() {
     <div className="min-h-screen bg-background py-8 px-4">
       <div className="container mx-auto max-w-7xl">
         {/* Header */}
-        <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <div className="w-16 h-16 border-3 border-black shadow-brutal overflow-hidden">
+        <div className="mb-6 sm:mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 border-3 border-black shadow-brutal overflow-hidden flex-shrink-0">
               <img
                 src={studentData.avatar}
                 alt={studentData.name}
@@ -64,23 +64,23 @@ export default function StudentDashboard() {
               />
             </div>
             <div>
-              <h1 className="text-3xl md:text-4xl font-black uppercase">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-black uppercase">
                 Welcome back, {studentData.name.split(" ")[0]}!
               </h1>
-              <p className="text-lg font-bold text-gray-700">
-                {studentData.gradeLevel}  {studentData.school}
+              <p className="text-base sm:text-lg font-bold text-gray-700">
+                {studentData.gradeLevel} · {studentData.school}
               </p>
             </div>
           </div>
-          <div className="flex gap-2">
-            <Link href="/dashboard/student/profile">
-              <button className="px-4 py-2 bg-white border-3 border-black shadow-brutal hover:shadow-brutal-lg transition-all flex items-center gap-2 font-bold">
+          <div className="flex gap-2 flex-wrap sm:flex-nowrap">
+            <Link href="/dashboard/student/profile" className="flex-1 sm:flex-initial">
+              <button className="w-full sm:w-auto px-4 py-2 bg-white border-3 border-black shadow-brutal hover:shadow-brutal-lg transition-all flex items-center justify-center gap-2 font-bold">
                 <User className="w-4 h-4" />
                 Profile
               </button>
             </Link>
-            <Link href="/dashboard/student/settings">
-              <button className="px-4 py-2 bg-white border-3 border-black shadow-brutal hover:shadow-brutal-lg transition-all flex items-center gap-2 font-bold">
+            <Link href="/dashboard/student/settings" className="flex-1 sm:flex-initial">
+              <button className="w-full sm:w-auto px-4 py-2 bg-white border-3 border-black shadow-brutal hover:shadow-brutal-lg transition-all flex items-center justify-center gap-2 font-bold">
                 <Settings className="w-4 h-4" />
                 Settings
               </button>
@@ -89,57 +89,57 @@ export default function StudentDashboard() {
         </div>
 
         {/* Stats Grid */}
-        <div className="grid md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-brutal-yellow border-3 border-black shadow-brutal p-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
+          <div className="bg-brutal-yellow border-3 border-black shadow-brutal p-4 sm:p-6">
             <div className="flex items-center justify-between mb-2">
-              <Bookmark className="w-8 h-8" />
-              <span className="text-4xl font-black">{bookmarkedCareers.length}</span>
+              <Bookmark className="w-6 h-6 sm:w-8 sm:h-8" />
+              <span className="text-3xl sm:text-4xl font-black">{bookmarkedCareers.length}</span>
             </div>
-            <h3 className="text-xl font-black uppercase">Saved Careers</h3>
-            <p className="font-bold text-gray-700">Careers you are interested in</p>
+            <h3 className="text-lg sm:text-xl font-black uppercase">Saved Careers</h3>
+            <p className="font-bold text-gray-700 text-sm sm:text-base">Careers you are interested in</p>
           </div>
 
-          <div className="bg-brutal-pink border-3 border-black shadow-brutal p-6">
+          <div className="bg-brutal-pink border-3 border-black shadow-brutal p-4 sm:p-6">
             <div className="flex items-center justify-between mb-2">
-              <Target className="w-8 h-8" />
-              <span className="text-4xl font-black">{assessmentResults.length}</span>
+              <Target className="w-6 h-6 sm:w-8 sm:h-8" />
+              <span className="text-3xl sm:text-4xl font-black">{assessmentResults.length}</span>
             </div>
-            <h3 className="text-xl font-black uppercase">Assessments</h3>
-            <p className="font-bold text-gray-700">Career discovery tests taken</p>
+            <h3 className="text-lg sm:text-xl font-black uppercase">Assessments</h3>
+            <p className="font-bold text-gray-700 text-sm sm:text-base">Career discovery tests taken</p>
           </div>
 
-          <div className="bg-brutal-green border-3 border-black shadow-brutal p-6">
+          <div className="bg-brutal-green border-3 border-black shadow-brutal p-4 sm:p-6">
             <div className="flex items-center justify-between mb-2">
-              <TrendingUp className="w-8 h-8" />
-              <span className="text-4xl font-black">
+              <TrendingUp className="w-6 h-6 sm:w-8 sm:h-8" />
+              <span className="text-3xl sm:text-4xl font-black">
                 {assessmentResults.length > 0 ? (assessmentResults[0].topMatches[0]?.matchScore || 0) : 0}%
               </span>
             </div>
-            <h3 className="text-xl font-black uppercase">Top Match</h3>
-            <p className="font-bold text-gray-700">Your best career match score</p>
+            <h3 className="text-lg sm:text-xl font-black uppercase">Top Match</h3>
+            <p className="font-bold text-gray-700 text-sm sm:text-base">Your best career match score</p>
           </div>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main Content */}
-          <div className="md:col-span-2 space-y-6">
+          <div className="lg:col-span-2 space-y-6">
             {/* Saved Careers Section */}
             <div className="bg-white border-3 border-black shadow-brutal-lg">
-              <div className="p-6 border-b-3 border-black">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Bookmark className="w-6 h-6" />
-                    <h2 className="text-2xl font-black uppercase">Saved Careers</h2>
+              <div className="p-4 sm:p-6 border-b-3 border-black">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <Bookmark className="w-5 h-5 sm:w-6 sm:h-6" />
+                    <h2 className="text-xl sm:text-2xl font-black uppercase">Saved Careers</h2>
                   </div>
-                  <Link href="/careers">
-                    <button className="px-4 py-2 bg-brutal-blue text-white font-bold uppercase border-3 border-black shadow-brutal hover:shadow-brutal-lg transition-all text-sm">
+                  <Link href="/careers" className="w-full sm:w-auto">
+                    <button className="w-full sm:w-auto px-4 py-2 bg-brutal-blue text-white font-bold uppercase border-3 border-black shadow-brutal hover:shadow-brutal-lg transition-all text-sm">
                       Browse All
                     </button>
                   </Link>
                 </div>
               </div>
 
-              <div className="p-6">
+              <div className="p-4 sm:p-6">
                 {savedCareersData.length > 0 ? (
                   <div className="space-y-4">
                     {savedCareersData.map((career: any) => career && (
@@ -148,9 +148,9 @@ export default function StudentDashboard() {
                         href={`/careers/${career.id}`}
                         className="block"
                       >
-                        <div className="border-2 border-black p-4 hover:shadow-brutal transition-all">
-                          <div className="flex items-start gap-4">
-                            <div className="w-20 h-20 border-2 border-black overflow-hidden flex-shrink-0">
+                        <div className="border-2 border-black p-3 sm:p-4 hover:shadow-brutal transition-all">
+                          <div className="flex items-start gap-3 sm:gap-4">
+                            <div className="w-16 h-16 sm:w-20 sm:h-20 border-2 border-black overflow-hidden flex-shrink-0">
                               <img
                                 src={career.videoThumbnail}
                                 alt={career.title}
@@ -158,20 +158,20 @@ export default function StudentDashboard() {
                               />
                             </div>
                             <div className="flex-1 min-w-0">
-                              <h3 className="text-xl font-black mb-1">{career.title}</h3>
-                              <p className="text-sm font-bold text-gray-700 mb-2 line-clamp-2">
+                              <h3 className="text-lg sm:text-xl font-black mb-1">{career.title}</h3>
+                              <p className="text-xs sm:text-sm font-bold text-gray-700 mb-2 line-clamp-2">
                                 {career.shortDescription}
                               </p>
-                              <div className="flex items-center gap-2">
+                              <div className="flex flex-wrap items-center gap-2">
                                 <span className="px-2 py-1 bg-brutal-yellow text-xs font-bold uppercase border-2 border-black">
                                   {career.category}
                                 </span>
-                                <span className="text-sm font-bold text-gray-600">
+                                <span className="text-xs sm:text-sm font-bold text-gray-600">
                                   {(career.salaryMin / 1000000).toFixed(1)}M - {(career.salaryMax / 1000000).toFixed(1)}M RWF
                                 </span>
                               </div>
                             </div>
-                            <ArrowRight className="w-6 h-6 flex-shrink-0" />
+                            <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0 hidden sm:block" />
                           </div>
                         </div>
                       </Link>
@@ -196,60 +196,60 @@ export default function StudentDashboard() {
 
             {/* Assessment Results Section */}
             <div className="bg-white border-3 border-black shadow-brutal-lg">
-              <div className="p-6 border-b-3 border-black">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Sparkles className="w-6 h-6" />
-                    <h2 className="text-2xl font-black uppercase">Assessment Results</h2>
+              <div className="p-4 sm:p-6 border-b-3 border-black">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <Sparkles className="w-5 h-5 sm:w-6 sm:h-6" />
+                    <h2 className="text-xl sm:text-2xl font-black uppercase">Assessment Results</h2>
                   </div>
-                  <Link href="/assessments">
-                    <button className="px-4 py-2 bg-brutal-pink text-white font-bold uppercase border-3 border-black shadow-brutal hover:shadow-brutal-lg transition-all text-sm">
+                  <Link href="/assessments" className="w-full sm:w-auto">
+                    <button className="w-full sm:w-auto px-4 py-2 bg-brutal-pink text-white font-bold uppercase border-3 border-black shadow-brutal hover:shadow-brutal-lg transition-all text-sm">
                       Take New
                     </button>
                   </Link>
                 </div>
               </div>
 
-              <div className="p-6">
+              <div className="p-4 sm:p-6">
                 {assessmentResults.length > 0 ? (
                   <div className="space-y-4">
                     {assessmentResults.slice(0, 3).map((result) => {
                       const topMatch = result.topMatches[0];
                       const topCareer = careers.find(c => c.id === topMatch?.careerId);
-                      
+
                       return (
-                        <div 
+                        <div
                           key={result.id}
-                          className="border-2 border-black p-4"
+                          className="border-2 border-black p-3 sm:p-4"
                         >
-                          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                          <div className="flex flex-col gap-3">
                             <div className="flex-1">
-                              <div className="flex items-center gap-3 mb-2">
-                                <span className="text-sm font-bold text-gray-600">
+                              <div className="flex flex-wrap items-center gap-2 mb-2">
+                                <span className="text-xs sm:text-sm font-bold text-gray-600">
                                   {formatAssessmentDate(result.completedAt)}
                                 </span>
                                 <span className="px-2 py-1 bg-brutal-green text-black text-xs font-bold border-2 border-black">
                                   {topMatch?.matchScore || 0}% Match
                                 </span>
                               </div>
-                              <h4 className="text-lg font-black mb-1">
+                              <h4 className="text-base sm:text-lg font-black mb-1">
                                 Top Match: {topCareer?.title || "Unknown Career"}
                               </h4>
-                              <p className="text-sm font-bold text-gray-700">
+                              <p className="text-xs sm:text-sm font-bold text-gray-700">
                                 {topCareer?.shortDescription || ""}
                               </p>
                             </div>
                             <div className="flex gap-2">
                               <button
                                 onClick={() => router.push(`/assessment/results?id=${result.id}`)}
-                                className="px-4 py-2 bg-white border-2 border-black shadow-brutal-sm hover:shadow-brutal transition-all flex items-center gap-2 font-bold"
+                                className="flex-1 sm:flex-initial px-4 py-2 sm:py-2 min-h-[44px] bg-white border-2 border-black shadow-brutal-sm hover:shadow-brutal transition-all flex items-center justify-center gap-2 font-bold text-sm"
                               >
                                 <Eye className="w-4 h-4" />
                                 View
                               </button>
                               <button
                                 onClick={() => handleDeleteResult(result.id)}
-                                className="px-4 py-2 bg-white border-2 border-2 border-black shadow-brutal-sm hover:shadow-brutal hover:bg-red-50 transition-all"
+                                className="px-3 sm:px-4 py-2 min-h-[44px] bg-white border-2 border-2 border-black shadow-brutal-sm hover:shadow-brutal hover:bg-red-50 transition-all"
                                 title="Delete result"
                               >
                                 <Trash2 className="w-4 h-4 text-red-600" />
@@ -261,14 +261,14 @@ export default function StudentDashboard() {
                     })}
                   </div>
                 ) : (
-                  <div className="text-center py-12">
-                    <Sparkles className="w-16 h-16 mx-auto mb-4 text-gray-400" />
-                    <h3 className="text-xl font-black mb-2">No Assessments Yet</h3>
-                    <p className="text-gray-600 font-bold mb-4">
+                  <div className="text-center py-8 sm:py-12">
+                    <Sparkles className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 text-gray-400" />
+                    <h3 className="text-lg sm:text-xl font-black mb-2">No Assessments Yet</h3>
+                    <p className="text-sm sm:text-base text-gray-600 font-bold mb-4 px-4">
                       Take a career assessment to discover your perfect match!
                     </p>
                     <Link href="/assessments">
-                      <button className="px-6 py-3 bg-primary text-white font-bold uppercase border-3 border-black shadow-brutal hover:shadow-brutal-lg transition-all">
+                      <button className="px-6 py-3 min-h-[44px] bg-primary text-white font-bold uppercase border-3 border-black shadow-brutal hover:shadow-brutal-lg transition-all text-sm sm:text-base">
                         Start Assessment
                       </button>
                     </Link>
@@ -282,24 +282,24 @@ export default function StudentDashboard() {
           <div className="space-y-6">
             {/* Quick Actions */}
             <div className="bg-white border-3 border-black shadow-brutal-lg">
-              <div className="p-6 border-b-3 border-black">
-                <h2 className="text-xl font-black uppercase">Quick Actions</h2>
+              <div className="p-4 sm:p-6 border-b-3 border-black">
+                <h2 className="text-lg sm:text-xl font-black uppercase">Quick Actions</h2>
               </div>
-              <div className="p-6 space-y-3">
+              <div className="p-4 sm:p-6 space-y-3">
                 <Link href="/careers">
-                  <button className="w-full px-4 py-3 bg-brutal-blue text-white font-bold uppercase border-3 border-black shadow-brutal hover:shadow-brutal-lg transition-all text-left flex items-center gap-3">
+                  <button className="w-full px-4 py-3 min-h-[44px] bg-brutal-blue text-white font-bold uppercase border-3 border-black shadow-brutal hover:shadow-brutal-lg transition-all text-left flex items-center gap-3 text-sm sm:text-base">
                     <BookOpen className="w-5 h-5" />
                     Explore Careers
                   </button>
                 </Link>
                 <Link href="/assessments">
-                  <button className="w-full px-4 py-3 bg-brutal-pink text-white font-bold uppercase border-3 border-black shadow-brutal hover:shadow-brutal-lg transition-all text-left flex items-center gap-3">
+                  <button className="w-full px-4 py-3 min-h-[44px] bg-brutal-pink text-white font-bold uppercase border-3 border-black shadow-brutal hover:shadow-brutal-lg transition-all text-left flex items-center gap-3 text-sm sm:text-base">
                     <Sparkles className="w-5 h-5" />
                     Take Assessment
                   </button>
                 </Link>
                 <Link href="/mentors">
-                  <button className="w-full px-4 py-3 bg-brutal-green text-white font-bold uppercase border-3 border-black shadow-brutal hover:shadow-brutal-lg transition-all text-left flex items-center gap-3">
+                  <button className="w-full px-4 py-3 min-h-[44px] bg-brutal-green text-white font-bold uppercase border-3 border-black shadow-brutal hover:shadow-brutal-lg transition-all text-left flex items-center gap-3 text-sm sm:text-base">
                     <Calendar className="w-5 h-5" />
                     Book Mentor
                   </button>
@@ -308,16 +308,16 @@ export default function StudentDashboard() {
             </div>
 
             {/* Next Steps */}
-            <div className="bg-brutal-yellow border-3 border-black shadow-brutal-lg p-6">
-              <h3 className="text-xl font-black uppercase mb-4">Next Steps</h3>
+            <div className="bg-brutal-yellow border-3 border-black shadow-brutal-lg p-4 sm:p-6">
+              <h3 className="text-lg sm:text-xl font-black uppercase mb-4">Next Steps</h3>
               <ul className="space-y-3">
                 <li className="flex items-start gap-3">
                   <span className="w-6 h-6 bg-black text-white flex items-center justify-center font-black text-sm flex-shrink-0">
                     1
                   </span>
-                  <span className="font-bold">
-                    {assessmentResults.length === 0 
-                      ? "Take your first career assessment" 
+                  <span className="font-bold text-sm sm:text-base">
+                    {assessmentResults.length === 0
+                      ? "Take your first career assessment"
                       : "Explore your top matched careers"}
                   </span>
                 </li>
@@ -325,7 +325,7 @@ export default function StudentDashboard() {
                   <span className="w-6 h-6 bg-black text-white flex items-center justify-center font-black text-sm flex-shrink-0">
                     2
                   </span>
-                  <span className="font-bold">
+                  <span className="font-bold text-sm sm:text-base">
                     {bookmarkedCareers.length === 0
                       ? "Save careers you are interested in"
                       : "Book a chat with a professional mentor"}
@@ -335,7 +335,7 @@ export default function StudentDashboard() {
                   <span className="w-6 h-6 bg-black text-white flex items-center justify-center font-black text-sm flex-shrink-0">
                     3
                   </span>
-                  <span className="font-bold">
+                  <span className="font-bold text-sm sm:text-base">
                     Create a plan for your education path
                   </span>
                 </li>

@@ -15,7 +15,7 @@ export default function LandingPage() {
             {/* Left: Text Content */}
             <div className="space-y-8">
               <div className="inline-block">
-                <span className="px-4 py-2 bg-brutal-yellow border-3 border-brutal-border text-brutal-text font-bold uppercase text-sm shadow-brutal-sm">
+                <span className="px-3 py-2 sm:px-4 sm:py-2 bg-brutal-yellow border-3 border-brutal-border text-brutal-text font-bold uppercase text-xs sm:text-sm shadow-brutal-sm whitespace-nowrap">
                   🎯 Career Discovery for Rwandan Students
                 </span>
               </div>

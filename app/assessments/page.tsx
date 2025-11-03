@@ -31,52 +31,52 @@ export default function AssessmentsPage() {
     }
   };
   return (
-    <div className="min-h-screen bg-background py-12 px-4">
+    <div className="min-h-screen bg-background py-6 sm:py-8 md:py-12 px-4">
       <div className="container mx-auto max-w-4xl">
         {/* Header */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-primary border-3 border-black shadow-brutal mb-6">
-            <Brain className="w-12 h-12 text-white" />
+        <div className="text-center mb-8 sm:mb-12">
+          <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-primary border-3 border-black shadow-brutal mb-4 sm:mb-6">
+            <Brain className="w-10 h-10 sm:w-12 sm:h-12 text-white" />
           </div>
-          <h1 className="text-5xl md:text-7xl font-black mb-4 uppercase">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-black mb-3 sm:mb-4 uppercase">
             Career Assessment
           </h1>
-          <p className="text-2xl font-bold text-gray-700">
+          <p className="text-lg sm:text-xl md:text-2xl font-bold text-gray-700">
             Discover Your Perfect Career Match
           </p>
         </div>
 
         {/* Main Card */}
-        <div className="bg-white border-3 border-black shadow-brutal-lg p-8 md:p-12 mb-8">
+        <div className="bg-white border-3 border-black shadow-brutal-lg p-4 sm:p-6 md:p-8 lg:p-12 mb-6 sm:mb-8">
           {/* What to Expect */}
-          <div className="mb-10">
-            <h2 className="text-3xl font-black uppercase mb-6">What to Expect</h2>
-            <p className="text-lg font-bold text-gray-700 mb-4">
-              This 10-minute assessment will help you discover careers that match your interests, 
+          <div className="mb-8 sm:mb-10">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-black uppercase mb-4 sm:mb-6">What to Expect</h2>
+            <p className="text-sm sm:text-base md:text-lg font-bold text-gray-700 mb-4">
+              This 10-minute assessment will help you discover careers that match your interests,
               skills, and goals. Answer honestly - there are no right or wrong answers!
             </p>
           </div>
 
           {/* Features Grid */}
-          <div className="grid md:grid-cols-3 gap-6 mb-10">
-            <div className="p-6 bg-background border-3 border-black">
-              <div className="flex items-center gap-3 mb-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 mb-8 sm:mb-10">
+            <div className="p-4 sm:p-6 bg-background border-3 border-black">
+              <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
                 <div className="p-2 bg-accent border-2 border-black">
-                  <Target className="w-6 h-6" />
+                  <Target className="w-5 h-5 sm:w-6 sm:h-6" />
                 </div>
-                <h3 className="text-xl font-black uppercase">15 Questions</h3>
+                <h3 className="text-base sm:text-lg md:text-xl font-black uppercase">15 Questions</h3>
               </div>
-              <p className="text-sm font-bold text-gray-700">
+              <p className="text-xs sm:text-sm font-bold text-gray-700">
                 Quick and focused questions about your interests and strengths
               </p>
             </div>
 
-            <div className="p-6 bg-background border-3 border-black">
-              <div className="flex items-center gap-3 mb-3">
+            <div className="p-4 sm:p-6 bg-background border-3 border-black">
+              <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
                 <div className="p-2 bg-secondary border-2 border-black">
-                  <Clock className="w-6 h-6 text-white" />
+                  <Clock className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                 </div>
-                <h3 className="text-xl font-black uppercase">10 Minutes</h3>
+                <h3 className="text-base sm:text-lg md:text-xl font-black uppercase">10 Minutes</h3>
               </div>
               <p className="text-sm font-bold text-gray-700">
                 Complete at your own pace - you can pause and resume anytime
@@ -144,23 +144,23 @@ export default function AssessmentsPage() {
 
           {/* CTA Button */}
           <Link href="/assessment/questions">
-            <button className="w-full px-8 py-6 bg-primary text-white font-black uppercase text-2xl border-3 border-black shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-4px] hover:translate-y-[-4px] transition-all flex items-center justify-center gap-4">
+            <button className="w-full px-6 sm:px-8 py-4 sm:py-6 min-h-[60px] bg-primary text-white font-black uppercase text-lg sm:text-xl md:text-2xl border-3 border-black shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-4px] hover:translate-y-[-4px] transition-all flex items-center justify-center gap-3 sm:gap-4">
               {previousResults.length > 0 ? 'Retake Assessment' : 'Start Assessment'}
-              <ArrowRight className="w-8 h-8" />
+              <ArrowRight className="w-6 h-6 sm:w-8 sm:h-8" />
             </button>
           </Link>
         </div>
 
         {/* Previous Results Section - Always show with empty state */}
-        <div className="mb-8">
-          <div className="bg-white border-3 border-black shadow-brutal-lg p-8">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-3">
-                <History className="w-8 h-8" />
-                <h2 className="text-3xl font-black uppercase">Previous Results</h2>
+        <div className="mb-6 sm:mb-8">
+          <div className="bg-white border-3 border-black shadow-brutal-lg p-4 sm:p-6 md:p-8">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <History className="w-6 h-6 sm:w-8 sm:h-8" />
+                <h2 className="text-xl sm:text-2xl md:text-3xl font-black uppercase">Previous Results</h2>
               </div>
               {previousResults.length > 0 && (
-                <span className="px-3 py-1 bg-brutal-yellow text-black font-bold border-2 border-black">
+                <span className="px-3 py-1 bg-brutal-yellow text-black font-bold border-2 border-black text-sm sm:text-base self-start">
                   {previousResults.length} {previousResults.length === 1 ? 'result' : 'results'}
                 </span>
               )}
