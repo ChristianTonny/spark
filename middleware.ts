@@ -4,8 +4,12 @@ const isPublicRoute = createRouteMatcher([
   '/',
   '/careers(.*)',
   '/mentors(.*)',
+  '/assessments(.*)',
+  '/assessment(.*)',
   '/sign-in(.*)',
   '/sign-up(.*)',
+  '/login(.*)',
+  '/signup(.*)',
   '/api(.*)',
 ]);
 

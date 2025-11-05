@@ -17,7 +17,7 @@ export default function SignInPage() {
           appearance={{
             elements: {
               rootBox: "mx-auto",
-              card: "bg-white border-3 border-black shadow-brutal",
+              card: "bg-white shadow-lg rounded-lg",
             }
           }}
           routing="path"
