@@ -1,80 +1,73 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
+import { useQuery, useMutation } from "convex/react";
+import { api } from "../../../convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { 
-  ArrowLeft, 
-  Bookmark, 
-  Play, 
-  DollarSign, 
-  GraduationCap, 
-  MapPin, 
+import {
+  ArrowLeft,
+  Bookmark,
+  Play,
+  DollarSign,
+  GraduationCap,
+  MapPin,
   Clock,
   Calendar,
   Star,
   ArrowRight,
   ExternalLink
 } from "lucide-react";
-import { careers, professionals } from "@/lib/data";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { CareerDetailSkeleton } from "@/components/loading-skeleton";
 import { NotFoundError } from "@/components/error-state";
+import Link from "next/link";
+
+const DEMO_STUDENT_ID = "demo-student-123";
 
 export default function CareerDetailPage() {
   const params = useParams();
   const router = useRouter();
   const careerId = params.id as string;
-  
-  const career = careers.find(c => c.id === careerId);
-  const [isBookmarked, setIsBookmarked] = useState(false);
+
   const [showVideo, setShowVideo] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
 
-  // Check if career is bookmarked on mount
-  useEffect(() => {
-    const bookmarks = JSON.parse(localStorage.getItem('bookmarkedCareers') || '[]');
-    setIsBookmarked(bookmarks.includes(careerId));
-    // Simulate loading delay
-    setTimeout(() => setIsLoading(false), 700);
-  }, [careerId]);
-
-  // Handle bookmark toggle
-  const handleBookmark = () => {
-    const bookmarks = JSON.parse(localStorage.getItem('bookmarkedCareers') || '[]');
-    let newBookmarks;
-    
-    if (bookmarks.includes(careerId)) {
-      newBookmarks = bookmarks.filter((id: string) => id !== careerId);
-      setIsBookmarked(false);
-    } else {
-      newBookmarks = [...bookmarks, careerId];
-      setIsBookmarked(true);
-    }
-    
-    localStorage.setItem('bookmarkedCareers', JSON.stringify(newBookmarks));
-  };
+  // Fetch career from Convex
+  const career = useQuery(api.careers.getById, { id: careerId as any });
+  const bookmarkedIds = useQuery(api.savedCareers.getIds, { studentId: DEMO_STUDENT_ID });
+  const toggleBookmark = useMutation(api.savedCareers.toggle);
 
   // Get available professionals for this career
-  const availableProfessionals = career?.professionalsAvailable
-    ?.map(profId => professionals.find(p => p.id === profId))
-    .filter(Boolean) || [];
+  const availableProfessionals = useQuery(
+    api.professionals.getByCareerIds,
+    career ? { careerIds: [careerId] } : "skip"
+  );
 
   // Get related careers
-  const relatedCareersList = career?.relatedCareers
-    ?.map(carId => careers.find(c => c.id === carId))
-    .filter(Boolean)
-    .slice(0, 3) || [];
+  const allCareers = useQuery(api.careers.list);
+  const relatedCareersList = career && allCareers
+    ? allCareers.filter(c => career.relatedCareerIds.includes(c._id)).slice(0, 3)
+    : [];
 
-  // 404 if career not found
-  if (!career) {
-    return <NotFoundError type="career" onGoBack={() => router.push('/careers')} />;
+  // Handle bookmark toggle
+  const handleBookmark = async () => {
+    await toggleBookmark({
+      studentId: DEMO_STUDENT_ID,
+      careerId,
+    });
+  };
+
+  const isBookmarked = bookmarkedIds?.includes(careerId);
+
+  // Loading state
+  if (career === undefined || bookmarkedIds === undefined) {
+    return <CareerDetailSkeleton />;
   }
 
-  // Show loading state
-  if (isLoading) {
-    return <CareerDetailSkeleton />;
+  // 404 if career not found
+  if (career === null) {
+    return <NotFoundError type="career" onGoBack={() => router.push('/careers')} />;
   }
 
   return (
@@ -82,8 +75,8 @@ export default function CareerDetailPage() {
       {/* Back Button */}
       <div className="border-b-4 border-black">
         <div className="max-w-7xl mx-auto px-4 py-4">
-          <Button 
-            variant="ghost" 
+          <Button
+            variant="ghost"
             onClick={() => router.push('/careers')}
             className="hover:bg-gray-100"
           >
@@ -116,8 +109,8 @@ export default function CareerDetailPage() {
                 variant={isBookmarked ? "default" : "outline"}
                 size="lg"
                 className={`border-2 border-black ${
-                  isBookmarked 
-                    ? 'bg-primary text-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:bg-primary/90' 
+                  isBookmarked
+                    ? 'bg-primary text-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:bg-primary/90'
                     : 'bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:bg-gray-50'
                 }`}
               >
@@ -153,9 +146,15 @@ export default function CareerDetailPage() {
               <CardContent className="p-6">
                 <GraduationCap className="h-8 w-8 mb-2 text-brutal-blue" />
                 <p className="text-sm text-gray-600 mb-1">Education</p>
-                <p className="font-bold text-sm leading-tight">
-                  {career.requiredEducation}
-                </p>
+                <p className="font-bold text-sm">{career.requiredEducation}</p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+              <CardContent className="p-6">
+                <Clock className="h-8 w-8 mb-2 text-brutal-orange" />
+                <p className="text-sm text-gray-600 mb-1">Experience</p>
+                <p className="font-bold text-sm">Entry to Senior Level</p>
               </CardContent>
             </Card>
 
@@ -163,295 +162,181 @@ export default function CareerDetailPage() {
               <CardContent className="p-6">
                 <MapPin className="h-8 w-8 mb-2 text-brutal-pink" />
                 <p className="text-sm text-gray-600 mb-1">Location</p>
-                <p className="font-bold text-lg">
-                  Rwanda
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-              <CardContent className="p-6">
-                <Clock className="h-8 w-8 mb-2 text-primary" />
-                <p className="text-sm text-gray-600 mb-1">Experience</p>
-                <p className="font-bold text-lg">
-                  Entry to Senior
-                </p>
+                <p className="font-bold text-sm">Rwanda</p>
               </CardContent>
             </Card>
           </div>
         </div>
 
         {/* Video Section */}
-        <Card className="border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] mb-12">
-          <CardContent className="p-0">
-            {!showVideo ? (
-              <div className="relative aspect-video bg-gradient-to-br from-brutal-yellow to-primary">
-                <img 
-                  src={career.videoThumbnail} 
-                  alt={career.title}
-                  className="w-full h-full object-cover"
-                />
-                <button
+        {career.videoUrl && (
+          <Card className="mb-12 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+            <CardContent className="p-0">
+              {!showVideo ? (
+                <div
+                  className="relative h-96 cursor-pointer group overflow-hidden"
                   onClick={() => setShowVideo(true)}
-                  className="absolute inset-0 flex items-center justify-center bg-black/30 hover:bg-black/40 transition-colors group"
-                  aria-label="Play video"
-                  title="Play career video"
                 >
-                  <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] group-hover:scale-110 transition-transform">
-                    <Play className="h-10 w-10 text-black ml-1" fill="currentColor" />
+                  <img
+                    src={career.videoThumbnail}
+                    alt={career.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                    <div className="bg-white rounded-full p-6 group-hover:scale-110 transition-transform shadow-xl">
+                      <Play className="h-12 w-12 text-primary" fill="currentColor" />
+                    </div>
                   </div>
-                </button>
-                <div className="absolute bottom-4 left-4 bg-white px-4 py-2 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                  <p className="font-bold">Watch: A Day in the Life</p>
                 </div>
-              </div>
-            ) : (
-              <div className="aspect-video">
-                <iframe
-                  width="100%"
-                  height="100%"
-                  src={career.videoUrl}
-                  title={`${career.title} Career Video`}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  className="w-full h-full"
-                />
-              </div>
-            )}
-          </CardContent>
-        </Card>
+              ) : (
+                <div className="relative h-96">
+                  <iframe
+                    src={career.videoUrl}
+                    className="w-full h-full"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
 
-        <div className="grid md:grid-cols-3 gap-8 mb-12">
-          {/* Main Content - 2 columns */}
-          <div className="md:col-span-2 space-y-8">
-            {/* About This Career */}
-            <section>
-              <h2 className="text-3xl font-bold mb-4 border-b-4 border-black pb-2">
-                About This Career
-              </h2>
-              <p className="text-lg text-gray-700 leading-relaxed">
+        {/* About Section */}
+        <div className="mb-12">
+          <h2 className="text-3xl font-bold mb-6">About This Career</h2>
+          <Card className="border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+            <CardContent className="p-6">
+              <p className="text-lg text-gray-700 leading-relaxed whitespace-pre-line">
                 {career.fullDescription}
               </p>
-            </section>
+            </CardContent>
+          </Card>
+        </div>
 
-            {/* Required Skills */}
-            <section>
-              <h2 className="text-3xl font-bold mb-4 border-b-4 border-black pb-2">
-                Required Skills
-              </h2>
-              <div className="flex flex-wrap gap-3">
-                {career.requiredSkills.map((skill, index) => (
-                  <Badge
-                    key={index}
-                    className="text-base px-4 py-2 bg-white border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]"
-                  >
-                    {skill}
-                  </Badge>
-                ))}
-              </div>
-            </section>
-
-            {/* Career Path */}
-            {career.careerPath && career.careerPath.length > 0 && (
-              <section>
-                <h2 className="text-3xl font-bold mb-6 border-b-4 border-black pb-2">
-                  Your Path to {career.title}
-                </h2>
-                <div className="space-y-6">
-                  {career.careerPath.map((step, index) => (
-                    <Card 
-                      key={index}
-                      className="border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all"
-                    >
-                      <CardContent className="p-6">
-                        <div className="flex items-start gap-4">
-                          <div className="w-12 h-12 bg-primary text-white rounded-full flex items-center justify-center text-xl font-bold border-2 border-black flex-shrink-0">
-                            {index + 1}
-                          </div>
-                          <div className="flex-1">
-                            <div className="flex items-center gap-3 mb-2">
-                              <h3 className="text-xl font-bold">{step.stage}</h3>
-                              <Badge className="bg-brutal-yellow text-black border-2 border-black">
-                                {step.duration}
-                              </Badge>
-                            </div>
-                            <p className="text-gray-700 mb-3">{step.description}</p>
-                            
-                            {step.requirements && step.requirements.length > 0 && (
-                              <div className="mb-3">
-                                <p className="font-semibold text-sm mb-2">Requirements:</p>
-                                <ul className="list-disc list-inside text-sm text-gray-600 space-y-1">
-                                  {step.requirements.map((req, reqIndex) => (
-                                    <li key={reqIndex}>{req}</li>
-                                  ))}
-                                </ul>
-                              </div>
-                            )}
-                            
-                            {step.estimatedCost && (
-                              <div className="flex items-center gap-2 text-sm">
-                                <DollarSign className="h-4 w-4 text-brutal-green" />
-                                <span className="font-semibold">
-                                  Estimated Cost: {(step.estimatedCost / 1000000).toFixed(1)}M RWF
-                                </span>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </section>
-            )}
-          </div>
-
-          {/* Sidebar - 1 column */}
-          <div className="space-y-6">
-            {/* Sponsored By */}
-            {career.sponsoredBy && (
-              <Card className="border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] bg-brutal-yellow/20">
-                <CardContent className="p-6">
-                  <p className="text-sm font-semibold mb-3">Sponsored by</p>
-                  <div className="flex items-center gap-3">
-                    <img 
-                      src={career.sponsoredBy.companyLogo} 
-                      alt={career.sponsoredBy.companyName}
-                      className="w-16 h-16 object-contain border-2 border-black bg-white p-2"
-                    />
-                    <p className="font-bold text-lg">{career.sponsoredBy.companyName}</p>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Quick Stats */}
-            <Card className="border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-              <CardContent className="p-6">
-                <h3 className="font-bold text-lg mb-4">Career Stats</h3>
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600">Views</span>
-                    <span className="font-bold">{career.views?.toLocaleString() || '0'}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600">Saves</span>
-                    <span className="font-bold">{career.saves?.toLocaleString() || '0'}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600">Mentors Available</span>
-                    <span className="font-bold">{availableProfessionals.length}</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+        {/* Required Skills */}
+        <div className="mb-12">
+          <h2 className="text-3xl font-bold mb-6">Required Skills</h2>
+          <div className="flex flex-wrap gap-3">
+            {career.requiredSkills.map((skill) => (
+              <Badge
+                key={skill}
+                className="px-4 py-2 text-sm bg-white border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all"
+              >
+                {skill}
+              </Badge>
+            ))}
           </div>
         </div>
 
-        {/* Available Mentors Section */}
-        {availableProfessionals.length > 0 && (
-          <section id="mentors-section" className="mb-12">
-            <h2 className="text-3xl font-bold mb-6 border-b-4 border-black pb-2">
-              Connect with {career.title} Professionals
-            </h2>
-            <p className="text-gray-700 mb-6">
-              Book a 15-minute chat with experienced professionals to learn more about this career.
-            </p>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {availableProfessionals.map((professional: any) => (
-                <Card 
-                  key={professional.id}
-                  className="border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all"
-                >
+        {/* Career Path */}
+        {career.careerPath.length > 0 && (
+          <div className="mb-12">
+            <h2 className="text-3xl font-bold mb-6">Career Path</h2>
+            <div className="space-y-6">
+              {career.careerPath.map((step, index) => (
+                <Card key={index} className="border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
                   <CardContent className="p-6">
-                    <div className="flex items-start gap-4 mb-4">
-                      <img 
-                        src={professional.avatar} 
-                        alt={professional.name}
-                        className="w-16 h-16 rounded-full border-2 border-black"
-                      />
+                    <div className="flex gap-4">
+                      <div className="flex-shrink-0">
+                        <div className="w-12 h-12 bg-primary text-white rounded-full flex items-center justify-center font-bold text-xl border-2 border-black">
+                          {index + 1}
+                        </div>
+                      </div>
                       <div className="flex-1">
-                        <h3 className="font-bold text-lg mb-1">{professional.name}</h3>
-                        <p className="text-sm text-gray-600 mb-1">{professional.jobTitle}</p>
-                        <p className="text-sm font-semibold">{professional.company}</p>
+                        <h3 className="text-xl font-bold mb-2">{step.stage}</h3>
+                        <p className="text-gray-700 mb-2">{step.description}</p>
+                        <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+                          <span className="flex items-center gap-1">
+                            <Clock className="h-4 w-4" />
+                            {step.duration}
+                          </span>
+                          {step.estimatedCost && (
+                            <span className="flex items-center gap-1">
+                              <DollarSign className="h-4 w-4" />
+                              ~{(step.estimatedCost / 1000000).toFixed(1)}M RWF
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
-                    
-                    <div className="flex items-center gap-2 mb-3">
-                      <Star className="h-4 w-4 text-brutal-yellow fill-current" />
-                      <span className="font-semibold">{professional.rating}</span>
-                      <span className="text-sm text-gray-600">
-                        ({professional.chatsCompleted} chats)
-                      </span>
-                    </div>
-                    
-                    <p className="text-sm text-gray-700 mb-4 line-clamp-2">
-                      {professional.bio}
-                    </p>
-                    
-                    <Button 
-                      className="w-full bg-primary text-white border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] transition-all"
-                      onClick={() => {
-                        if (professional.calendlyUrl) {
-                          window.open(professional.calendlyUrl, '_blank', 'noopener,noreferrer');
-                        } else {
-                          alert(`Booking with ${professional.name} - Calendly link not available yet.`);
-                        }
-                      }}
-                    >
-                      <Calendar className="h-4 w-4 mr-2" />
-                      Book 15-min Chat
-                    </Button>
                   </CardContent>
                 </Card>
               ))}
             </div>
-          </section>
+          </div>
+        )}
+
+        {/* Available Mentors */}
+        {availableProfessionals && availableProfessionals.length > 0 && (
+          <div id="mentors-section" className="mb-12">
+            <h2 className="text-3xl font-bold mb-6">Talk to a Professional</h2>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {availableProfessionals.map((prof) => (
+                <Card key={prof._id} className="border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all">
+                  <CardContent className="p-6">
+                    <div className="flex items-start gap-4 mb-4">
+                      <img
+                        src={prof.avatar}
+                        alt={`${prof.firstName} ${prof.lastName}`}
+                        className="w-16 h-16 rounded-full border-2 border-black"
+                      />
+                      <div className="flex-1">
+                        <h3 className="font-bold text-lg">{prof.firstName} {prof.lastName}</h3>
+                        <p className="text-sm text-gray-600">{prof.jobTitle}</p>
+                        <p className="text-sm text-gray-600">{prof.company}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 mb-4">
+                      <Star className="h-4 w-4 text-yellow-500" fill="currentColor" />
+                      <span className="font-bold">{prof.rating}</span>
+                      <span className="text-sm text-gray-600">({prof.chatsCompleted} chats)</span>
+                    </div>
+                    {prof.calendlyUrl && (
+                      <a
+                        href={prof.calendlyUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block w-full"
+                      >
+                        <Button className="w-full bg-primary text-white border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all">
+                          <Calendar className="h-4 w-4 mr-2" />
+                          Book 15-min Chat
+                        </Button>
+                      </a>
+                    )}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
         )}
 
         {/* Related Careers */}
         {relatedCareersList.length > 0 && (
-          <section>
-            <h2 className="text-3xl font-bold mb-6 border-b-4 border-black pb-2">
-              Related Careers
-            </h2>
+          <div className="mb-12">
+            <h2 className="text-3xl font-bold mb-6">Related Careers</h2>
             <div className="grid md:grid-cols-3 gap-6">
-              {relatedCareersList.map((relatedCareer: any) => (
-                <Card 
-                  key={relatedCareer.id}
-                  className="border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all cursor-pointer group"
-                  onClick={() => router.push(`/careers/${relatedCareer.id}`)}
-                >
-                  <CardContent className="p-0">
-                    <div className="aspect-video bg-gradient-to-br from-brutal-yellow to-brutal-blue relative overflow-hidden">
-                      <img 
-                        src={relatedCareer.videoThumbnail} 
-                        alt={relatedCareer.title}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <div className="p-6">
-                      <Badge className="mb-2 bg-white border-2 border-black">
+              {relatedCareersList.map((relatedCareer) => (
+                <Link key={relatedCareer._id} href={`/careers/${relatedCareer._id}`}>
+                  <Card className="border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all cursor-pointer h-full">
+                    <CardContent className="p-6">
+                      <Badge className="mb-3 bg-brutal-yellow text-black border-2 border-black">
                         {relatedCareer.category}
                       </Badge>
-                      <h3 className="font-bold text-xl mb-2 group-hover:text-primary transition-colors">
-                        {relatedCareer.title}
-                      </h3>
-                      <p className="text-sm text-gray-600 mb-4 line-clamp-2">
+                      <h3 className="font-bold text-xl mb-2">{relatedCareer.title}</h3>
+                      <p className="text-gray-700 text-sm mb-4 line-clamp-2">
                         {relatedCareer.shortDescription}
                       </p>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-semibold">
-                          {(relatedCareer.salaryMin / 1000000).toFixed(1)}-{(relatedCareer.salaryMax / 1000000).toFixed(1)}M RWF
-                        </span>
-                        <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                      <div className="flex items-center text-primary font-bold">
+                        Explore <ArrowRight className="h-4 w-4 ml-2" />
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                    </CardContent>
+                  </Card>
+                </Link>
               ))}
             </div>
-          </section>
+          </div>
         )}
       </div>
     </div>
