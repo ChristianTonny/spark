@@ -3,13 +3,54 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, ArrowRight, Check } from 'lucide-react';
-import { assessments } from '@/lib/data';
+import { useQuery, useMutation } from "convex/react";
+import { api } from "../../../convex/_generated/api";
+import { Spinner } from '@/components/loading-skeleton';
+
+const DEMO_STUDENT_ID = "demo-student-123";
 
 export default function AssessmentQuestionsPage() {
   const router = useRouter();
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Fetch assessments and careers from Convex
+  const assessments = useQuery(api.assessments.list);
+  const allCareers = useQuery(api.careers.list);
+  const saveResult = useMutation(api.assessments.saveResult);
+
+  if (assessments === undefined || allCareers === undefined) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <Spinner size="lg" />
+          <p className="mt-4 text-xl font-bold">Loading assessment...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!assessments || assessments.length === 0) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <div className="text-center">
+          <p className="text-xl font-bold text-gray-700">No assessments available</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!allCareers || allCareers.length === 0) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <div className="text-center">
+          <p className="text-xl font-bold text-gray-700">No careers available</p>
+        </div>
+      </div>
+    );
+  }
 
   const assessment = assessments[0]; // Career Discovery Assessment
   const questions = assessment.questions;
@@ -20,21 +61,50 @@ export default function AssessmentQuestionsPage() {
     setSelectedOption(optionIndex);
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (selectedOption !== null) {
       // Save answer
-      setAnswers({
+      const updatedAnswers = {
         ...answers,
         [questions[currentQuestion].id]: selectedOption,
-      });
+      };
+      setAnswers(updatedAnswers);
 
       // Move to next question or finish
       if (currentQuestion < totalQuestions - 1) {
         setCurrentQuestion(currentQuestion + 1);
         setSelectedOption(null);
       } else {
-        // Assessment complete - redirect to results
-        router.push('/assessment/results');
+        // Assessment complete - save to Convex and redirect
+        setIsSaving(true);
+
+        try {
+          // Mock career matches (hardcoded for now, similar to results page)
+          // In a real app, this would be calculated based on answers
+          // Using first 5 careers from database with mock scores
+          const mockMatches = allCareers.slice(0, 5).map((career, index) => ({
+            careerId: career._id,
+            matchPercentage: 95 - (index * 5), // 95%, 90%, 85%, 80%, 75%
+            matchReasons: [
+              'Based on your interests',
+              'Matches your skills',
+              'Aligns with your goals'
+            ].slice(0, 2 + (index % 2)), // Vary number of reasons
+          }));
+
+          const result = await saveResult({
+            assessmentId: assessment._id,
+            studentId: DEMO_STUDENT_ID,
+            answers: updatedAnswers,
+            careerMatches: mockMatches,
+          });
+
+          // Redirect to results page with the result ID
+          router.push(`/assessment/results?id=${result.resultId}`);
+        } catch (error) {
+          console.error('Failed to save assessment result:', error);
+          setIsSaving(false);
+        }
       }
     }
   };
@@ -131,6 +201,17 @@ export default function AssessmentQuestionsPage() {
           💡 Tip: Choose the answer that best describes you - there are no wrong answers!
         </p>
       </div>
+
+      {/* Saving Overlay */}
+      {isSaving && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white border-3 border-black shadow-brutal-lg p-8 text-center">
+            <Spinner size="lg" />
+            <p className="mt-4 text-xl font-bold">Analyzing your responses...</p>
+            <p className="text-gray-600 font-medium">Finding your perfect career matches</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
