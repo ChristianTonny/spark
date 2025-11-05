@@ -1,69 +1,50 @@
 'use client';
 
-import { useEffect, useState, Suspense } from 'react';
+import { Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Sparkles, ArrowRight, Bookmark, RotateCcw } from 'lucide-react';
-import { careers } from '@/lib/data';
-import { saveAssessmentResult, getAssessmentResult, type AssessmentResult } from '@/lib/assessment-storage';
+import { useQuery } from "convex/react";
+import { api } from "../../../convex/_generated/api";
 import { Spinner } from '@/components/loading-skeleton';
+
+const DEMO_STUDENT_ID = "demo-student-123";
 
 function AssessmentResultsContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const resultId = searchParams.get('id');
-  
-  const [savedResult, setSavedResult] = useState<AssessmentResult | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
 
-  // Mock results - in real app, these would be calculated based on answers
-  const topMatches = [
-    { career: careers[0], matchScore: 95, reasons: ['Strong problem-solving skills', 'Interest in technology'] }, // Software Developer
-    { career: careers[1], matchScore: 88, reasons: ['Analytical thinking', 'Data-oriented mindset'] }, // Data Scientist
-    { career: careers[6], matchScore: 82, reasons: ['Communication skills', 'Passion for helping others'] }, // Teacher
-    { career: careers[9], matchScore: 78, reasons: ['Creative thinking', 'Visual design interest'] }, // Graphic Designer
-    { career: careers[3], matchScore: 75, reasons: ['Healthcare interest', 'Helping people'] }, // Medical Doctor
-  ].filter(match => match.career); // Filter out any undefined careers
+  // Fetch all results for this student
+  const allResults = useQuery(api.assessments.getResults, {
+    studentId: DEMO_STUDENT_ID,
+  });
 
-  useEffect(() => {
-    // If viewing a specific result, load it
+  // Find the specific result by ID, or use the most recent one
+  let currentResult = null;
+  if (allResults && allResults.length > 0) {
     if (resultId) {
-      const result = getAssessmentResult(resultId);
-      if (result) {
-        setSavedResult(result);
-      } else {
-        // If result not found, redirect to new assessment
-        router.push('/assessment/results');
+      currentResult = allResults.find(r => r._id === resultId);
+      if (!currentResult) {
+        // If specific result not found, use most recent
+        currentResult = allResults[0];
       }
     } else {
-      // Save new result
-      const newResult: AssessmentResult = {
-        id: `result-${Date.now()}`,
-        assessmentId: 'assessment-1',
-        completedAt: new Date().toISOString(),
-        answers: {}, // Would contain actual answers from questions page
-        topMatches: topMatches.map(match => ({
-          careerId: match.career.id,
-          matchScore: match.matchScore,
-          matchReasons: match.reasons,
-        })),
-      };
-      
-      saveAssessmentResult(newResult);
-      setSavedResult(newResult);
+      // No ID specified, use most recent
+      currentResult = allResults[0];
     }
-    
-    // Simulate loading
-    setTimeout(() => setIsLoading(false), 1000);
-  }, [resultId, router]);
+  }
 
-  // Use saved result if available, otherwise use mock data
-  const displayMatches = savedResult 
-    ? savedResult.topMatches.map(m => {
-        const career = careers.find(c => c.id === m.careerId);
-        return career ? { career, matchScore: m.matchScore, reasons: m.matchReasons } : null;
-      }).filter(Boolean) as { career: any; matchScore: number; reasons: string[] }[]
-    : topMatches;
+  const isLoading = allResults === undefined;
+
+  // Prepare display matches from Convex result
+  const displayMatches = currentResult
+    ? currentResult.careerMatches.map(m => ({
+        career: m.career,
+        matchScore: Math.round(m.matchPercentage),
+        reasons: m.matchReasons,
+      })).filter(m => m.career !== null)
+    : [];
 
   // Show loading state
   if (isLoading) {
@@ -71,8 +52,27 @@ function AssessmentResultsContent() {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <Spinner size="lg" />
-          <p className="mt-4 text-xl font-bold">Analyzing your responses...</p>
-          <p className="text-gray-600 font-medium">Finding your perfect career matches</p>
+          <p className="mt-4 text-xl font-bold">Loading results...</p>
+          <p className="text-gray-600 font-medium">Finding your career matches</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show empty state if no results
+  if (!currentResult || displayMatches.length === 0) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <div className="text-center max-w-md">
+          <h2 className="text-2xl font-black mb-4">No Results Found</h2>
+          <p className="text-gray-700 font-bold mb-6">
+            Complete the assessment to see your career matches.
+          </p>
+          <Link href="/assessment">
+            <button className="px-6 py-3 bg-primary text-white font-bold uppercase border-3 border-black shadow-brutal hover:shadow-brutal-lg transition-all">
+              Take Assessment
+            </button>
+          </Link>
         </div>
       </div>
     );
@@ -108,7 +108,7 @@ function AssessmentResultsContent() {
 
             return (
               <div
-                key={career.id}
+                key={career._id}
                 className="bg-white border-3 border-black shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all"
               >
                 <div className="p-6 md:p-8">
@@ -172,7 +172,7 @@ function AssessmentResultsContent() {
 
                       {/* Actions */}
                       <div className="flex flex-wrap gap-3">
-                        <Link href={`/careers/${career.id}`}>
+                        <Link href={`/careers/${career._id}`}>
                           <button className="px-6 py-3 bg-black text-white font-bold uppercase text-sm border-3 border-black shadow-brutal-sm hover:shadow-brutal hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all flex items-center gap-2">
                             Learn More
                             <ArrowRight className="w-4 h-4" />
