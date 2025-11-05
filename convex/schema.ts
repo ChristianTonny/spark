@@ -4,9 +4,9 @@ import { v } from "convex/values";
 export default defineSchema({
   // User accounts (synced from Clerk)
   users: defineTable({
-    // Clerk authentication fields
-    tokenIdentifier: v.string(), // Unique identifier from Clerk JWT
-    clerkId: v.string(), // Clerk user ID
+    // Clerk authentication fields (optional for demo/seed users)
+    tokenIdentifier: v.optional(v.string()), // Unique identifier from Clerk JWT
+    clerkId: v.optional(v.string()), // Clerk user ID
 
     // User profile fields
     email: v.string(),
