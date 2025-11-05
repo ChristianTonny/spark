@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Navigation from "@/components/navigation";
 import { ConvexClientProvider } from "./ConvexClientProvider";
+import { UserSyncProvider } from "./UserSyncProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -33,8 +34,10 @@ export default function RootLayout({
     <html lang="en" className="smooth-scroll">
       <body className={inter.className}>
         <ConvexClientProvider>
-          <Navigation />
-          {children}
+          <UserSyncProvider>
+            <Navigation />
+            {children}
+          </UserSyncProvider>
         </ConvexClientProvider>
       </body>
     </html>

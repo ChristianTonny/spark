@@ -2,21 +2,31 @@ import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
 export default defineSchema({
-  // User accounts
+  // User accounts (synced from Clerk)
   users: defineTable({
+    // Clerk authentication fields
+    tokenIdentifier: v.string(), // Unique identifier from Clerk JWT
+    clerkId: v.string(), // Clerk user ID
+
+    // User profile fields
     email: v.string(),
     phone: v.optional(v.string()),
     firstName: v.string(),
     lastName: v.string(),
     avatar: v.optional(v.string()),
+
+    // Role for access control
     role: v.union(
       v.literal("student"),
       v.literal("mentor"),
       v.literal("company"),
       v.literal("partner")
     ),
+
     createdAt: v.number(),
   })
+    .index("by_token", ["tokenIdentifier"])
+    .index("by_clerk_id", ["clerkId"])
     .index("by_email", ["email"])
     .index("by_role", ["role"]),
 
