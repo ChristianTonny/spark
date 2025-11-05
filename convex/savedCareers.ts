@@ -56,7 +56,7 @@ export const toggle = mutation({
 
       // Decrement career saves count
       const career = await ctx.db.get(args.careerId as any);
-      if (career) {
+      if (career && 'saves' in career) {
         await ctx.db.patch(args.careerId as any, {
           saves: Math.max(0, career.saves - 1),
         });
@@ -73,7 +73,7 @@ export const toggle = mutation({
 
       // Increment career saves count
       const career = await ctx.db.get(args.careerId as any);
-      if (career) {
+      if (career && 'saves' in career) {
         await ctx.db.patch(args.careerId as any, {
           saves: career.saves + 1,
         });

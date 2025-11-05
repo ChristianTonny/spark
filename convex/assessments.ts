@@ -35,7 +35,7 @@ export const getResults = query({
             const career = await ctx.db.get(match.careerId as any);
             return {
               ...match,
-              career: career
+              career: career && 'title' in career
                 ? { _id: career._id, title: career.title, category: career.category }
                 : null,
             };

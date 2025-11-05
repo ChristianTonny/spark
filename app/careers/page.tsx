@@ -259,7 +259,7 @@ export default function CareersPage() {
         )}
 
         {/* CTA Section */}
-        {filteredCareers.length > 0 && (
+        {allCareers && allCareers.length > 0 && (
           <div className="mt-16 text-center">
             <div className="inline-block p-8 bg-brutal-blue text-white border-3 border-brutal-border shadow-brutal-xl">
               <h3 className="text-3xl font-black mb-4">Not sure where to start?</h3>
