@@ -1,33 +1,31 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Brain, Sparkles, Target, Clock, ArrowRight, History, TrendingUp, Eye, Trash2 } from 'lucide-react';
-import { getAssessmentResults, formatAssessmentDate, deleteAssessmentResult, type AssessmentResult } from '@/lib/assessment-storage';
-import { careers } from '@/lib/data';
+import { formatAssessmentDate } from '@/lib/assessment-storage';
+import { useQuery, useMutation } from "convex/react";
+import { api } from "../../convex/_generated/api";
 import { AssessmentResultSkeleton } from '@/components/loading-skeleton';
+
+const DEMO_STUDENT_ID = "demo-student-123";
 
 export default function AssessmentsPage() {
   const router = useRouter();
-  const [previousResults, setPreviousResults] = useState<AssessmentResult[]>([]);
-  const [showHistory, setShowHistory] = useState(false);
-  const [isLoadingHistory, setIsLoadingHistory] = useState(true);
 
-  useEffect(() => {
-    const results = getAssessmentResults();
-    setPreviousResults(results);
-    setShowHistory(results.length > 0);
-    // Simulate loading delay
-    setTimeout(() => setIsLoadingHistory(false), 500);
-  }, []);
+  // Fetch assessment results from Convex
+  const previousResults = useQuery(api.assessments.getResults, {
+    studentId: DEMO_STUDENT_ID,
+  });
 
-  const handleDelete = (id: string) => {
+  const deleteResult = useMutation(api.assessments.deleteResult);
+
+  const isLoadingHistory = previousResults === undefined;
+
+  const handleDelete = async (resultId: string) => {
     if (confirm('Are you sure you want to delete this assessment result?')) {
-      deleteAssessmentResult(id);
-      const results = getAssessmentResults();
-      setPreviousResults(results);
-      setShowHistory(results.length > 0);
+      await deleteResult({ resultId: resultId as any });
     }
   };
   return (
@@ -145,7 +143,7 @@ export default function AssessmentsPage() {
           {/* CTA Button */}
           <Link href="/assessment/questions">
             <button className="w-full px-6 sm:px-8 py-4 sm:py-6 min-h-[60px] bg-primary text-white font-black uppercase text-lg sm:text-xl md:text-2xl border-3 border-black shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-4px] hover:translate-y-[-4px] transition-all flex items-center justify-center gap-3 sm:gap-4">
-              {previousResults.length > 0 ? 'Retake Assessment' : 'Start Assessment'}
+              {previousResults && previousResults.length > 0 ? 'Retake Assessment' : 'Start Assessment'}
               <ArrowRight className="w-6 h-6 sm:w-8 sm:h-8" />
             </button>
           </Link>
@@ -159,7 +157,7 @@ export default function AssessmentsPage() {
                 <History className="w-6 h-6 sm:w-8 sm:h-8" />
                 <h2 className="text-xl sm:text-2xl md:text-3xl font-black uppercase">Previous Results</h2>
               </div>
-              {previousResults.length > 0 && (
+              {previousResults && previousResults.length > 0 && (
                 <span className="px-3 py-1 bg-brutal-yellow text-black font-bold border-2 border-black text-sm sm:text-base self-start">
                   {previousResults.length} {previousResults.length === 1 ? 'result' : 'results'}
                 </span>
@@ -174,43 +172,43 @@ export default function AssessmentsPage() {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {previousResults.map((result) => {
-                  const topMatch = result.topMatches[0];
-                  const topCareer = careers.find(c => c.id === topMatch?.careerId);
-                  
+                  {previousResults && previousResults.map((result) => {
+                  const topMatch = result.careerMatches[0];
+                  const topCareer = topMatch?.career;
+
                   return (
-                    <div 
-                      key={result.id}
+                    <div
+                      key={result._id}
                       className="border-2 border-black p-6 hover:shadow-brutal transition-all"
                     >
                       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                         <div className="flex-1">
                           <div className="flex items-center gap-3 mb-2">
                             <span className="text-sm font-bold text-gray-600">
-                              {formatAssessmentDate(result.completedAt)}
+                              {formatAssessmentDate(new Date(result.completedAt).toISOString())}
                             </span>
                             <span className="px-2 py-1 bg-brutal-green text-black text-xs font-bold border-2 border-black">
-                              {topMatch?.matchScore || 0}% Match
+                              {Math.round(topMatch?.matchPercentage || 0)}% Match
                             </span>
                           </div>
                           <h3 className="text-xl font-black mb-1">
                             Top Match: {topCareer?.title || 'Unknown Career'}
                           </h3>
                           <p className="text-sm text-gray-700 font-bold">
-                            {topCareer?.shortDescription || 'No description available'}
+                            {topCareer?.category || 'No description available'}
                           </p>
                         </div>
 
                         <div className="flex gap-2">
                           <button
-                            onClick={() => router.push(`/assessment/results?id=${result.id}`)}
+                            onClick={() => router.push(`/assessment/results?id=${result._id}`)}
                             className="px-4 py-2 bg-white border-2 border-black shadow-brutal-sm hover:shadow-brutal transition-all flex items-center gap-2 font-bold"
                           >
                             <Eye className="w-4 h-4" />
                             View Results
                           </button>
                           <button
-                            onClick={() => handleDelete(result.id)}
+                            onClick={() => handleDelete(result._id)}
                             className="px-4 py-2 bg-white border-2 border-black shadow-brutal-sm hover:shadow-brutal hover:bg-red-50 transition-all"
                             title="Delete result"
                           >
@@ -225,7 +223,7 @@ export default function AssessmentsPage() {
             )}
             
             {/* Empty State */}
-            {!isLoadingHistory && previousResults.length === 0 && (
+            {!isLoadingHistory && previousResults && previousResults.length === 0 && (
               <div className="text-center py-8">
                 <p className="text-gray-600 font-bold mb-4">No assessment results yet</p>
                 <p className="text-sm text-gray-500">Complete your first assessment to see results here!</p>
