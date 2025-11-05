@@ -1,10 +1,27 @@
+'use client';
+
 import Link from 'next/link';
 import { ArrowRight, Sparkles, Users, Video, Target } from 'lucide-react';
-import { careers, getCategories } from '@/lib/data';
+import { useQuery } from "convex/react";
+import { api } from "../convex/_generated/api";
 
 export default function LandingPage() {
-  const featuredCareers = careers.slice(0, 6);
-  const categories = getCategories();
+  const featuredCareers = useQuery(api.careers.getFeatured);
+  const categories = useQuery(api.careers.getCategories);
+  const careerCount = useQuery(api.careers.count);
+
+  // Loading state
+  if (featuredCareers === undefined || categories === undefined || careerCount === undefined) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-pulse">
+            <h1 className="text-4xl font-black mb-4">Loading OpportunityMap...</h1>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen">
@@ -153,15 +170,15 @@ export default function LandingPage() {
               href="/careers"
               className="px-6 py-3 bg-brutal-text text-white font-bold uppercase border-3 border-brutal-border shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all"
             >
-              View All {careers.length}+
+              View All {careerCount}+
             </Link>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {featuredCareers.map((career, index) => (
               <Link
-                key={career.id}
-                href={`/careers/${career.id}`}
+                key={career._id}
+                href={`/careers/${career._id}`}
                 className="group block"
               >
                 <div className="bg-white border-3 border-brutal-border shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all overflow-hidden">
