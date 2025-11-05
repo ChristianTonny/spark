@@ -213,6 +213,8 @@ export const seedAll = internalMutation({
 
     // Create demo student user
     const demoStudentId = await ctx.db.insert("users", {
+      tokenIdentifier: "demo-token-student-123",
+      clerkId: "demo-clerk-student-123",
       email: "demo@student.com",
       firstName: "Jane",
       lastName: "Mukarwego",
@@ -239,6 +241,8 @@ export const seedAll = internalMutation({
 
     // Prof 1: Jean Claude
     const user1Id = await ctx.db.insert("users", {
+      tokenIdentifier: "demo-token-mentor-1",
+      clerkId: "demo-clerk-mentor-1",
       email: "jean@andela.com",
       firstName: "Jean Claude",
       lastName: "Niyonsenga",
@@ -264,6 +268,8 @@ export const seedAll = internalMutation({
 
     // Prof 2: Marie Claire
     const user2Id = await ctx.db.insert("users", {
+      tokenIdentifier: "demo-token-mentor-2",
+      clerkId: "demo-clerk-mentor-2",
       email: "marie@zipline.com",
       firstName: "Marie Claire",
       lastName: "Uwase",
@@ -289,6 +295,8 @@ export const seedAll = internalMutation({
 
     // Prof 3: Patrick
     const user3Id = await ctx.db.insert("users", {
+      tokenIdentifier: "demo-token-mentor-3",
+      clerkId: "demo-clerk-mentor-3",
       email: "patrick@mtn.com",
       firstName: "Patrick",
       lastName: "Mugisha",
