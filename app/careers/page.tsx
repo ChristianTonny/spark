@@ -9,12 +9,14 @@ import { CareerCardSkeleton } from '@/components/loading-skeleton';
 import { EmptyState } from '@/components/error-state';
 import { useToast } from '@/lib/use-toast';
 import { ToastContainer } from '@/components/toast-container';
+import { useConvexAuth } from '@/lib/hooks/useConvexAuth';
 
 export default function CareersPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [salaryFilter, setSalaryFilter] = useState('all');
   const toast = useToast();
+  const { user, isLoading: authLoading } = useConvexAuth();
 
   // Fetch data from Convex
   const allCareers = useQuery(api.careers.search, {
@@ -24,14 +26,22 @@ export default function CareersPage() {
   });
 
   const categories = useQuery(api.careers.getCategories);
-  const bookmarkedIds = useQuery(api.savedCareers.getIds);
+
+  // Only fetch bookmarks if user is authenticated and synced
+  const bookmarkedIds = useQuery(api.savedCareers.getIds, user ? {} : "skip");
   const toggleBookmark = useMutation(api.savedCareers.toggle);
-  const bookmarkedCareers = useQuery(api.savedCareers.list);
+  const bookmarkedCareers = useQuery(api.savedCareers.list, user ? {} : "skip");
 
   // Toggle bookmark
   const handleBookmark = async (e: React.MouseEvent, careerId: string, careerTitle: string) => {
     e.preventDefault();
     e.stopPropagation();
+
+    // Require authentication to bookmark
+    if (!user) {
+      toast.error('Please sign in to bookmark careers');
+      return;
+    }
 
     try {
       const result = await toggleBookmark({
@@ -48,8 +58,8 @@ export default function CareersPage() {
     }
   };
 
-  // Loading state
-  const isLoading = allCareers === undefined || categories === undefined || bookmarkedIds === undefined;
+  // Loading state - only wait for public data (careers and categories)
+  const isLoading = allCareers === undefined || categories === undefined;
 
   return (
     <div className="min-h-screen py-4 sm:py-8">

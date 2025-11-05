@@ -7,14 +7,16 @@ import { Sparkles, ArrowRight, Bookmark, RotateCcw } from 'lucide-react';
 import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { Spinner } from '@/components/loading-skeleton';
+import { useConvexAuth } from '@/lib/hooks/useConvexAuth';
 
 function AssessmentResultsContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const resultId = searchParams.get('id');
+  const { user, isLoading: authLoading } = useConvexAuth();
 
-  // Fetch all results for current user
-  const allResults = useQuery(api.assessments.getResults);
+  // Fetch all results for current user (only if authenticated)
+  const allResults = useQuery(api.assessments.getResults, user ? {} : "skip");
 
   // Find the specific result by ID, or use the most recent one
   let currentResult = null;
@@ -31,7 +33,7 @@ function AssessmentResultsContent() {
     }
   }
 
-  const isLoading = allResults === undefined;
+  const isLoading = authLoading || (user && allResults === undefined);
 
   // Prepare display matches from Convex result
   const displayMatches = currentResult

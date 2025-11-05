@@ -18,23 +18,35 @@ import {
 import { formatAssessmentDate } from "@/lib/assessment-storage";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
-import { useUser } from "@clerk/nextjs";
+import { useConvexAuth } from "@/lib/hooks/useConvexAuth";
 
 export default function StudentDashboard() {
   const router = useRouter();
-  const { user } = useUser();
+  const { user, clerkUser, isLoading } = useConvexAuth();
 
   const studentData = {
-    name: user ? `${user.firstName} ${user.lastName}` : "Student",
+    name: clerkUser ? `${clerkUser.firstName} ${clerkUser.lastName}` : "Student",
     gradeLevel: "Senior 5",
     school: "Lycée de Kigali",
-    avatar: user?.imageUrl || "https://api.dicebear.com/7.x/initials/svg?seed=JM&backgroundColor=ffb627",
+    avatar: clerkUser?.imageUrl || "https://api.dicebear.com/7.x/initials/svg?seed=JM&backgroundColor=ffb627",
   };
 
   // Fetch data from Convex (automatically uses authenticated user)
-  const savedCareers = useQuery(api.savedCareers.list);
-  const assessmentResults = useQuery(api.assessments.getResults);
+  const savedCareers = useQuery(api.savedCareers.list, user ? {} : "skip");
+  const assessmentResults = useQuery(api.assessments.getResults, user ? {} : "skip");
   const deleteResult = useMutation(api.assessments.deleteResult);
+
+  // Show loading state while user is being synced
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-black border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-xl font-bold">Loading your dashboard...</p>
+        </div>
+      </div>
+    );
+  }
 
   const handleDeleteResult = async (resultId: string) => {
     if (confirm("Are you sure you want to delete this assessment result?")) {

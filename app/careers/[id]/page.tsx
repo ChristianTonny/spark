@@ -23,17 +23,19 @@ import { useState } from "react";
 import { CareerDetailSkeleton } from "@/components/loading-skeleton";
 import { NotFoundError } from "@/components/error-state";
 import Link from "next/link";
+import { useConvexAuth } from "@/lib/hooks/useConvexAuth";
 
 export default function CareerDetailPage() {
   const params = useParams();
   const router = useRouter();
   const careerId = params.id as string;
+  const { user } = useConvexAuth();
 
   const [showVideo, setShowVideo] = useState(false);
 
   // Fetch career from Convex
   const career = useQuery(api.careers.getById, { id: careerId as any });
-  const bookmarkedIds = useQuery(api.savedCareers.getIds);
+  const bookmarkedIds = useQuery(api.savedCareers.getIds, user ? {} : "skip");
   const toggleBookmark = useMutation(api.savedCareers.toggle);
 
   // Get available professionals for this career
@@ -50,6 +52,10 @@ export default function CareerDetailPage() {
 
   // Handle bookmark toggle
   const handleBookmark = async () => {
+    if (!user) {
+      alert('Please sign in to bookmark careers');
+      return;
+    }
     await toggleBookmark({
       careerId,
     });
@@ -57,8 +63,8 @@ export default function CareerDetailPage() {
 
   const isBookmarked = bookmarkedIds?.includes(careerId);
 
-  // Loading state
-  if (career === undefined || bookmarkedIds === undefined) {
+  // Loading state - only wait for career data
+  if (career === undefined) {
     return <CareerDetailSkeleton />;
   }
 

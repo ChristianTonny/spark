@@ -8,16 +8,19 @@ import { formatAssessmentDate } from '@/lib/assessment-storage';
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { AssessmentResultSkeleton } from '@/components/loading-skeleton';
+import { useConvexAuth } from '@/lib/hooks/useConvexAuth';
 
 export default function AssessmentsPage() {
   const router = useRouter();
+  const { user, isLoading: authLoading } = useConvexAuth();
 
-  // Fetch assessment results from Convex
-  const previousResults = useQuery(api.assessments.getResults);
+  // Fetch assessment results from Convex (only if user is authenticated)
+  const previousResults = useQuery(api.assessments.getResults, user ? {} : "skip");
 
   const deleteResult = useMutation(api.assessments.deleteResult);
 
-  const isLoadingHistory = previousResults === undefined;
+  // Loading if user auth is loading OR if results query is loading
+  const isLoadingHistory = authLoading || (user && previousResults === undefined);
 
   const handleDelete = async (resultId: string) => {
     if (confirm('Are you sure you want to delete this assessment result?')) {
@@ -219,7 +222,13 @@ export default function AssessmentsPage() {
             )}
             
             {/* Empty State */}
-            {!isLoadingHistory && previousResults && previousResults.length === 0 && (
+            {!isLoadingHistory && !user && (
+              <div className="text-center py-8">
+                <p className="text-gray-600 font-bold mb-4">Sign in to view your assessment results</p>
+                <p className="text-sm text-gray-500">Your results will be saved to your account</p>
+              </div>
+            )}
+            {!isLoadingHistory && user && previousResults && previousResults.length === 0 && (
               <div className="text-center py-8">
                 <p className="text-gray-600 font-bold mb-4">No assessment results yet</p>
                 <p className="text-sm text-gray-500">Complete your first assessment to see results here!</p>
