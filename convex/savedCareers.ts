@@ -1,12 +1,18 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
-import { getCurrentUserOrThrow } from "./users";
+import { getCurrentUser, getCurrentUserOrThrow } from "./users";
 
 // Get bookmarked careers for the current authenticated user
+// Returns empty array if not authenticated (public pages)
 export const list = query({
   args: {},
   handler: async (ctx) => {
-    const user = await getCurrentUserOrThrow(ctx);
+    const user = await getCurrentUser(ctx);
+
+    // Return empty array if not authenticated
+    if (!user) {
+      return [];
+    }
 
     const bookmarks = await ctx.db
       .query("savedCareers")
@@ -26,10 +32,16 @@ export const list = query({
 });
 
 // Get bookmark IDs only (for checking if career is bookmarked)
+// Returns empty array if not authenticated (public pages)
 export const getIds = query({
   args: {},
   handler: async (ctx) => {
-    const user = await getCurrentUserOrThrow(ctx);
+    const user = await getCurrentUser(ctx);
+
+    // Return empty array if not authenticated
+    if (!user) {
+      return [];
+    }
 
     const bookmarks = await ctx.db
       .query("savedCareers")

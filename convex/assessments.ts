@@ -1,6 +1,6 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
-import { getCurrentUserOrThrow } from "./users";
+import { getCurrentUser, getCurrentUserOrThrow } from "./users";
 
 // Get all assessments (public)
 export const list = query({
@@ -19,10 +19,16 @@ export const getById = query({
 });
 
 // Get current user's assessment results
+// Returns empty array if not authenticated (public pages)
 export const getResults = query({
   args: {},
   handler: async (ctx) => {
-    const user = await getCurrentUserOrThrow(ctx);
+    const user = await getCurrentUser(ctx);
+
+    // Return empty array if not authenticated
+    if (!user) {
+      return [];
+    }
 
     const results = await ctx.db
       .query("assessmentResults")
