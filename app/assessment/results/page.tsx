@@ -8,17 +8,13 @@ import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { Spinner } from '@/components/loading-skeleton';
 
-const DEMO_STUDENT_ID = "demo-student-123";
-
 function AssessmentResultsContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const resultId = searchParams.get('id');
 
-  // Fetch all results for this student
-  const allResults = useQuery(api.assessments.getResults, {
-    studentId: DEMO_STUDENT_ID,
-  });
+  // Fetch all results for current user
+  const allResults = useQuery(api.assessments.getResults);
 
   // Find the specific result by ID, or use the most recent one
   let currentResult = null;

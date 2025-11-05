@@ -24,8 +24,6 @@ import { CareerDetailSkeleton } from "@/components/loading-skeleton";
 import { NotFoundError } from "@/components/error-state";
 import Link from "next/link";
 
-const DEMO_STUDENT_ID = "demo-student-123";
-
 export default function CareerDetailPage() {
   const params = useParams();
   const router = useRouter();
@@ -35,7 +33,7 @@ export default function CareerDetailPage() {
 
   // Fetch career from Convex
   const career = useQuery(api.careers.getById, { id: careerId as any });
-  const bookmarkedIds = useQuery(api.savedCareers.getIds, { studentId: DEMO_STUDENT_ID });
+  const bookmarkedIds = useQuery(api.savedCareers.getIds);
   const toggleBookmark = useMutation(api.savedCareers.toggle);
 
   // Get available professionals for this career
@@ -53,7 +51,6 @@ export default function CareerDetailPage() {
   // Handle bookmark toggle
   const handleBookmark = async () => {
     await toggleBookmark({
-      studentId: DEMO_STUDENT_ID,
       careerId,
     });
   };

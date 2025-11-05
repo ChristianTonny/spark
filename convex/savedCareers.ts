@@ -1,13 +1,16 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { getCurrentUserOrThrow } from "./users";
 
-// Get bookmarked careers for a student
+// Get bookmarked careers for the current authenticated user
 export const list = query({
-  args: { studentId: v.string() },
-  handler: async (ctx, args) => {
+  args: {},
+  handler: async (ctx) => {
+    const user = await getCurrentUserOrThrow(ctx);
+
     const bookmarks = await ctx.db
       .query("savedCareers")
-      .withIndex("by_student", (q) => q.eq("studentId", args.studentId))
+      .withIndex("by_student", (q) => q.eq("studentId", user._id))
       .collect();
 
     // Fetch full career details
@@ -24,28 +27,31 @@ export const list = query({
 
 // Get bookmark IDs only (for checking if career is bookmarked)
 export const getIds = query({
-  args: { studentId: v.string() },
-  handler: async (ctx, args) => {
+  args: {},
+  handler: async (ctx) => {
+    const user = await getCurrentUserOrThrow(ctx);
+
     const bookmarks = await ctx.db
       .query("savedCareers")
-      .withIndex("by_student", (q) => q.eq("studentId", args.studentId))
+      .withIndex("by_student", (q) => q.eq("studentId", user._id))
       .collect();
 
     return bookmarks.map((b) => b.careerId);
   },
 });
 
-// Toggle bookmark (add or remove)
+// Toggle bookmark (add or remove) for the current authenticated user
 export const toggle = mutation({
   args: {
-    studentId: v.string(),
     careerId: v.string(),
   },
   handler: async (ctx, args) => {
+    const user = await getCurrentUserOrThrow(ctx);
+
     // Check if already bookmarked
     const bookmarks = await ctx.db
       .query("savedCareers")
-      .withIndex("by_student", (q) => q.eq("studentId", args.studentId))
+      .withIndex("by_student", (q) => q.eq("studentId", user._id))
       .collect();
 
     const existing = bookmarks.find((b) => b.careerId === args.careerId);
@@ -66,7 +72,7 @@ export const toggle = mutation({
     } else {
       // Add bookmark
       await ctx.db.insert("savedCareers", {
-        studentId: args.studentId,
+        studentId: user._id,
         careerId: args.careerId,
         savedAt: Date.now(),
       });

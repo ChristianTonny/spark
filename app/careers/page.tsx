@@ -10,9 +10,6 @@ import { EmptyState } from '@/components/error-state';
 import { useToast } from '@/lib/use-toast';
 import { ToastContainer } from '@/components/toast-container';
 
-// Demo student ID (will be replaced with real auth later)
-const DEMO_STUDENT_ID = "demo-student-123";
-
 export default function CareersPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
@@ -27,9 +24,9 @@ export default function CareersPage() {
   });
 
   const categories = useQuery(api.careers.getCategories);
-  const bookmarkedIds = useQuery(api.savedCareers.getIds, { studentId: DEMO_STUDENT_ID });
+  const bookmarkedIds = useQuery(api.savedCareers.getIds);
   const toggleBookmark = useMutation(api.savedCareers.toggle);
-  const bookmarkedCareers = useQuery(api.savedCareers.list, { studentId: DEMO_STUDENT_ID });
+  const bookmarkedCareers = useQuery(api.savedCareers.list);
 
   // Toggle bookmark
   const handleBookmark = async (e: React.MouseEvent, careerId: string, careerTitle: string) => {
@@ -38,7 +35,6 @@ export default function CareersPage() {
 
     try {
       const result = await toggleBookmark({
-        studentId: DEMO_STUDENT_ID,
         careerId,
       });
 

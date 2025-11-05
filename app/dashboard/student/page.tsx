@@ -18,22 +18,22 @@ import {
 import { formatAssessmentDate } from "@/lib/assessment-storage";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
-
-const DEMO_STUDENT_ID = "demo-student-123";
+import { useUser } from "@clerk/nextjs";
 
 export default function StudentDashboard() {
   const router = useRouter();
+  const { user } = useUser();
 
   const studentData = {
-    name: "Jane Mukarwego",
+    name: user ? `${user.firstName} ${user.lastName}` : "Student",
     gradeLevel: "Senior 5",
     school: "Lycée de Kigali",
-    avatar: "https://api.dicebear.com/7.x/initials/svg?seed=JM&backgroundColor=ffb627",
+    avatar: user?.imageUrl || "https://api.dicebear.com/7.x/initials/svg?seed=JM&backgroundColor=ffb627",
   };
 
-  // Fetch data from Convex
-  const savedCareers = useQuery(api.savedCareers.list, { studentId: DEMO_STUDENT_ID });
-  const assessmentResults = useQuery(api.assessments.getResults, { studentId: DEMO_STUDENT_ID });
+  // Fetch data from Convex (automatically uses authenticated user)
+  const savedCareers = useQuery(api.savedCareers.list);
+  const assessmentResults = useQuery(api.assessments.getResults);
   const deleteResult = useMutation(api.assessments.deleteResult);
 
   const handleDeleteResult = async (resultId: string) => {

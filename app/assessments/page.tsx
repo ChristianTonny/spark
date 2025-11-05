@@ -9,15 +9,11 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { AssessmentResultSkeleton } from '@/components/loading-skeleton';
 
-const DEMO_STUDENT_ID = "demo-student-123";
-
 export default function AssessmentsPage() {
   const router = useRouter();
 
   // Fetch assessment results from Convex
-  const previousResults = useQuery(api.assessments.getResults, {
-    studentId: DEMO_STUDENT_ID,
-  });
+  const previousResults = useQuery(api.assessments.getResults);
 
   const deleteResult = useMutation(api.assessments.deleteResult);
 

@@ -7,8 +7,6 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { Spinner } from '@/components/loading-skeleton';
 
-const DEMO_STUDENT_ID = "demo-student-123";
-
 export default function AssessmentQuestionsPage() {
   const router = useRouter();
   const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -94,7 +92,6 @@ export default function AssessmentQuestionsPage() {
 
           const result = await saveResult({
             assessmentId: assessment._id,
-            studentId: DEMO_STUDENT_ID,
             answers: updatedAnswers,
             careerMatches: mockMatches,
           });

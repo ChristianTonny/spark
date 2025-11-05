@@ -1,7 +1,8 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { getCurrentUserOrThrow } from "./users";
 
-// Get all assessments
+// Get all assessments (public)
 export const list = query({
   args: {},
   handler: async (ctx) => {
@@ -9,7 +10,7 @@ export const list = query({
   },
 });
 
-// Get assessment by ID
+// Get assessment by ID (public)
 export const getById = query({
   args: { id: v.id("assessments") },
   handler: async (ctx, args) => {
@@ -17,13 +18,15 @@ export const getById = query({
   },
 });
 
-// Get student's assessment results
+// Get current user's assessment results
 export const getResults = query({
-  args: { studentId: v.string() },
-  handler: async (ctx, args) => {
+  args: {},
+  handler: async (ctx) => {
+    const user = await getCurrentUserOrThrow(ctx);
+
     const results = await ctx.db
       .query("assessmentResults")
-      .withIndex("by_student", (q) => q.eq("studentId", args.studentId))
+      .withIndex("by_student", (q) => q.eq("studentId", user._id))
       .order("desc")
       .collect();
 
@@ -49,11 +52,10 @@ export const getResults = query({
   },
 });
 
-// Save assessment result
+// Save assessment result for current authenticated user
 export const saveResult = mutation({
   args: {
     assessmentId: v.id("assessments"),
-    studentId: v.string(),
     answers: v.any(),
     careerMatches: v.array(
       v.object({
@@ -64,9 +66,11 @@ export const saveResult = mutation({
     ),
   },
   handler: async (ctx, args) => {
+    const user = await getCurrentUserOrThrow(ctx);
+
     const resultId = await ctx.db.insert("assessmentResults", {
       assessmentId: args.assessmentId,
-      studentId: args.studentId,
+      studentId: user._id,
       answers: args.answers,
       careerMatches: args.careerMatches,
       completedAt: Date.now(),
@@ -76,10 +80,21 @@ export const saveResult = mutation({
   },
 });
 
-// Delete assessment result
+// Delete assessment result (must belong to current user)
 export const deleteResult = mutation({
   args: { resultId: v.id("assessmentResults") },
   handler: async (ctx, args) => {
+    const user = await getCurrentUserOrThrow(ctx);
+
+    // Verify the result belongs to the current user
+    const result = await ctx.db.get(args.resultId);
+    if (!result) {
+      throw new Error("Result not found");
+    }
+    if (result.studentId !== user._id) {
+      throw new Error("Unauthorized: You can only delete your own results");
+    }
+
     await ctx.db.delete(args.resultId);
     return { success: true };
   },
