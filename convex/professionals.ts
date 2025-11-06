@@ -1,5 +1,6 @@
-import { query } from "./_generated/server";
+import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
+import { getCurrentUserOrThrow } from "./users";
 
 // Get all professionals
 export const list = query({
@@ -71,5 +72,76 @@ export const getByCareerIds = query({
     );
 
     return enriched;
+  },
+});
+
+// Create professional profile
+export const create = mutation({
+  args: {
+    jobTitle: v.string(),
+    company: v.string(),
+    bio: v.string(),
+    yearsExperience: v.number(),
+    careerCategories: v.array(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const user = await getCurrentUserOrThrow(ctx);
+
+    // Check if professional profile already exists
+    const existing = await ctx.db
+      .query("professionals")
+      .withIndex("by_user", (q) => q.eq("userId", user._id))
+      .first();
+
+    if (existing) {
+      throw new Error("Professional profile already exists");
+    }
+
+    // Get career IDs for the selected categories
+    const careers = await ctx.db.query("careers").collect();
+    const careerIds = careers
+      .filter((c) => args.careerCategories.includes(c.category))
+      .map((c) => c._id);
+
+    // Create professional profile
+    const professionalId = await ctx.db.insert("professionals", {
+      userId: user._id,
+      jobTitle: args.jobTitle,
+      company: args.company,
+      bio: args.bio,
+      yearsExperience: args.yearsExperience,
+      careerIds: careerIds,
+      rating: 5.0, // Default rating
+      chatsCompleted: 0,
+      availability: [], // Will be set later
+      totalEarnings: 0,
+      earningsThisMonth: 0,
+      earningsLastMonth: 0,
+    });
+
+    return professionalId;
+  },
+});
+
+// Get current user's professional profile
+export const getCurrent = query({
+  args: {},
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) return null;
+
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_token", (q) => q.eq("tokenIdentifier", identity.tokenIdentifier))
+      .first();
+
+    if (!user) return null;
+
+    const professional = await ctx.db
+      .query("professionals")
+      .withIndex("by_user", (q) => q.eq("userId", user._id))
+      .first();
+
+    return professional;
   },
 });

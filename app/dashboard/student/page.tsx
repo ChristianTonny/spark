@@ -212,7 +212,7 @@ export default function StudentDashboard() {
                     <h2 className="text-xl sm:text-2xl font-black uppercase">Assessment Results</h2>
                   </div>
                   <Link href="/assessments" className="w-full sm:w-auto">
-                    <button className="w-full sm:w-auto px-4 py-2 bg-purple-600 text-white font-bold uppercase border-3 border-black shadow-brutal hover:shadow-brutal-lg transition-all text-sm">
+                    <button className="w-full sm:w-auto px-4 py-2 bg-brutal-orange text-white font-bold uppercase border-3 border-black shadow-brutal hover:shadow-brutal-lg transition-all text-sm">
                       <span>Take New</span>
                     </button>
                   </Link>

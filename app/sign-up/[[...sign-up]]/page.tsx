@@ -23,7 +23,7 @@ export default function SignUpPage() {
           routing="path"
           path="/sign-up"
           signInUrl="/sign-in"
-          redirectUrl="/dashboard/student"
+          redirectUrl="/onboarding"
         />
       </div>
     </div>

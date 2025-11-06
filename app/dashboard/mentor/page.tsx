@@ -1,104 +1,49 @@
 ﻿'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
-import { 
-  User, Calendar, MessageCircle, Star, TrendingUp, Clock, 
+import {
+  User, Calendar, MessageCircle, Star, TrendingUp, Clock,
   Users, ArrowRight, CheckCircle, Settings, Bell
 } from 'lucide-react';
+import { useQuery } from "convex/react";
+import { api } from "../../../convex/_generated/api";
+import { useConvexAuth } from "@/lib/hooks/useConvexAuth";
 
 export default function MentorDashboardPage() {
-  const [upcomingSessions, setUpcomingSessions] = useState<any[]>([]);
-  const [studentQuestions, setStudentQuestions] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { user, clerkUser, isLoading: authLoading } = useConvexAuth();
 
-  // Mock mentor profile - in a real app, this would come from authentication
+  // Fetch real data from Convex
+  const professionalProfile = useQuery(api.professionals.getCurrent, user ? {} : "skip");
+  const upcomingSessions = useQuery(api.careerChats.getMentorUpcoming, user ? {} : "skip");
+  const stats = useQuery(api.careerChats.getMentorStats, user ? {} : "skip");
+
+  const [studentQuestions] = useState<any[]>([]); // Placeholder for now
+
+  const isLoading = authLoading || upcomingSessions === undefined || stats === undefined;
+
   const mentorProfile = {
-    id: 'prof-1',
-    name: 'Jean Claude Niyonsenga',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=JeanClaude',
-    company: 'Andela',
-    jobTitle: 'Senior Software Engineer',
-    rating: 4.9,
-    totalSessions: 47,
-    yearsExperience: 8,
-    responseRate: 98,
+    name: clerkUser ? `${clerkUser.firstName} ${clerkUser.lastName}` : "Mentor",
+    avatar: clerkUser?.imageUrl || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Mentor',
+    company: professionalProfile?.company || 'Your Company',
+    jobTitle: professionalProfile?.jobTitle || 'Your Job Title',
+    rating: stats?.avgRating || 5.0,
+    totalSessions: stats?.totalSessions || 0,
+    yearsExperience: professionalProfile?.yearsExperience || 0,
+    responseRate: stats?.completionRate || 100,
     responseTime: '< 2 hours',
   };
 
-  const stats = {
-    sessionsThisMonth: 12,
-    totalEarnings: 420,
-    avgRating: 4.9,
-    completionRate: 98,
+  // Format date helper
+  const formatSessionDate = (timestamp: number) => {
+    const date = new Date(timestamp);
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   };
 
-  // Load mock data
-  useEffect(() => {
-    // Simulate loading
-    setTimeout(() => {
-      // Mock upcoming sessions
-      setUpcomingSessions([
-        {
-          id: 1,
-          studentName: 'Alex Johnson',
-          studentAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=AlexJohnson',
-          topic: 'Career advice in Software Engineering',
-          date: 'Nov 5, 2025',
-          time: '2:00 PM',
-          duration: '15 min',
-          status: 'confirmed',
-        },
-        {
-          id: 2,
-          studentName: 'Maria Garcia',
-          studentAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=MariaGarcia',
-          topic: 'Transitioning to tech career',
-          date: 'Nov 6, 2025',
-          time: '10:30 AM',
-          duration: '15 min',
-          status: 'confirmed',
-        },
-        {
-          id: 3,
-          studentName: 'David Kim',
-          studentAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=DavidKim',
-          topic: 'Learning web development',
-          date: 'Nov 7, 2025',
-          time: '4:15 PM',
-          duration: '15 min',
-          status: 'pending',
-        },
-      ]);
-
-      // Mock student questions
-      setStudentQuestions([
-        {
-          id: 1,
-          studentName: 'Sarah Williams',
-          question: 'What programming language should I learn first as a beginner?',
-          askedAt: '2 hours ago',
-          replies: 0,
-        },
-        {
-          id: 2,
-          studentName: 'Michael Brown',
-          question: 'How do I build a portfolio with no experience?',
-          askedAt: '5 hours ago',
-          replies: 1,
-        },
-        {
-          id: 3,
-          studentName: 'Emily Chen',
-          question: 'What soft skills are most important in tech?',
-          askedAt: '1 day ago',
-          replies: 2,
-        },
-      ]);
-
-      setIsLoading(false);
-    }, 800);
-  }, []);
+  const formatSessionTime = (timestamp: number) => {
+    const date = new Date(timestamp);
+    return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 py-4 sm:py-8">
@@ -178,7 +123,7 @@ export default function MentorDashboardPage() {
           <div className="bg-brutal-yellow border-3 border-brutal-border shadow-brutal-lg p-4 sm:p-6">
             <div className="flex items-center justify-between mb-2">
               <Calendar className="w-6 h-6 sm:w-8 sm:h-8" />
-              <span className="text-2xl sm:text-3xl font-black">{stats.sessionsThisMonth}</span>
+              <span className="text-2xl sm:text-3xl font-black">{stats?.sessionsThisMonth || 0}</span>
             </div>
             <p className="font-black uppercase text-xs sm:text-sm">Sessions This Month</p>
           </div>
@@ -187,7 +132,7 @@ export default function MentorDashboardPage() {
           <div className="bg-brutal-green border-3 border-brutal-border shadow-brutal-lg p-4 sm:p-6">
             <div className="flex items-center justify-between mb-2">
               <TrendingUp className="w-6 h-6 sm:w-8 sm:h-8" />
-              <span className="text-2xl sm:text-3xl font-black">${stats.totalEarnings}</span>
+              <span className="text-2xl sm:text-3xl font-black">${stats?.totalEarnings || 0}</span>
             </div>
             <p className="font-black uppercase text-xs sm:text-sm">Total Earnings</p>
           </div>
@@ -196,7 +141,7 @@ export default function MentorDashboardPage() {
           <div className="bg-brutal-pink border-3 border-brutal-border shadow-brutal-lg p-4 sm:p-6">
             <div className="flex items-center justify-between mb-2">
               <Star className="w-6 h-6 sm:w-8 sm:h-8 fill-black" />
-              <span className="text-2xl sm:text-3xl font-black">{stats.avgRating}</span>
+              <span className="text-2xl sm:text-3xl font-black">{stats?.avgRating || 5.0}</span>
             </div>
             <p className="font-black uppercase text-xs sm:text-sm">Average Rating</p>
           </div>
@@ -205,7 +150,7 @@ export default function MentorDashboardPage() {
           <div className="bg-brutal-blue border-3 border-brutal-border shadow-brutal-lg p-4 sm:p-6 text-white">
             <div className="flex items-center justify-between mb-2">
               <CheckCircle className="w-6 h-6 sm:w-8 sm:h-8" />
-              <span className="text-2xl sm:text-3xl font-black">{stats.completionRate}%</span>
+              <span className="text-2xl sm:text-3xl font-black">{stats?.completionRate || 100}%</span>
             </div>
             <p className="font-black uppercase text-xs sm:text-sm">Completion Rate</p>
           </div>
@@ -235,7 +180,7 @@ export default function MentorDashboardPage() {
                     <div key={i} className="h-20 sm:h-24 bg-gray-200 animate-pulse border-2 border-gray-300" />
                   ))}
                 </div>
-              ) : upcomingSessions.length === 0 ? (
+              ) : !upcomingSessions || upcomingSessions.length === 0 ? (
                 <div className="text-center py-8 sm:py-12">
                   <Calendar className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 text-gray-400" />
                   <p className="text-gray-600 font-bold mb-2 text-sm sm:text-base">No upcoming sessions</p>
@@ -245,13 +190,13 @@ export default function MentorDashboardPage() {
                 <div className="space-y-4">
                   {upcomingSessions.map((session) => (
                     <div
-                      key={session.id}
+                      key={session._id}
                       className="border-2 border-brutal-border p-4 sm:p-6 hover:shadow-brutal transition-all"
                     >
                       <div className="flex flex-col sm:flex-row items-start gap-3 sm:gap-4">
                         <div className="w-12 h-12 sm:w-12 sm:h-12 bg-brutal-pink border-2 border-brutal-border flex-shrink-0">
                           <img
-                            src={session.studentAvatar}
+                            src={session.studentAvatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Student'}
                             alt={session.studentName}
                             className="w-full h-full"
                           />
@@ -261,10 +206,10 @@ export default function MentorDashboardPage() {
                           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-2">
                             <div>
                               <h3 className="text-lg sm:text-xl font-black">{session.studentName}</h3>
-                              <p className="text-xs sm:text-sm text-gray-700 font-bold">{session.topic}</p>
+                              <p className="text-xs sm:text-sm text-gray-700 font-bold">{session.careerTitle}</p>
                             </div>
                             <span className={`px-3 py-1 text-xs font-black uppercase border-2 border-brutal-border self-start ${
-                              session.status === 'confirmed'
+                              session.status === 'scheduled'
                                 ? 'bg-brutal-green'
                                 : 'bg-brutal-yellow'
                             }`}>
@@ -275,11 +220,11 @@ export default function MentorDashboardPage() {
                           <div className="flex flex-wrap gap-3 sm:gap-4 text-xs sm:text-sm font-bold text-gray-600">
                             <span className="flex items-center gap-1">
                               <Calendar className="w-4 h-4" />
-                              {session.date}
+                              {formatSessionDate(session.scheduledAt)}
                             </span>
                             <span className="flex items-center gap-1">
                               <Clock className="w-4 h-4" />
-                              {session.time} ({session.duration})
+                              {formatSessionTime(session.scheduledAt)} ({session.duration} min)
                             </span>
                           </div>
                         </div>
