@@ -256,10 +256,10 @@ export default function LandingPage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
-                href="/signup"
+                href="/get-started"
                 className="px-8 py-4 bg-white text-brutal-orange font-bold text-lg uppercase border-3 border-brutal-border shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all"
               >
-                Sign Up Free
+                Get Started
               </Link>
               <Link
                 href="/careers"
