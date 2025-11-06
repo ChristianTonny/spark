@@ -15,6 +15,8 @@ export default function CareersPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [salaryFilter, setSalaryFilter] = useState('all');
+  const [compareMode, setCompareMode] = useState(false);
+  const [selectedForCompare, setSelectedForCompare] = useState<string[]>([]);
   const toast = useToast();
   const { user, isLoading: authLoading } = useConvexAuth();
 
@@ -31,6 +33,20 @@ export default function CareersPage() {
   const bookmarkedIds = useQuery(api.savedCareers.getIds, user ? {} : "skip");
   const toggleBookmark = useMutation(api.savedCareers.toggle);
   const bookmarkedCareers = useQuery(api.savedCareers.list, user ? {} : "skip");
+
+  // Toggle compare selection
+  const toggleCompare = (careerId: string) => {
+    setSelectedForCompare(prev => {
+      if (prev.includes(careerId)) {
+        return prev.filter(id => id !== careerId);
+      } else if (prev.length < 3) {
+        return [...prev, careerId];
+      } else {
+        toast.error('You can only compare up to 3 careers');
+        return prev;
+      }
+    });
+  };
 
   // Toggle bookmark
   const handleBookmark = async (e: React.MouseEvent, careerId: string, careerTitle: string) => {
@@ -66,10 +82,36 @@ export default function CareersPage() {
       <div className="container mx-auto px-4 max-w-7xl">
         {/* Header */}
         <div className="mb-6 sm:mb-8">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black mb-3 sm:mb-4">Explore Careers</h1>
-          <p className="text-base sm:text-lg md:text-xl text-gray-700">
-            Browse {allCareers?.length || 0}+ career paths and find your future
-          </p>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
+            <div>
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black mb-3 sm:mb-4">Explore Careers</h1>
+              <p className="text-base sm:text-lg md:text-xl text-gray-700">
+                Browse {allCareers?.length || 0}+ career paths and find your future
+              </p>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setCompareMode(!compareMode);
+                  if (compareMode) setSelectedForCompare([]);
+                }}
+                className={`px-4 py-2 min-h-[44px] font-bold uppercase text-sm border-3 border-black shadow-brutal hover:shadow-brutal-lg transition-all ${
+                  compareMode ? 'bg-primary text-white' : 'bg-white'
+                }`}
+              >
+                {compareMode ? 'Cancel' : 'Compare Careers'}
+              </button>
+              {compareMode && selectedForCompare.length >= 2 && (
+                <Link
+                  href={`/careers/compare?ids=${selectedForCompare.join(',')}`}
+                  className="px-6 py-2 min-h-[44px] bg-brutal-green text-black font-bold uppercase text-sm border-3 border-black shadow-brutal hover:shadow-brutal-lg transition-all flex items-center gap-2"
+                >
+                  Compare ({selectedForCompare.length})
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+              )}
+            </div>
+          </div>
         </div>
 
         {/* Saved Careers Section */}
@@ -175,36 +217,57 @@ export default function CareersPage() {
           </div>
         ) : allCareers && allCareers.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            {allCareers.map((career, index) => (
-              <Link
-                key={career._id}
-                href={`/careers/${career._id}`}
-                className="group block"
-              >
-                <div className="bg-white border-3 border-brutal-border shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all overflow-hidden h-full flex flex-col">
-                  {/* Image */}
-                  <div className="relative h-40 sm:h-48 overflow-hidden border-b-3 border-brutal-border">
-                    <img
-                      src={career.videoThumbnail}
-                      alt={career.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                    <div className="absolute top-2 sm:top-3 right-2 sm:right-3">
-                      <span className="px-2 sm:px-3 py-1 bg-white text-brutal-text text-xs sm:text-sm font-bold uppercase border-2 border-brutal-border shadow-brutal-sm">
-                        {career.category}
-                      </span>
+            {allCareers.map((career, index) => {
+              const isSelected = selectedForCompare.includes(career._id);
+              const CardWrapper = compareMode ? 'div' : Link;
+              const wrapperProps = compareMode
+                ? {
+                    onClick: () => toggleCompare(career._id),
+                    className: `group block cursor-pointer ${isSelected ? 'ring-4 ring-primary' : ''}`,
+                  }
+                : {
+                    href: `/careers/${career._id}`,
+                    className: 'group block',
+                  };
+
+              return (
+                <CardWrapper key={career._id} {...wrapperProps as any}>
+                  <div className="bg-white border-3 border-brutal-border shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all overflow-hidden h-full flex flex-col">
+                    {/* Image */}
+                    <div className="relative h-40 sm:h-48 overflow-hidden border-b-3 border-brutal-border">
+                      <img
+                        src={career.videoThumbnail}
+                        alt={career.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                      <div className="absolute top-2 sm:top-3 right-2 sm:right-3">
+                        <span className="px-2 sm:px-3 py-1 bg-white text-brutal-text text-xs sm:text-sm font-bold uppercase border-2 border-brutal-border shadow-brutal-sm">
+                          {career.category}
+                        </span>
+                      </div>
+                      {compareMode ? (
+                        <div className="absolute top-2 sm:top-3 left-2 sm:left-3 p-2 min-h-[40px] min-w-[40px] border-2 border-brutal-border shadow-brutal-sm bg-white">
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={() => {}}
+                            className="w-5 h-5 accent-primary"
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                        </div>
+                      ) : (
+                        <button
+                          onClick={(e) => handleBookmark(e, career._id, career.title)}
+                          className={`absolute top-2 sm:top-3 left-2 sm:left-3 p-2 min-h-[40px] min-w-[40px] border-2 border-brutal-border shadow-brutal-sm hover:bg-brutal-yellow transition-colors ${
+                            bookmarkedIds?.includes(career._id) ? 'bg-brutal-yellow' : 'bg-white'
+                          }`}
+                          aria-label={bookmarkedIds?.includes(career._id) ? 'Remove bookmark' : 'Add bookmark'}
+                          title={bookmarkedIds?.includes(career._id) ? 'Remove bookmark' : 'Add bookmark'}
+                        >
+                          <Bookmark className={`w-5 h-5 ${bookmarkedIds?.includes(career._id) ? 'fill-current' : ''}`} />
+                        </button>
+                      )}
                     </div>
-                    <button
-                      onClick={(e) => handleBookmark(e, career._id, career.title)}
-                      className={`absolute top-2 sm:top-3 left-2 sm:left-3 p-2 min-h-[40px] min-w-[40px] border-2 border-brutal-border shadow-brutal-sm hover:bg-brutal-yellow transition-colors ${
-                        bookmarkedIds?.includes(career._id) ? 'bg-brutal-yellow' : 'bg-white'
-                      }`}
-                      aria-label={bookmarkedIds?.includes(career._id) ? 'Remove bookmark' : 'Add bookmark'}
-                      title={bookmarkedIds?.includes(career._id) ? 'Remove bookmark' : 'Add bookmark'}
-                    >
-                      <Bookmark className={`w-5 h-5 ${bookmarkedIds?.includes(career._id) ? 'fill-current' : ''}`} />
-                    </button>
-                  </div>
 
                   {/* Content */}
                   <div className="p-4 sm:p-6 flex-1 flex flex-col">
@@ -246,8 +309,9 @@ export default function CareersPage() {
                     </div>
                   </div>
                 </div>
-              </Link>
-            ))}
+              </CardWrapper>
+            );
+            })}
           </div>
         ) : (
           <EmptyState

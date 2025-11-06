@@ -253,4 +253,25 @@ export default defineSchema({
     totalBookings: v.number(),
     studentsReached: v.number(),
   }).index("by_user", ["userId"]),
+
+  // Messaging - Conversations
+  conversations: defineTable({
+    participantIds: v.array(v.id("users")),
+    lastMessageAt: v.number(),
+    lastMessageText: v.optional(v.string()),
+    createdAt: v.number(),
+  })
+    .index("by_participant", ["participantIds"])
+    .index("by_last_message", ["lastMessageAt"]),
+
+  // Messaging - Messages
+  messages: defineTable({
+    conversationId: v.id("conversations"),
+    senderId: v.id("users"),
+    text: v.string(),
+    createdAt: v.number(),
+    readBy: v.array(v.id("users")),
+  })
+    .index("by_conversation", ["conversationId", "createdAt"])
+    .index("by_sender", ["senderId"]),
 });

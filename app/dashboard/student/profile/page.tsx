@@ -2,35 +2,56 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, User, Mail, School, GraduationCap, MapPin, Calendar, Save, Camera } from 'lucide-react';
+import { ArrowLeft, User, Mail, School, GraduationCap, MapPin, Save, Camera, Sparkles } from 'lucide-react';
 import Link from 'next/link';
+import { useQuery, useMutation } from 'convex/react';
+import { api } from '../../../../convex/_generated/api';
+import { useConvexAuth } from '@/lib/hooks/useConvexAuth';
+
+const GRADE_LEVELS = ['S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'Post-Secondary'];
+
+const DISTRICTS = [
+  'Bugesera', 'Burera', 'Gakenke', 'Gasabo', 'Gatsibo', 'Gicumbi', 'Gisagara',
+  'Huye', 'Kamonyi', 'Karongi', 'Kayonza', 'Kicukiro', 'Kirehe', 'Muhanga',
+  'Musanze', 'Ngoma', 'Ngororero', 'Nyabihu', 'Nyagatare', 'Nyamasheke',
+  'Nyanza', 'Nyarugenge', 'Nyaruguru', 'Rubavu', 'Ruhango', 'Rulindo',
+  'Rusizi', 'Rutsiro', 'Rwamagana', 'Nyamagabe'
+];
+
+const INTEREST_AREAS = [
+  'Technology', 'Healthcare', 'Business', 'Engineering', 'Education',
+  'Creative Arts', 'Science', 'Law', 'Agriculture', 'Sports'
+];
 
 export default function StudentProfilePage() {
   const router = useRouter();
+  const { user, clerkUser, isLoading: authLoading } = useConvexAuth();
+
+  const studentProfile = useQuery(api.studentProfiles.getCurrent, user ? {} : 'skip');
+  const upsertProfile = useMutation(api.studentProfiles.upsert);
+
   const [isSaving, setIsSaving] = useState(false);
-  
+  const [saveSuccess, setSaveSuccess] = useState(false);
+
   // Profile state
   const [profile, setProfile] = useState({
-    firstName: 'Alex',
-    lastName: 'Johnson',
-    email: 'alex.johnson@email.com',
-    school: 'Lincoln High School',
-    grade: '11th Grade',
-    location: 'Seattle, WA',
-    dateOfBirth: '2007-03-15',
-    bio: 'Passionate about technology and design. Interested in careers that combine creativity with problem-solving.',
-    interests: ['Technology', 'Design', 'Science', 'Art'],
-    careerGoals: 'I want to become a UX Designer and create products that help people.',
-    phone: '(555) 123-4567',
+    gradeLevel: '',
+    school: '',
+    district: '',
+    interests: [] as string[],
   });
 
-  // Load profile from localStorage on mount
+  // Load profile from Convex when it loads
   useEffect(() => {
-    const savedProfile = localStorage.getItem('studentProfile');
-    if (savedProfile) {
-      setProfile(JSON.parse(savedProfile));
+    if (studentProfile) {
+      setProfile({
+        gradeLevel: studentProfile.gradeLevel || '',
+        school: studentProfile.school || '',
+        district: studentProfile.district || '',
+        interests: studentProfile.interests || [],
+      });
     }
-  }, []);
+  }, [studentProfile]);
 
   const handleInputChange = (field: string, value: string) => {
     setProfile(prev => ({ ...prev, [field]: value }));
@@ -45,23 +66,49 @@ export default function StudentProfilePage() {
     }));
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    if (!profile.gradeLevel) {
+      alert('Please select your grade level');
+      return;
+    }
+
     setIsSaving(true);
-    
-    // Save to localStorage
-    localStorage.setItem('studentProfile', JSON.stringify(profile));
-    
-    setTimeout(() => {
+    setSaveSuccess(false);
+
+    try {
+      await upsertProfile({
+        gradeLevel: profile.gradeLevel,
+        school: profile.school || undefined,
+        district: profile.district || undefined,
+        interests: profile.interests.length > 0 ? profile.interests : undefined,
+      });
+
+      setSaveSuccess(true);
+      setTimeout(() => {
+        setSaveSuccess(false);
+        router.push('/dashboard/student');
+      }, 2000);
+    } catch (error) {
+      console.error('Failed to save profile:', error);
+      alert('Failed to save profile. Please try again.');
+    } finally {
       setIsSaving(false);
-      alert('Profile saved successfully!');
-    }, 1000);
+    }
   };
 
-  const availableInterests = [
-    'Technology', 'Design', 'Science', 'Art', 'Music', 'Sports',
-    'Writing', 'Mathematics', 'Business', 'Healthcare', 'Engineering',
-    'Education', 'Environment', 'Social Work', 'Law', 'Finance'
-  ];
+  if (authLoading || (user && studentProfile === undefined)) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-black border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-xl font-bold">Loading your profile...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const fullName = clerkUser ? `${clerkUser.firstName} ${clerkUser.lastName}` : 'Student';
+  const avatarUrl = clerkUser?.imageUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${fullName}`;
 
   return (
     <div className="min-h-screen bg-gray-50 py-4 sm:py-8">
@@ -79,6 +126,13 @@ export default function StudentProfilePage() {
           <p className="text-base sm:text-lg md:text-xl text-gray-700">Update your personal information and preferences</p>
         </div>
 
+        {/* Success Message */}
+        {saveSuccess && (
+          <div className="bg-brutal-green border-3 border-brutal-border shadow-brutal-lg p-4 mb-6 text-center">
+            <p className="font-black text-lg">✓ Profile saved successfully! Redirecting...</p>
+          </div>
+        )}
+
         {/* Profile Picture Section */}
         <div className="bg-white border-3 border-brutal-border shadow-brutal-lg p-4 sm:p-6 md:p-8 mb-6">
           <h2 className="text-xl sm:text-2xl font-black uppercase mb-4 sm:mb-6 flex items-center gap-2">
@@ -86,115 +140,21 @@ export default function StudentProfilePage() {
             Profile Picture
           </h2>
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
-            <div className="w-24 h-24 sm:w-32 sm:h-32 bg-brutal-blue border-3 border-brutal-border shadow-brutal flex items-center justify-center flex-shrink-0">
+            <div className="w-24 h-24 sm:w-32 sm:h-32 bg-brutal-blue border-3 border-brutal-border shadow-brutal flex items-center justify-center flex-shrink-0 overflow-hidden">
               <img
-                src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${profile.firstName}${profile.lastName}`}
+                src={avatarUrl}
                 alt="Profile"
-                className="w-full h-full"
+                className="w-full h-full object-cover"
               />
             </div>
             <div className="text-center sm:text-left">
+              <p className="text-sm font-bold mb-1">{fullName}</p>
               <p className="text-xs sm:text-sm text-gray-600 font-bold mb-3">
-                Your avatar is automatically generated from your name
+                {clerkUser?.primaryEmailAddress?.emailAddress || 'No email'}
               </p>
-              <button
-                className="px-4 py-2 min-h-[44px] bg-white border-2 border-brutal-border shadow-brutal-sm hover:shadow-brutal transition-all font-bold text-xs sm:text-sm uppercase"
-                onClick={() => alert('Avatar customization coming soon!')}
-              >
-                Change Avatar Style
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Personal Information */}
-        <div className="bg-white border-3 border-brutal-border shadow-brutal-lg p-4 sm:p-6 md:p-8 mb-6">
-          <h2 className="text-xl sm:text-2xl font-black uppercase mb-4 sm:mb-6 flex items-center gap-2">
-            <User className="w-5 h-5 sm:w-6 sm:h-6" />
-            Personal Information
-          </h2>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-            {/* First Name */}
-            <div>
-              <label className="block font-black text-xs sm:text-sm uppercase mb-2">
-                First Name *
-              </label>
-              <input
-                type="text"
-                value={profile.firstName}
-                onChange={(e) => handleInputChange('firstName', e.target.value)}
-                className="w-full px-3 sm:px-4 py-2 sm:py-3 min-h-[44px] border-2 border-brutal-border shadow-brutal-sm focus:shadow-brutal focus:outline-none transition-all font-bold text-sm sm:text-base"
-              />
-            </div>
-
-            {/* Last Name */}
-            <div>
-              <label className="block font-black text-xs sm:text-sm uppercase mb-2">
-                Last Name *
-              </label>
-              <input
-                type="text"
-                value={profile.lastName}
-                onChange={(e) => handleInputChange('lastName', e.target.value)}
-                className="w-full px-3 sm:px-4 py-2 sm:py-3 min-h-[44px] border-2 border-brutal-border shadow-brutal-sm focus:shadow-brutal focus:outline-none transition-all font-bold text-sm sm:text-base"
-              />
-            </div>
-
-            {/* Email */}
-            <div>
-              <label className="block font-black text-xs sm:text-sm uppercase mb-2 flex items-center gap-2">
-                <Mail className="w-4 h-4" />
-                Email *
-              </label>
-              <input
-                type="email"
-                value={profile.email}
-                onChange={(e) => handleInputChange('email', e.target.value)}
-                className="w-full px-3 sm:px-4 py-2 sm:py-3 min-h-[44px] border-2 border-brutal-border shadow-brutal-sm focus:shadow-brutal focus:outline-none transition-all font-bold text-sm sm:text-base"
-              />
-            </div>
-
-            {/* Phone */}
-            <div>
-              <label className="block font-black text-xs sm:text-sm uppercase mb-2">
-                Phone
-              </label>
-              <input
-                type="tel"
-                value={profile.phone}
-                onChange={(e) => handleInputChange('phone', e.target.value)}
-                className="w-full px-3 sm:px-4 py-2 sm:py-3 min-h-[44px] border-2 border-brutal-border shadow-brutal-sm focus:shadow-brutal focus:outline-none transition-all font-bold text-sm sm:text-base"
-              />
-            </div>
-
-            {/* Date of Birth */}
-            <div>
-              <label className="block font-black text-xs sm:text-sm uppercase mb-2 flex items-center gap-2">
-                <Calendar className="w-4 h-4" />
-                Date of Birth
-              </label>
-              <input
-                type="date"
-                value={profile.dateOfBirth}
-                onChange={(e) => handleInputChange('dateOfBirth', e.target.value)}
-                className="w-full px-3 sm:px-4 py-2 sm:py-3 min-h-[44px] border-2 border-brutal-border shadow-brutal-sm focus:shadow-brutal focus:outline-none transition-all font-bold text-sm sm:text-base"
-              />
-            </div>
-
-            {/* Location */}
-            <div>
-              <label className="block font-black text-xs sm:text-sm uppercase mb-2 flex items-center gap-2">
-                <MapPin className="w-4 h-4" />
-                Location
-              </label>
-              <input
-                type="text"
-                value={profile.location}
-                onChange={(e) => handleInputChange('location', e.target.value)}
-                placeholder="City, State"
-                className="w-full px-3 sm:px-4 py-2 sm:py-3 min-h-[44px] border-2 border-brutal-border shadow-brutal-sm focus:shadow-brutal focus:outline-none transition-all font-bold text-sm sm:text-base"
-              />
+              <p className="text-xs text-gray-500">
+                Update your photo in account settings
+              </p>
             </div>
           </div>
         </div>
@@ -207,82 +167,74 @@ export default function StudentProfilePage() {
           </h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+            {/* Grade Level */}
+            <div className="sm:col-span-2">
+              <label className="block font-black text-xs sm:text-sm uppercase mb-2">
+                Grade Level *
+              </label>
+              <select
+                value={profile.gradeLevel}
+                onChange={(e) => handleInputChange('gradeLevel', e.target.value)}
+                className="w-full px-3 sm:px-4 py-2 sm:py-3 min-h-[44px] border-2 border-brutal-border shadow-brutal-sm focus:shadow-brutal focus:outline-none transition-all font-bold text-sm sm:text-base"
+                required
+              >
+                <option value="">Select your grade level</option>
+                {GRADE_LEVELS.map(grade => (
+                  <option key={grade} value={grade}>{grade}</option>
+                ))}
+              </select>
+            </div>
+
             {/* School */}
-            <div>
+            <div className="sm:col-span-2">
               <label className="block font-black text-xs sm:text-sm uppercase mb-2 flex items-center gap-2">
                 <School className="w-4 h-4" />
-                School *
+                School Name
               </label>
               <input
                 type="text"
                 value={profile.school}
                 onChange={(e) => handleInputChange('school', e.target.value)}
+                placeholder="e.g., Lycée de Kigali"
                 className="w-full px-3 sm:px-4 py-2 sm:py-3 min-h-[44px] border-2 border-brutal-border shadow-brutal-sm focus:shadow-brutal focus:outline-none transition-all font-bold text-sm sm:text-base"
               />
             </div>
 
-            {/* Grade */}
-            <div>
-              <label className="block font-black text-xs sm:text-sm uppercase mb-2">
-                Grade Level *
+            {/* District */}
+            <div className="sm:col-span-2">
+              <label className="block font-black text-xs sm:text-sm uppercase mb-2 flex items-center gap-2">
+                <MapPin className="w-4 h-4" />
+                District
               </label>
               <select
-                value={profile.grade}
-                onChange={(e) => handleInputChange('grade', e.target.value)}
+                value={profile.district}
+                onChange={(e) => handleInputChange('district', e.target.value)}
                 className="w-full px-3 sm:px-4 py-2 sm:py-3 min-h-[44px] border-2 border-brutal-border shadow-brutal-sm focus:shadow-brutal focus:outline-none transition-all font-bold text-sm sm:text-base"
               >
-                <option value="9th Grade">9th Grade</option>
-                <option value="10th Grade">10th Grade</option>
-                <option value="11th Grade">11th Grade</option>
-                <option value="12th Grade">12th Grade</option>
+                <option value="">Select your district</option>
+                {DISTRICTS.map(district => (
+                  <option key={district} value={district}>{district}</option>
+                ))}
               </select>
             </div>
           </div>
         </div>
 
-        {/* Bio */}
-        <div className="bg-white border-3 border-brutal-border shadow-brutal-lg p-4 sm:p-6 md:p-8 mb-6">
-          <h2 className="text-xl sm:text-2xl font-black uppercase mb-4 sm:mb-6">About Me</h2>          <div className="mb-6">
-            <label className="block font-black text-xs sm:text-sm uppercase mb-2">
-              Bio
-            </label>
-            <textarea
-              value={profile.bio}
-              onChange={(e) => handleInputChange('bio', e.target.value)}
-              rows={4}
-              placeholder="Tell us about yourself..."
-              className="w-full px-3 sm:px-4 py-2 sm:py-3 border-2 border-brutal-border shadow-brutal-sm focus:shadow-brutal focus:outline-none transition-all font-bold resize-none text-sm sm:text-base"
-            />
-            <p className="text-xs text-gray-500 mt-2 font-bold">
-              {profile.bio.length} / 500 characters
-            </p>
-          </div>
-
-          <div className="mb-6">
-            <label className="block font-black text-xs sm:text-sm uppercase mb-2">
-              Career Goals
-            </label>
-            <textarea
-              value={profile.careerGoals}
-              onChange={(e) => handleInputChange('careerGoals', e.target.value)}
-              rows={3}
-              placeholder="What are your career aspirations?"
-              className="w-full px-3 sm:px-4 py-2 sm:py-3 border-2 border-brutal-border shadow-brutal-sm focus:shadow-brutal focus:outline-none transition-all font-bold resize-none text-sm sm:text-base"
-            />
-          </div>
-        </div>
-
         {/* Interests */}
         <div className="bg-white border-3 border-brutal-border shadow-brutal-lg p-4 sm:p-6 md:p-8 mb-6">
-          <h2 className="text-xl sm:text-2xl font-black uppercase mb-4 sm:mb-6">Interests</h2>
+          <h2 className="text-xl sm:text-2xl font-black uppercase mb-4 sm:mb-6 flex items-center gap-2">
+            <Sparkles className="w-5 h-5 sm:w-6 sm:h-6" />
+            Your Interests
+          </h2>
           <p className="text-xs sm:text-sm text-gray-600 font-bold mb-4">
             Select areas you&apos;re interested in (helps with career recommendations)
           </p>
 
           <div className="flex flex-wrap gap-2">
-            {availableInterests.map((interest) => (
+            {INTEREST_AREAS.map((interest) => (
               <button
                 key={interest}
+                type="button"
                 onClick={() => handleInterestToggle(interest)}
                 className={`px-3 sm:px-4 py-2 min-h-[44px] font-bold text-xs sm:text-sm border-2 border-brutal-border transition-all ${
                   profile.interests.includes(interest)
