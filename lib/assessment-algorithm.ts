@@ -43,9 +43,9 @@ export interface Career {
   category: string;
   salaryMin: number;
   salaryMax: number;
-  interestProfile: RIASECScore;
-  valueProfile: ValueScore;
-  workEnvironment: {
+  interestProfile?: RIASECScore;
+  valueProfile?: ValueScore;
+  workEnvironment?: {
     teamSize: string;
     pace: string;
   };
@@ -123,6 +123,11 @@ function generateReasons(
   career: Career
 ): string[] {
   const reasons: string[] = [];
+
+  // Skip if no metadata
+  if (!career.interestProfile || !career.valueProfile || !career.workEnvironment) {
+    return ['Career assessment data is being updated'];
+  }
 
   // RIASEC alignment
   const studentTop = getTop3RIASEC(studentProfile.riasec);
@@ -217,6 +222,19 @@ export function calculateCareerMatch(
   studentProfile: AssessmentProfile,
   career: Career
 ): MatchResult {
+  // Skip careers without metadata
+  if (!career.interestProfile || !career.valueProfile || !career.workEnvironment) {
+    return {
+      careerId: career._id,
+      matchPercentage: 0,
+      interestScore: 0,
+      valueScore: 0,
+      environmentScore: 0,
+      topRIASEC: getTop3RIASEC(studentProfile.riasec),
+      matchReasons: ['This career needs updated assessment data'],
+    };
+  }
+
   // 1. RIASEC Interest Match (50% weight)
   const interestMatch = cosineSimilarity(
     studentProfile.riasec,

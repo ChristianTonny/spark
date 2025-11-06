@@ -15,7 +15,7 @@ import {
   User,
   BookOpen,
 } from "lucide-react";
-import { formatAssessmentDate } from "@/lib/assessment-storage";
+import { formatAssessmentDate } from "@/lib/date-utils";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { useConvexAuth } from "@/lib/hooks/useConvexAuth";
