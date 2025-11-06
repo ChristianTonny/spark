@@ -1,5 +1,6 @@
-import { query } from "./_generated/server";
+import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
+import { getCurrentUserOrThrow } from "./users";
 
 // Get all professionals
 export const list = query({
@@ -69,5 +70,51 @@ export const getByCareerIds = query({
     );
 
     return enriched;
+  },
+});
+
+// Create a professional profile
+export const create = mutation({
+  args: {
+    company: v.string(),
+    jobTitle: v.string(),
+    bio: v.optional(v.string()),
+    yearsExperience: v.optional(v.number()),
+    careerIds: v.array(v.string()),
+    calendlyUrl: v.optional(v.string()),
+    ratePerChat: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const user = await getCurrentUserOrThrow(ctx);
+
+    // Check if professional profile already exists
+    const existing = await ctx.db
+      .query("professionals")
+      .withIndex("by_user", (q) => q.eq("userId", user._id))
+      .first();
+
+    if (existing) {
+      throw new Error("Professional profile already exists");
+    }
+
+    // Create professional profile
+    const professionalId = await ctx.db.insert("professionals", {
+      userId: user._id,
+      company: args.company,
+      jobTitle: args.jobTitle,
+      bio: args.bio,
+      yearsExperience: args.yearsExperience,
+      rating: 5.0, // Default rating
+      chatsCompleted: 0,
+      careerIds: args.careerIds,
+      availability: [], // Will be set later
+      calendlyUrl: args.calendlyUrl,
+      ratePerChat: args.ratePerChat || 0,
+      totalEarnings: 0,
+      earningsThisMonth: 0,
+      earningsLastMonth: 0,
+    });
+
+    return professionalId;
   },
 });

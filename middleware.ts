@@ -10,6 +10,7 @@ const isPublicRoute = createRouteMatcher([
   '/sign-up(.*)',
   '/login(.*)',
   '/signup(.*)',
+  '/onboarding(.*)', // Allow access to onboarding pages for new users
   '/api(.*)',
 ]);
 
