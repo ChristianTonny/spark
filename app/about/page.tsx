@@ -10,10 +10,10 @@ export default function AboutPage() {
       <section className="px-4 py-16 md:py-24 bg-brutal-orange border-b-4 border-brutal-border">
         <div className="container mx-auto max-w-4xl text-center text-white">
           <h1 className="text-5xl md:text-6xl font-black mb-6">
-            We're Making Career Discovery Fair for Everyone
+            We&apos;re Making Career Discovery Fair for Everyone
           </h1>
           <p className="text-xl md:text-2xl text-white/90">
-            OpportunityMap started because I saw my friends choosing careers without ever exploring what's actually out there.
+            OpportunityMap started because I saw my friends choosing careers without ever exploring what&apos;s actually out there.
           </p>
         </div>
       </section>
@@ -25,19 +25,19 @@ export default function AboutPage() {
           
           <div className="prose prose-lg max-w-none space-y-6 text-gray-700">
             <p className="text-xl leading-relaxed">
-              Hey! I'm Christian Tonny, a student at ALU Rwanda and the founder of OpportunityMap. This project came out of a simple observation: <span className="font-bold">most Rwandan high school students choose their future careers without really knowing what options exist.</span>
+              Hey! I&apos;m Christian Tonny, a student at ALU Rwanda and the founder of OpportunityMap. This project came out of a simple observation: <span className="font-bold">most Rwandan high school students choose their future careers without really knowing what options exist.</span>
             </p>
             
             <p className="text-xl leading-relaxed">
-              Growing up in Kigali, I watched friends pick O-Level and A-Level combinations based on what their parents did, what seemed "safe," or just what everyone else was choosing. By the time they got to university, many realized they picked the wrong path—but it was already too late.
+              Growing up in Kigali, I watched friends pick O-Level and A-Level combinations based on what their parents did, what seemed &quot;safe,&quot; or just what everyone else was choosing. By the time they got to university, many realized they picked the wrong path—but it was already too late.
             </p>
 
             <p className="text-xl leading-relaxed">
-              The problem isn't that students aren't smart or ambitious. It's that <span className="font-bold">nobody told them what careers actually exist, what they pay, or how to get there.</span> If you don't know data science is a career, you'll never choose it.
+              The problem isn&apos;t that students aren&apos;t smart or ambitious. It&apos;s that <span className="font-bold">nobody told them what careers actually exist, what they pay, or how to get there.</span> If you don&apos;t know data science is a career, you&apos;ll never choose it.
             </p>
 
             <p className="text-xl leading-relaxed">
-              So I built OpportunityMap as a solution. It's a platform where high school students can:
+              So I built OpportunityMap as a solution. It&apos;s a platform where high school students can:
             </p>
 
             <ul className="list-none space-y-4 my-8">
@@ -60,7 +60,7 @@ export default function AboutPage() {
             </ul>
 
             <p className="text-xl leading-relaxed">
-              This is a personal project, built by a student, for students. It's not a big corporate product—it's something I'm building because I believe every Rwandan student deserves the same access to career information that students in Nairobi, Lagos, or Silicon Valley have.
+              This is a personal project, built by a student, for students. It&apos;s not a big corporate product—it&apos;s something I&apos;m building because I believe every Rwandan student deserves the same access to career information that students in Nairobi, Lagos, or Silicon Valley have.
             </p>
           </div>
         </div>
@@ -122,7 +122,7 @@ export default function AboutPage() {
           
           <div className="space-y-6 text-gray-700 text-lg">
             <p>
-              OpportunityMap is currently in <span className="font-bold">early development</span>. I'm building it as a solo project while studying at ALU Rwanda. Here's where things stand:
+              OpportunityMap is currently in <span className="font-bold">early development</span>. I&apos;m building it as a solo project while studying at ALU Rwanda. Here&apos;s where things stand:
             </p>
 
             <div className="grid md:grid-cols-2 gap-6 my-8">
@@ -148,7 +148,7 @@ export default function AboutPage() {
             </div>
 
             <p>
-              The goal is to launch a working beta by <span className="font-bold">mid-2025</span> and start getting real students using the platform. If you're a professional interested in becoming a mentor, or a school interested in partnering, reach out!
+              The goal is to launch a working beta by <span className="font-bold">mid-2025</span> and start getting real students using the platform. If you&apos;re a professional interested in becoming a mentor, or a school interested in partnering, reach out!
             </p>
           </div>
         </div>
@@ -161,7 +161,7 @@ export default function AboutPage() {
             Want to Help?
           </h2>
           <p className="text-xl mb-8 text-white/90">
-            This is a community effort. Whether you're a professional who can mentor students, a company looking to sponsor careers, or just someone who believes in the mission—I'd love to hear from you.
+            This is a community effort. Whether you&apos;re a professional who can mentor students, a company looking to sponsor careers, or just someone who believes in the mission—I&apos;d love to hear from you.
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">

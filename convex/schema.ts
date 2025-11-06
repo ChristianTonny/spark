@@ -19,6 +19,7 @@ export default defineSchema({
     role: v.union(
       v.literal("student"),
       v.literal("mentor"),
+      v.literal("educator"),
       v.literal("company"),
       v.literal("partner")
     ),
@@ -94,6 +95,12 @@ export default defineSchema({
       pace: v.string(),           // 'steady' | 'moderate' | 'intense' | 'flexible' | 'deadline-driven' | 'predictable'
       structure: v.optional(v.string()), // 'flexible' | 'balanced' | 'structured' (optional for backward compatibility)
     })),
+
+    // Day in the Life - typical daily activities
+    dayInLife: v.optional(v.array(v.object({
+      time: v.string(),           // e.g., "9:00 AM" or "Morning"
+      activity: v.string(),       // Description of what happens at this time
+    }))),
   })
     .index("by_category", ["category"])
     .index("by_title", ["title"]),
@@ -121,6 +128,33 @@ export default defineSchema({
     earningsThisMonth: v.number(),
     earningsLastMonth: v.number(),
   }).index("by_user", ["userId"]),
+
+  // Mentor applications (before they become professionals)
+  mentorApplications: defineTable({
+    fullName: v.string(),
+    email: v.string(),
+    phone: v.string(),
+    linkedin: v.optional(v.string()),
+    currentRole: v.string(),
+    company: v.string(),
+    yearsExperience: v.string(),
+    industry: v.string(),
+    careerField: v.string(),
+    availability: v.string(),
+    motivation: v.string(),
+    sessionsPerMonth: v.string(),
+    focusAreas: v.array(v.string()),
+    status: v.union(
+      v.literal("pending"),
+      v.literal("approved"),
+      v.literal("rejected")
+    ),
+    submittedAt: v.number(),
+    reviewedAt: v.optional(v.number()),
+    reviewNotes: v.optional(v.string()),
+  })
+    .index("by_status", ["status"])
+    .index("by_email", ["email"]),
 
   // Assessment definitions
   assessments: defineTable({

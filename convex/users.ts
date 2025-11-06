@@ -73,6 +73,7 @@ export const store = mutation({
     role: v.optional(v.union(
       v.literal("student"),
       v.literal("mentor"),
+      v.literal("educator"),
       v.literal("company"),
       v.literal("partner")
     )),
@@ -141,6 +142,7 @@ export const updateRole = mutation({
     role: v.union(
       v.literal("student"),
       v.literal("mentor"),
+      v.literal("educator"),
       v.literal("company"),
       v.literal("partner")
     ),

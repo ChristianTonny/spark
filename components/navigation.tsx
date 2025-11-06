@@ -3,17 +3,41 @@
 import Link from 'next/link';
 import { Menu, X, Compass, BookOpen, Users, LayoutDashboard } from 'lucide-react';
 import { useState } from 'react';
-import { SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
+import { SignedIn, SignedOut, UserButton, useUser } from '@clerk/nextjs';
+import { useQuery } from 'convex/react';
+import { api } from '../convex/_generated/api';
+import { getDashboardPath } from '@/lib/hooks/useRoleGuard';
 
 export default function Navigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { user: clerkUser } = useUser();
+  const convexUser = useQuery(api.users.current);
 
-  const navLinks = [
-    { href: '/careers', label: 'Careers', icon: Compass },
-    { href: '/assessments', label: 'Assessments', icon: BookOpen },
-    { href: '/mentors', label: 'Mentors', icon: Users },
-    { href: '/dashboard/student', label: 'Dashboard', icon: LayoutDashboard },
-  ];
+  // Get user's role from Convex (source of truth)
+  const userRole = convexUser?.role || (clerkUser?.publicMetadata?.role as string) || 'student';
+
+  // Define navigation links based on role
+  const getNavLinks = () => {
+    const commonLinks = [];
+
+    // Only students see all main pages
+    if (userRole === 'student') {
+      commonLinks.push(
+        { href: '/careers', label: 'Careers', icon: Compass },
+        { href: '/assessments', label: 'Assessments', icon: BookOpen },
+        { href: '/mentors', label: 'Mentors', icon: Users }
+      );
+    }
+
+    // Educators and mentors only see Dashboard
+    // Dashboard link points to role-specific dashboard
+    const dashboardPath = getDashboardPath(userRole as any);
+    commonLinks.push({ href: dashboardPath, label: 'Dashboard', icon: LayoutDashboard });
+
+    return commonLinks;
+  };
+
+  const navLinks = getNavLinks();
 
   return (
     <nav className="sticky top-0 z-50 bg-white border-b-4 border-brutal-border">

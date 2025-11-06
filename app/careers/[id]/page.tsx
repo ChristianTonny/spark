@@ -224,13 +224,81 @@ export default function CareerDetailPage() {
             {career.requiredSkills.map((skill) => (
               <Badge
                 key={skill}
-                className="px-4 py-2 text-sm bg-white border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all"
+                variant="outline"
+                className="px-4 py-2 text-sm text-black bg-white border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all font-bold"
               >
                 {skill}
               </Badge>
             ))}
           </div>
         </div>
+
+        {/* Work Environment */}
+        {career.workEnvironment && (
+          <div className="mb-12">
+            <h2 className="text-3xl font-bold mb-6">Work Environment</h2>
+            <div className="grid md:grid-cols-3 gap-6">
+              <Card className="border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                <CardContent className="p-6">
+                  <h3 className="font-bold text-lg mb-3 uppercase">Team Size</h3>
+                  <p className="text-gray-700 capitalize text-lg">
+                    {career.workEnvironment.teamSize === 'small' && '👥 Small Teams (2-5 people)'}
+                    {career.workEnvironment.teamSize === 'large' && '👥👥👥 Large Teams (10+ people)'}
+                    {career.workEnvironment.teamSize === 'solo' && '🧑 Independent Work'}
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                <CardContent className="p-6">
+                  <h3 className="font-bold text-lg mb-3 uppercase">Work Pace</h3>
+                  <p className="text-gray-700 capitalize text-lg">
+                    {career.workEnvironment.pace === 'flexible' && '🌊 Flexible & Self-Directed'}
+                    {career.workEnvironment.pace === 'moderate' && '⚡ Moderate & Steady'}
+                    {career.workEnvironment.pace === 'intense' && '🚀 Fast-Paced & Dynamic'}
+                    {career.workEnvironment.pace === 'steady' && '📊 Steady & Predictable'}
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                <CardContent className="p-6">
+                  <h3 className="font-bold text-lg mb-3 uppercase">Structure</h3>
+                  <p className="text-gray-700 capitalize text-lg">
+                    {career.workEnvironment.structure === 'flexible' && '🎨 Flexible & Creative'}
+                    {career.workEnvironment.structure === 'structured' && '📋 Structured & Organized'}
+                    {career.workEnvironment.structure === 'mixed' && '🔄 Mixed Approach'}
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        )}
+
+        {/* Day in the Life */}
+        {career.dayInLife && career.dayInLife.length > 0 && (
+          <div className="mb-12">
+            <h2 className="text-3xl font-bold mb-6">A Day in the Life</h2>
+            <Card className="border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+              <CardContent className="p-6">
+                <div className="space-y-4">
+                  {career.dayInLife.map((item, index) => (
+                    <div key={index} className="flex gap-4 items-start">
+                      <div className="flex-shrink-0">
+                        <div className="w-20 h-20 bg-accent border-2 border-black flex items-center justify-center font-bold text-sm">
+                          {item.time}
+                        </div>
+                      </div>
+                      <div className="flex-1 pt-2">
+                        <p className="text-lg text-gray-700">{item.activity}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
         {/* Career Path */}
         {career.careerPath.length > 0 && (

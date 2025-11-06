@@ -14,6 +14,7 @@ export interface RIASECScore {
   social: number;         // 0-180 scale
   enterprising: number;   // 0-180 scale
   conventional: number;   // 0-180 scale
+  [key: string]: number;  // Index signature for compatibility
 }
 
 export interface ValueScore {
@@ -23,6 +24,7 @@ export interface ValueScore {
   balance: number;     // 0-60 scale
   growth: number;      // 0-60 scale
   stability: number;   // 0-60 scale
+  [key: string]: number;  // Index signature for compatibility
 }
 
 export interface EnvironmentPreference {
@@ -418,14 +420,18 @@ export function calculateProfileFromAnswers(answers: Record<string, number>): As
     // Add RIASEC scores
     if (rule.riasec) {
       Object.entries(rule.riasec).forEach(([key, value]) => {
-        riasec[key as keyof RIASECScore] += value;
+        if (value !== undefined) {
+          riasec[key as keyof RIASECScore] += value;
+        }
       });
     }
 
     // Add value scores
     if (rule.values) {
       Object.entries(rule.values).forEach(([key, value]) => {
-        values[key as keyof ValueScore] += value;
+        if (value !== undefined) {
+          values[key as keyof ValueScore] += value;
+        }
       });
     }
 

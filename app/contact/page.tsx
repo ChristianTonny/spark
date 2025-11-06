@@ -29,7 +29,7 @@ export default function ContactPage() {
       <section className="px-4 py-16 md:py-24 bg-brutal-orange border-b-4 border-brutal-border">
         <div className="container mx-auto max-w-4xl text-center text-white">
           <h1 className="text-5xl md:text-6xl font-black mb-6">
-            Let's Talk!
+            Let&apos;s Talk!
           </h1>
           <p className="text-xl md:text-2xl text-white/90">
             Questions, feedback, partnership ideas? I read every message.
@@ -78,7 +78,7 @@ export default function ContactPage() {
 
                 <div>
                   <label htmlFor="category" className="block font-bold mb-2 text-gray-900">
-                    What's this about? *
+                    What&apos;s this about? *
                   </label>
                   <select
                     id="category"
@@ -90,7 +90,7 @@ export default function ContactPage() {
                     <option value="mentor">Becoming a Mentor</option>
                     <option value="partnership">Partnership/Sponsorship</option>
                     <option value="school">School Partnership</option>
-                    <option value="student">I'm a Student</option>
+                    <option value="student">I&apos;m a Student</option>
                     <option value="feedback">Feedback/Suggestion</option>
                     <option value="bug">Report a Bug</option>
                   </select>
@@ -122,7 +122,7 @@ export default function ContactPage() {
 
                 {status === 'sent' && (
                   <div className="p-4 bg-brutal-green/20 border-3 border-brutal-green text-gray-900 font-semibold">
-                    ✓ Message sent! I'll get back to you within 24-48 hours.
+                    ✓ Message sent! I&apos;ll get back to you within 24-48 hours.
                   </div>
                 )}
 
@@ -229,7 +229,7 @@ export default function ContactPage() {
               {/* Response Time Notice */}
               <div className="bg-brutal-yellow/30 p-6 border-3 border-brutal-border">
                 <p className="font-semibold text-gray-900">
-                  ⏱️ <span className="font-black">Response Time:</span> I'm a full-time student, so responses might take 24-48 hours. I read every message though—promise!
+                  ⏱️ <span className="font-black">Response Time:</span> I&apos;m a full-time student, so responses might take 24-48 hours. I read every message though—promise!
                 </p>
               </div>
             </div>
@@ -248,7 +248,7 @@ export default function ContactPage() {
                 When will OpportunityMap be fully launched?
               </summary>
               <p className="mt-3 text-gray-700">
-                We're targeting a beta launch in mid-2025. If you're a school or organization interested in early access, definitely reach out!
+                We&apos;re targeting a beta launch in mid-2025. If you&apos;re a school or organization interested in early access, definitely reach out!
               </p>
             </details>
 
@@ -257,7 +257,7 @@ export default function ContactPage() {
                 How can I become a mentor?
               </summary>
               <p className="mt-3 text-gray-700">
-                Head to our <a href="/mentors/apply" className="text-brutal-blue hover:underline font-semibold">mentor application page</a>. We're looking for professionals who can spare 15-30 minutes every few weeks to talk with students.
+                Head to our <a href="/mentors/apply" className="text-brutal-blue hover:underline font-semibold">mentor application page</a>. We&apos;re looking for professionals who can spare 15-30 minutes every few weeks to talk with students.
               </p>
             </details>
 
@@ -266,7 +266,7 @@ export default function ContactPage() {
                 Is this only for Rwandan students?
               </summary>
               <p className="mt-3 text-gray-700">
-                Currently, yes—we're focused on Rwanda first to do it well. But the long-term vision is to expand across East Africa!
+                Currently, yes—we&apos;re focused on Rwanda first to do it well. But the long-term vision is to expand across East Africa!
               </p>
             </details>
 
@@ -275,7 +275,7 @@ export default function ContactPage() {
                 How much does it cost for students?
               </summary>
               <p className="mt-3 text-gray-700">
-                OpportunityMap will be free for all students. We're exploring sponsorships and school partnerships to keep it sustainable.
+                OpportunityMap will be free for all students. We&apos;re exploring sponsorships and school partnerships to keep it sustainable.
               </p>
             </details>
           </div>

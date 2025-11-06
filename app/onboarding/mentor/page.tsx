@@ -79,7 +79,7 @@ export default function MentorOnboardingPage() {
             Welcome, <span className="text-brutal-orange">Mentor</span>!
           </h1>
           <p className="text-xl text-gray-700 font-bold">
-            Let's set up your profile to help Rwandan students
+            Let&apos;s set up your profile to help Rwandan students
           </p>
         </div>
 
@@ -219,7 +219,7 @@ export default function MentorOnboardingPage() {
 
         {/* Info Box */}
         <div className="mt-6 bg-brutal-yellow border-3 border-brutal-border shadow-brutal p-6">
-          <h3 className="font-black text-lg mb-3 uppercase">What's Next?</h3>
+          <h3 className="font-black text-lg mb-3 uppercase">What&apos;s Next?</h3>
           <ul className="space-y-2 text-sm font-bold">
             <li className="flex items-start gap-2">
               <span className="text-brutal-text">✓</span>
@@ -235,7 +235,7 @@ export default function MentorOnboardingPage() {
             </li>
             <li className="flex items-start gap-2">
               <span className="text-brutal-text">✓</span>
-              <span>Make a difference in Rwandan students' lives!</span>
+              <span>Make a difference in Rwandan students&apos; lives!</span>
             </li>
           </ul>
         </div>

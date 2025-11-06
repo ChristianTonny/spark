@@ -16,14 +16,18 @@ export const list = query({
 
     const bookmarks = await ctx.db
       .query("savedCareers")
-      .withIndex("by_student", (q) => q.eq("studentId", user._id))
+      .withIndex("by_student", (q) => q.eq("studentId", user._id.toString()))
       .collect();
 
     // Fetch full career details
     const careers = await Promise.all(
       bookmarks.map(async (b) => {
         const career = await ctx.db.get(b.careerId as any);
-        return career;
+        // Check that it's a career document (has title and category)
+        if (career && 'title' in career && 'category' in career) {
+          return career;
+        }
+        return null;
       })
     );
 
@@ -45,7 +49,7 @@ export const getIds = query({
 
     const bookmarks = await ctx.db
       .query("savedCareers")
-      .withIndex("by_student", (q) => q.eq("studentId", user._id))
+      .withIndex("by_student", (q) => q.eq("studentId", user._id.toString()))
       .collect();
 
     return bookmarks.map((b) => b.careerId);
@@ -63,7 +67,7 @@ export const toggle = mutation({
     // Check if already bookmarked
     const bookmarks = await ctx.db
       .query("savedCareers")
-      .withIndex("by_student", (q) => q.eq("studentId", user._id))
+      .withIndex("by_student", (q) => q.eq("studentId", user._id.toString()))
       .collect();
 
     const existing = bookmarks.find((b) => b.careerId === args.careerId);
@@ -84,7 +88,7 @@ export const toggle = mutation({
     } else {
       // Add bookmark
       await ctx.db.insert("savedCareers", {
-        studentId: user._id,
+        studentId: user._id.toString(),
         careerId: args.careerId,
         savedAt: Date.now(),
       });

@@ -19,10 +19,14 @@ import { formatAssessmentDate } from "@/lib/date-utils";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { useConvexAuth } from "@/lib/hooks/useConvexAuth";
+import { useRoleGuard } from "@/lib/hooks/useRoleGuard";
 
 export default function StudentDashboard() {
   const router = useRouter();
   const { user, clerkUser, isLoading } = useConvexAuth();
+
+  // Protect this page - only students can access
+  useRoleGuard(['student']);
 
   // Fetch data from Convex (automatically uses authenticated user)
   const savedCareers = useQuery(api.savedCareers.list, user ? {} : "skip");
@@ -235,7 +239,7 @@ export default function StudentDashboard() {
                             <div className="flex-1">
                               <div className="flex flex-wrap items-center gap-2 mb-2">
                                 <span className="text-xs sm:text-sm font-bold text-gray-600">
-                                  {formatAssessmentDate(new Date(result.completedAt).toISOString())}
+                                  {formatAssessmentDate(result.completedAt)}
                                 </span>
                                 <span className="px-2 py-1 bg-brutal-green text-black text-xs font-bold border-2 border-black">
                                   {Math.round(topMatch?.matchPercentage || 0)}% Match

@@ -4,19 +4,46 @@ import { Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Sparkles, ArrowRight, Bookmark, RotateCcw } from 'lucide-react';
-import { useQuery } from "convex/react";
+import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { Spinner } from '@/components/loading-skeleton';
 import { useConvexAuth } from '@/lib/hooks/useConvexAuth';
+import { useToast } from '@/lib/use-toast';
+import { ToastContainer } from '@/components/toast-container';
 
 function AssessmentResultsContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const resultId = searchParams.get('id');
   const { user, isLoading: authLoading } = useConvexAuth();
+  const toast = useToast();
 
   // Fetch all results for current user (only if authenticated)
   const allResults = useQuery(api.assessments.getResults, user ? {} : "skip");
+  const bookmarkedIds = useQuery(api.savedCareers.getIds, user ? {} : "skip");
+  const toggleBookmark = useMutation(api.savedCareers.toggle);
+
+  // Handle bookmark toggle
+  const handleBookmark = async (e: React.MouseEvent, careerId: string, careerTitle: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!user) {
+      toast.error('Please sign in to bookmark careers');
+      return;
+    }
+
+    try {
+      const result = await toggleBookmark({ careerId });
+      if (result.action === 'added') {
+        toast.success(`Added ${careerTitle} to bookmarks`);
+      } else {
+        toast.success(`Removed ${careerTitle} from bookmarks`);
+      }
+    } catch (error) {
+      toast.error('Failed to update bookmark');
+    }
+  };
 
   // Find the specific result by ID, or use the most recent one
   let currentResult = null;
@@ -82,7 +109,7 @@ function AssessmentResultsContent() {
         {/* Header */}
         <div className="text-center mb-12">
           <div className="inline-flex items-center justify-center w-20 h-20 bg-accent border-3 border-black shadow-brutal mb-6">
-            <Sparkles className="w-12 h-12" />
+            <Sparkles className="w-12 h-12 text-black" />
           </div>
           <h1 className="text-5xl md:text-7xl font-black mb-4 uppercase">
             Your Career Matches!
@@ -96,6 +123,9 @@ function AssessmentResultsContent() {
         <div className="space-y-6 mb-12">
           {displayMatches.map((match, index) => {
             const { career, matchScore, reasons } = match;
+
+            if (!career) return null;
+
             const rankColors = [
               'bg-accent', // 1st - yellow
               'bg-primary', // 2nd - orange
@@ -176,9 +206,16 @@ function AssessmentResultsContent() {
                             <ArrowRight className="w-4 h-4" />
                           </button>
                         </Link>
-                        <button className="px-6 py-3 bg-white text-black font-bold uppercase text-sm border-3 border-black shadow-brutal-sm hover:shadow-brutal hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all flex items-center gap-2">
-                          <Bookmark className="w-4 h-4" />
-                          Save Career
+                        <button
+                          onClick={(e) => handleBookmark(e, career._id, career.title)}
+                          className={`px-6 py-3 font-bold uppercase text-sm border-3 border-black shadow-brutal-sm hover:shadow-brutal hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all flex items-center gap-2 ${
+                            bookmarkedIds?.includes(career._id)
+                              ? 'bg-brutal-yellow text-black'
+                              : 'bg-white text-black'
+                          }`}
+                        >
+                          <Bookmark className={`w-4 h-4 ${bookmarkedIds?.includes(career._id) ? 'fill-current' : ''}`} />
+                          {bookmarkedIds?.includes(career._id) ? 'Saved' : 'Save Career'}
                         </button>
                       </div>
                     </div>
@@ -246,6 +283,9 @@ function AssessmentResultsContent() {
           </Link>
         </div>
       </div>
+
+      {/* Toast Notifications */}
+      <ToastContainer toasts={toast.toasts} onClose={toast.removeToast} />
     </div>
   );
 }

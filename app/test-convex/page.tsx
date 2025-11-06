@@ -12,7 +12,7 @@ export default function TestConvexPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-4xl font-black mb-4">Loading from Convex...</h1>
-          <p className="text-xl">If you see this forever, Convex isn't connected</p>
+          <p className="text-xl">If you see this forever, Convex isn&apos;t connected</p>
         </div>
       </div>
     );
@@ -47,9 +47,9 @@ export default function TestConvexPage() {
         </div>
 
         <div className="mt-8 p-6 bg-yellow-100 border-4 border-yellow-600">
-          <h3 className="text-xl font-black mb-2">What's Next?</h3>
+          <h3 className="text-xl font-black mb-2">What&apos;s Next?</h3>
           <p className="font-bold">
-            This test page proves Convex works. Now I'll migrate your real pages to use the database instead of mock data.
+            This test page proves Convex works. Now I&apos;ll migrate your real pages to use the database instead of mock data.
           </p>
         </div>
       </div>

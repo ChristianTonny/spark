@@ -18,7 +18,7 @@ export default function StudentsPage() {
                 Discover Careers You Never Knew Existed
               </h1>
               <p className="text-xl md:text-2xl mb-8 text-white/90">
-                Explore 100+ career paths, talk to real professionals, and make informed decisions about your future—before choosing your A-Level combination.
+                Explore 100+ career paths, talk to real professionals, and make informed decisions about your future&mdash;before choosing your A-Level combination.
               </p>
               <Link
                 href="/sign-up/student"
@@ -33,7 +33,7 @@ export default function StudentsPage() {
             </div>
             
             <div className="bg-white p-8 border-3 border-brutal-border shadow-brutal-xl">
-              <h3 className="text-2xl font-black mb-6 text-gray-900">What You'll Get</h3>
+              <h3 className="text-2xl font-black mb-6 text-gray-900">What You&apos;ll Get</h3>
               <ul className="space-y-4">
                 <li className="flex items-start gap-3">
                   <CheckCircle className="w-6 h-6 text-brutal-orange flex-shrink-0 mt-1" />
@@ -62,10 +62,10 @@ export default function StudentsPage() {
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-12">
             <h2 className="text-4xl md:text-5xl font-black mb-4 text-gray-900">
-              The Problem We're Solving
+              The Problem We&apos;re Solving
             </h2>
             <p className="text-xl text-gray-700 max-w-3xl mx-auto">
-              Most Rwandan students choose careers without knowing what's actually out there.
+              Most Rwandan students choose careers without knowing what&apos;s actually out there.
             </p>
           </div>
 
@@ -94,7 +94,7 @@ export default function StudentsPage() {
 
           <div className="mt-12 bg-brutal-yellow/30 p-8 border-3 border-brutal-border text-center">
             <p className="text-xl font-semibold text-gray-900">
-              "I wish I knew data science existed before I chose my A-Level combination. Now I'm stuck." — Former O-Level student
+              &quot;I wish I knew data science existed before I chose my A-Level combination. Now I&apos;m stuck.&quot; &mdash; Former O-Level student
             </p>
           </div>
         </div>
@@ -178,7 +178,7 @@ export default function StudentsPage() {
               <div>
                 <h3 className="text-2xl font-black mb-2 text-gray-900">Realistic Career Info</h3>
                 <p className="text-gray-700">
-                  No BS. See what people actually earn, what skills you really need, and what the job is like day-to-day. Researched from Rwanda's job market.
+                  No BS. See what people actually earn, what skills you really need, and what the job is like day-to-day. Researched from Rwanda&apos;s job market.
                 </p>
               </div>
             </div>
@@ -193,7 +193,7 @@ export default function StudentsPage() {
               <div>
                 <h3 className="text-2xl font-black mb-2 text-gray-900">Connect With Professionals</h3>
                 <p className="text-gray-700">
-                  Stop guessing. Talk to software engineers, doctors, architects, marketers—people doing the job you're curious about.
+                  Stop guessing. Talk to software engineers, doctors, architects, marketers&mdash;people doing the job you&apos;re curious about.
                 </p>
               </div>
             </div>
@@ -223,7 +223,7 @@ export default function StudentsPage() {
               <div>
                 <h3 className="text-2xl font-black mb-2 text-gray-900">Track Your Progress</h3>
                 <p className="text-gray-700">
-                  Save careers you're interested in, track mentor sessions, retake assessments as you grow. Your career exploration journey in one place.
+                  Save careers you&apos;re interested in, track mentor sessions, retake assessments as you grow. Your career exploration journey in one place.
                 </p>
               </div>
             </div>
@@ -245,15 +245,15 @@ export default function StudentsPage() {
                   <span className="text-brutal-yellow text-2xl">★★★★★</span>
                 </div>
                 <p className="text-gray-700 mb-4">
-                  "OpportunityMap showed me careers I never knew existed. Now I know exactly what A-Level subjects to choose!"
+                  &quot;OpportunityMap showed me careers I never knew existed. Now I know exactly what A-Level subjects to choose!&quot;
                 </p>
-                <p className="font-bold text-gray-900">— S3 Student, Kigali</p>
+                <p className="font-bold text-gray-900">&mdash; S3 Student, Kigali</p>
               </div>
             ))}
           </div>
 
           <p className="text-center text-gray-600 mt-8">
-            (Platform launching soon—these will be real testimonials!)
+            (Platform launching soon&mdash;these will be real testimonials!)
           </p>
         </div>
       </section>
@@ -271,16 +271,16 @@ export default function StudentsPage() {
                 Is OpportunityMap really free?
               </summary>
               <p className="mt-3 text-gray-700">
-                Yes! 100% free for all students. No hidden costs, no premium tiers. We're funded by partnerships with companies and schools.
+                Yes! 100% free for all students. No hidden costs, no premium tiers. We&apos;re funded by partnerships with companies and schools.
               </p>
             </details>
 
             <details className="bg-brutal-bg p-6 border-3 border-brutal-border">
               <summary className="font-bold cursor-pointer text-gray-900">
-                What if I don't know what I'm interested in yet?
+                What if I don&apos;t know what I&apos;m interested in yet?
               </summary>
               <p className="mt-3 text-gray-700">
-                Perfect! That's exactly who this is for. Take our assessments, explore random careers, talk to mentors. Discovery is the point.
+                Perfect! That&apos;s exactly who this is for. Take our assessments, explore random careers, talk to mentors. Discovery is the point.
               </p>
             </details>
 
@@ -298,7 +298,7 @@ export default function StudentsPage() {
                 What grade should I start using this?
               </summary>
               <p className="mt-3 text-gray-700">
-                The earlier the better! Ideally S1-S3, before you choose your A-Level combination. But it's never too late—even S4-S6 students benefit.
+                The earlier the better! Ideally S1-S3, before you choose your A-Level combination. But it&apos;s never too late&mdash;even S4-S6 students benefit.
               </p>
             </details>
           </div>
@@ -324,7 +324,7 @@ export default function StudentsPage() {
           </Link>
 
           <p className="text-white/80 mt-6">
-            No credit card • Set up in 2 minutes • 100% free forever
+            No credit card &bull; Set up in 2 minutes &bull; 100% free forever
           </p>
         </div>
       </section>

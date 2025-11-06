@@ -48,9 +48,9 @@ export default function AssessmentIntroPage() {
             <div className="p-6 bg-background border-3 border-black">
               <div className="flex items-center gap-3 mb-3">
                 <div className="p-2 bg-secondary border-2 border-black">
-                  <Clock className="w-6 h-6 text-white" />
+                  <Clock className="w-6 h-6 text-black" />
                 </div>
-                <h3 className="text-xl font-black uppercase">10 Minutes</h3>
+                <h3 className="text-xl font-black uppercase text-black">10 Minutes</h3>
               </div>
               <p className="text-sm font-bold text-gray-700">
                 Complete at your own pace - you can pause and resume anytime

@@ -32,7 +32,7 @@ export const getResults = query({
 
     const results = await ctx.db
       .query("assessmentResults")
-      .withIndex("by_student", (q) => q.eq("studentId", user._id))
+      .withIndex("by_student", (q) => q.eq("studentId", user._id.toString()))
       .order("desc")
       .collect();
 
@@ -45,7 +45,14 @@ export const getResults = query({
             return {
               ...match,
               career: career && 'title' in career && 'category' in career
-                ? { _id: career._id, title: career.title, category: career.category }
+                ? {
+                    _id: career._id,
+                    title: career.title,
+                    category: career.category,
+                    shortDescription: career.shortDescription,
+                    salaryMin: career.salaryMin,
+                    salaryMax: career.salaryMax
+                  }
                 : null,
             };
           })
@@ -79,7 +86,7 @@ export const saveResult = mutation({
 
     const resultId = await ctx.db.insert("assessmentResults", {
       assessmentId: args.assessmentId,
-      studentId: user._id,
+      studentId: user._id.toString(),
       answers: args.answers,
       careerMatches: args.careerMatches,
       completedAt: Date.now(),

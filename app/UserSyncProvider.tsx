@@ -19,10 +19,8 @@ export function UserSyncProvider({ children }: { children: React.ReactNode }) {
     // Store/update user in Convex
     const syncUser = async () => {
       try {
-        // Check if there's a stored role from the signup flow
-        const storedRole = typeof window !== 'undefined'
-          ? localStorage.getItem('signup_role')
-          : null;
+        // Get role from Clerk's public metadata (secure, set server-side or via role selection)
+        const role = user.publicMetadata?.role as "student" | "mentor" | "educator" | "company" | "partner" | undefined;
 
         await storeUser({
           clerkId: user.id,
@@ -31,16 +29,9 @@ export function UserSyncProvider({ children }: { children: React.ReactNode }) {
           lastName: user.lastName ?? "",
           avatar: user.imageUrl,
           phone: user.primaryPhoneNumber?.phoneNumber,
-          // Pass role if it was stored during signup
-          ...(storedRole && {
-            role: storedRole as "student" | "mentor" | "company" | "partner"
-          }),
+          // Pass role from Clerk metadata if it exists
+          ...(role && { role }),
         });
-
-        // Clear the stored role after successful sync
-        if (storedRole && typeof window !== 'undefined') {
-          localStorage.removeItem('signup_role');
-        }
       } catch (error) {
         console.error("Failed to sync user:", error);
       }

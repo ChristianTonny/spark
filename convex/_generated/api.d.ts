@@ -9,10 +9,14 @@
  */
 
 import type * as assessments from "../assessments.js";
+import type * as bulkOperations from "../bulkOperations.js";
 import type * as careers from "../careers.js";
+import type * as educators from "../educators.js";
+import type * as mentorApplications from "../mentorApplications.js";
 import type * as professionals from "../professionals.js";
 import type * as savedCareers from "../savedCareers.js";
 import type * as seed from "../seed.js";
+import type * as studentProfiles from "../studentProfiles.js";
 import type * as users from "../users.js";
 
 import type {
@@ -31,10 +35,14 @@ import type {
  */
 declare const fullApi: ApiFromModules<{
   assessments: typeof assessments;
+  bulkOperations: typeof bulkOperations;
   careers: typeof careers;
+  educators: typeof educators;
+  mentorApplications: typeof mentorApplications;
   professionals: typeof professionals;
   savedCareers: typeof savedCareers;
   seed: typeof seed;
+  studentProfiles: typeof studentProfiles;
   users: typeof users;
 }>;
 declare const fullApiWithMounts: typeof fullApi;

@@ -18,7 +18,7 @@ export default function CompaniesPage() {
                 Build Your Talent Pipeline Early
               </h1>
               <p className="text-xl md:text-2xl mb-8 text-white/90">
-                Connect with Rwanda's next generation of talent while they're still in high school.
+                Connect with Rwanda&apos;s next generation of talent while they&apos;re still in high school.
               </p>
               <Link
                 href="/contact"
@@ -62,7 +62,7 @@ export default function CompaniesPage() {
               The Talent Gap Problem
             </h2>
             <p className="text-xl text-gray-700 max-w-3xl mx-auto">
-              Rwandan companies struggle to find qualified talent. Students don't know your industry exists. OpportunityMap bridges this gap.
+              Rwandan companies struggle to find qualified talent. Students don&apos;t know your industry exists. OpportunityMap bridges this gap.
             </p>
           </div>
 
@@ -194,7 +194,7 @@ export default function CompaniesPage() {
               <UserCheck className="w-12 h-12 text-brutal-pink mb-4" />
               <h3 className="text-2xl font-black mb-3">Custom Partnership</h3>
               <p className="text-gray-700 mb-6">
-                Have a unique idea? Let's build a custom partnership that meets your talent development goals.
+                Have a unique idea? Let&apos;s build a custom partnership that meets your talent development goals.
               </p>
               <ul className="space-y-2 mb-6">
                 <li className="flex items-start gap-2">
@@ -289,7 +289,7 @@ export default function CompaniesPage() {
 
           <div className="bg-brutal-blue/10 p-8 border-3 border-brutal-border text-center">
             <p className="text-xl font-semibold text-gray-900">
-              "Investing in career awareness today solves your hiring problems tomorrow."
+              &quot;Investing in career awareness today solves your hiring problems tomorrow.&quot;
             </p>
           </div>
         </div>
@@ -299,7 +299,7 @@ export default function CompaniesPage() {
       <section className="px-4 py-16 md:py-24 bg-brutal-bg">
         <div className="container mx-auto max-w-6xl">
           <h2 className="text-4xl font-black mb-8 text-center">
-            Trusted by Rwanda's Leading Companies
+            Trusted by Rwanda&apos;s Leading Companies
           </h2>
           <p className="text-center text-gray-600 mb-12">
             (Partner logos will appear here)
@@ -323,7 +323,7 @@ export default function CompaniesPage() {
       <section className="px-4 py-16 md:py-24 bg-white">
         <div className="container mx-auto max-w-6xl">
           <h2 className="text-4xl font-black mb-12 text-center">
-            What You'll Track
+            What You&apos;ll Track
           </h2>
 
           <div className="grid md:grid-cols-4 gap-6">
@@ -357,7 +357,7 @@ export default function CompaniesPage() {
             Ready to Build Your Talent Pipeline?
           </h2>
           <p className="text-xl md:text-2xl mb-8 text-white/90">
-            Let's discuss how OpportunityMap can help you connect with Rwanda's next generation of talent.
+            Let&apos;s discuss how OpportunityMap can help you connect with Rwanda&apos;s next generation of talent.
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">

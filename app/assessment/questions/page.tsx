@@ -50,7 +50,10 @@ export default function AssessmentQuestionsPage() {
     );
   }
 
-  const assessment = assessments[0]; // Career Discovery Assessment
+  // Use the assessment with the most questions (should be the 12-question RIASEC one)
+  const assessment = assessments.reduce((latest, current) => 
+    current.questionCount > latest.questionCount ? current : latest
+  );
   const questions = assessment.questions;
   const totalQuestions = questions.length;
   const progress = ((currentQuestion + 1) / totalQuestions) * 100;

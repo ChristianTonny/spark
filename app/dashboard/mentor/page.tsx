@@ -10,28 +10,22 @@ import {
 import { useQuery } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
 import { useConvexAuth } from '../../../lib/hooks/useConvexAuth';
+import { useRoleGuard } from '../../../lib/hooks/useRoleGuard';
 
 export default function MentorDashboardPage() {
   const router = useRouter();
-  const { user, isLoading: authLoading, isAuthenticated } = useConvexAuth();
+  const { user, isLoading: authLoading } = useConvexAuth();
   const professional = useQuery(api.professionals.getCurrentProfessional);
 
-  // Redirect if not authenticated or not a mentor
-  useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
-      router.push('/sign-in');
-    } else if (!authLoading && user && user.role !== 'mentor') {
-      // Redirect to appropriate dashboard
-      router.push(`/dashboard/${user.role}`);
-    }
-  }, [user, authLoading, isAuthenticated, router]);
+  // Protect this page - only mentors can access
+  useRoleGuard(['mentor']);
 
   // Redirect to onboarding if no professional profile
   useEffect(() => {
-    if (!authLoading && isAuthenticated && professional === null && user?.role === 'mentor') {
+    if (!authLoading && user && professional === null && user.role === 'mentor') {
       router.push('/onboarding/mentor');
     }
-  }, [professional, authLoading, isAuthenticated, user, router]);
+  }, [professional, authLoading, user, router]);
 
   // Loading state
   if (authLoading || professional === undefined) {
@@ -197,7 +191,7 @@ export default function MentorDashboardPage() {
                 <div className="border-2 border-brutal-border p-4 sm:p-6">
                   <h3 className="text-lg font-black mb-2">1. Set Your Availability</h3>
                   <p className="text-gray-700 mb-3">
-                    Let students know when you're available for mentoring sessions
+                    Let students know when you&apos;re available for mentoring sessions
                   </p>
                   <Link
                     href="/dashboard/mentor/availability"
@@ -302,7 +296,7 @@ export default function MentorDashboardPage() {
 
                 <div className="pt-4 border-t-2 border-gray-200">
                   <p className="text-sm font-bold text-gray-700">
-                    You're helping shape the future of Rwandan students! 🇷🇼
+                    You&apos;re helping shape the future of Rwandan students! 🇷🇼
                   </p>
                 </div>
               </div>

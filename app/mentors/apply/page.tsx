@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { ArrowRight, Heart, Clock, Users, Award, MessageSquare, CheckCircle } from 'lucide-react';
+import { useMutation } from "convex/react";
+import { api } from "../../../convex/_generated/api";
 
 export default function MentorApplyPage() {
   const [step, setStep] = useState(1);
@@ -27,6 +29,8 @@ export default function MentorApplyPage() {
   });
   const [status, setStatus] = useState<'idle' | 'submitting' | 'submitted' | 'error'>('idle');
 
+  const submitApplication = useMutation(api.mentorApplications.submit);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (step < 3) {
@@ -36,10 +40,28 @@ export default function MentorApplyPage() {
     
     setStatus('submitting');
     
-    // TODO: Implement actual form submission to Convex
-    setTimeout(() => {
+    try {
+      await submitApplication({
+        fullName: formData.fullName,
+        email: formData.email,
+        phone: formData.phone,
+        linkedin: formData.linkedin || undefined,
+        currentRole: formData.currentRole,
+        company: formData.company,
+        yearsExperience: formData.yearsExperience,
+        industry: formData.industry,
+        careerField: formData.careerField,
+        availability: formData.availability,
+        motivation: formData.motivation,
+        sessionsPerMonth: formData.sessionsPerMonth,
+        focusAreas: formData.focusAreas,
+      });
+      
       setStatus('submitted');
-    }, 1500);
+    } catch (error) {
+      console.error('Failed to submit application:', error);
+      setStatus('error');
+    }
   };
 
   const handleFocusAreaToggle = (area: string) => {
@@ -60,7 +82,7 @@ export default function MentorApplyPage() {
           </div>
           <h1 className="text-4xl font-black mb-4 text-gray-900">Application Submitted!</h1>
           <p className="text-xl text-gray-700 mb-8">
-            Thank you for applying to become a mentor. I'll review your application and get back to you within 3-5 business days.
+            Thank you for applying to become a mentor. I&apos;ll review your application and get back to you within 3-5 business days.
           </p>
           <p className="text-gray-700 mb-8">
             I sent a confirmation email to <span className="font-bold">{formData.email}</span>
@@ -85,7 +107,7 @@ export default function MentorApplyPage() {
             Become a Mentor
           </h1>
           <p className="text-xl text-white/90">
-            Share your experience. Shape a student's future. 15 minutes at a time.
+            Share your experience. Shape a student&apos;s future. 15 minutes at a time.
           </p>
         </div>
       </section>
@@ -153,7 +175,7 @@ export default function MentorApplyPage() {
               {/* Step 1: Basic Info */}
               {step === 1 && (
                 <>
-                  <h2 className="text-3xl font-black mb-6 text-gray-900">Let's Start With the Basics</h2>
+                  <h2 className="text-3xl font-black mb-6 text-gray-900">Let&apos;s Start With the Basics</h2>
                   
                   <div>
                     <label htmlFor="fullName" className="block font-bold mb-2 text-gray-900">
@@ -449,7 +471,7 @@ export default function MentorApplyPage() {
               <div>
                 <h3 className="font-black text-xl mb-2 text-gray-900">Application Review (3-5 days)</h3>
                 <p className="text-gray-700">
-                  I'll review your application and verify your professional background via LinkedIn/references.
+                  I&apos;ll review your application and verify your professional background via LinkedIn/references.
                 </p>
               </div>
             </div>
@@ -463,7 +485,7 @@ export default function MentorApplyPage() {
               <div>
                 <h3 className="font-black text-xl mb-2 text-gray-900">Onboarding Call (30 min)</h3>
                 <p className="text-gray-700">
-                  If approved, we'll have a quick call to explain how the platform works and answer your questions.
+                  If approved, we&apos;ll have a quick call to explain how the platform works and answer your questions.
                 </p>
               </div>
             </div>
@@ -491,7 +513,7 @@ export default function MentorApplyPage() {
           <MessageSquare className="w-12 h-12 text-brutal-blue mx-auto mb-4" />
           <h3 className="text-2xl font-black mb-4 text-gray-900">Have Questions?</h3>
           <p className="text-gray-700 mb-6">
-            Reach out before applying. I'm happy to explain the program in detail.
+            Reach out before applying. I&apos;m happy to explain the program in detail.
           </p>
           <a
             href="mailto:mentors@opportunitymap.rw"
