@@ -46,6 +46,18 @@ export const getById = query({
   },
 });
 
+// Get multiple careers by IDs (for comparison tool)
+export const getByIds = query({
+  args: { ids: v.array(v.id("careers")) },
+  handler: async (ctx, args) => {
+    const careers = await Promise.all(
+      args.ids.map(id => ctx.db.get(id))
+    );
+    // Filter out any null results
+    return careers.filter(c => c !== null);
+  },
+});
+
 // Search and filter careers
 export const search = query({
   args: {

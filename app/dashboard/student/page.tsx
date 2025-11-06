@@ -32,6 +32,7 @@ export default function StudentDashboard() {
   const savedCareers = useQuery(api.savedCareers.list, user ? {} : "skip");
   const assessmentResults = useQuery(api.assessments.getResults, user ? {} : "skip");
   const studentProfile = useQuery(api.studentProfiles.getCurrent, user ? {} : "skip");
+  const mentorSessions = useQuery(api.careerChats.getStudentSessions, user ? {} : "skip");
   const deleteResult = useMutation(api.assessments.deleteResult);
 
   const studentData = {
@@ -289,6 +290,75 @@ export default function StudentDashboard() {
                 )}
               </div>
             </div>
+
+            {/* Extended Recommendations Section */}
+            {assessmentResults && assessmentResults.length > 0 && assessmentResults[0].careerMatches.length > 5 && (
+              <div className="bg-white border-3 border-black shadow-brutal-lg">
+                <div className="p-4 sm:p-6 border-b-3 border-black">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div className="flex items-center gap-2 sm:gap-3">
+                      <Target className="w-5 h-5 sm:w-6 sm:h-6" />
+                      <h2 className="text-xl sm:text-2xl font-black uppercase">More Careers You Might Like</h2>
+                    </div>
+                    <Link href={`/assessment/results?id=${assessmentResults[0]._id}`} className="w-full sm:w-auto">
+                      <button className="w-full sm:w-auto px-4 py-2 bg-white border-2 border-black shadow-brutal-sm hover:shadow-brutal transition-all flex items-center justify-center gap-2 font-bold text-sm">
+                        View All Results
+                        <ArrowRight className="w-4 h-4" />
+                      </button>
+                    </Link>
+                  </div>
+                </div>
+
+                <div className="p-4 sm:p-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {assessmentResults[0].careerMatches
+                      .slice(5, 15) // Careers 6-15
+                      .map((match) => {
+                        const career = match.career;
+                        if (!career) return null;
+
+                        const matchScore = Math.round(match.matchPercentage);
+                        const matchColor = matchScore >= 70 ? 'bg-brutal-green' : 'bg-brutal-yellow';
+
+                        return (
+                          <Link
+                            key={career._id}
+                            href={`/careers/${career._id}`}
+                            className="block"
+                          >
+                            <div className="border-2 border-black hover:shadow-brutal transition-all p-4">
+                              <div className="flex gap-3">
+                                <div className="w-20 h-20 border-2 border-black overflow-hidden flex-shrink-0 bg-brutal-yellow flex items-center justify-center">
+                                  <Target className="w-8 h-8" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-start justify-between gap-2 mb-1">
+                                    <h3 className="text-lg font-black leading-tight">{career.title}</h3>
+                                    <span className={`px-2 py-1 ${matchColor} text-xs font-black border-2 border-black whitespace-nowrap`}>
+                                      {matchScore}%
+                                    </span>
+                                  </div>
+                                  <p className="text-xs font-bold text-gray-600 mb-2 line-clamp-2">
+                                    {career.shortDescription}
+                                  </p>
+                                  <div className="flex flex-wrap items-center gap-2">
+                                    <span className="px-2 py-0.5 bg-background text-xs font-bold border border-black">
+                                      {career.category}
+                                    </span>
+                                    <span className="text-xs font-bold text-gray-600">
+                                      {(career.salaryMin / 1000000).toFixed(1)}M - {(career.salaryMax / 1000000).toFixed(1)}M RWF
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </Link>
+                        );
+                      })}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Sidebar */}
@@ -317,6 +387,80 @@ export default function StudentDashboard() {
                     Book Mentor
                   </button>
                 </Link>
+              </div>
+            </div>
+
+            {/* Mentor Sessions History */}
+            <div className="bg-white border-3 border-black shadow-brutal-lg">
+              <div className="p-4 sm:p-6 border-b-3 border-black">
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-5 h-5" />
+                  <h2 className="text-lg sm:text-xl font-black uppercase">Mentor Sessions</h2>
+                </div>
+              </div>
+              <div className="p-4 sm:p-6">
+                {mentorSessions && mentorSessions.length > 0 ? (
+                  <div className="space-y-3">
+                    {mentorSessions.slice(0, 3).map((session) => {
+                      const date = new Date(session.scheduledAt);
+                      const isPast = session.scheduledAt < Date.now();
+                      
+                      let statusColor = 'bg-gray-200';
+                      let statusText = 'Unknown';
+                      
+                      if (session.status === 'scheduled' && !isPast) {
+                        statusColor = 'bg-brutal-blue';
+                        statusText = 'Upcoming';
+                      } else if (session.status === 'completed') {
+                        statusColor = 'bg-brutal-green';
+                        statusText = 'Completed';
+                      } else if (session.status === 'cancelled') {
+                        statusColor = 'bg-gray-300';
+                        statusText = 'Cancelled';
+                      } else if (session.status === 'no_show') {
+                        statusColor = 'bg-brutal-orange';
+                        statusText = 'No Show';
+                      }
+
+                      return (
+                        <div key={session._id} className="border-2 border-black p-3">
+                          <div className="flex items-start gap-2 mb-2">
+                            <div className="flex-1 min-w-0">
+                              <h4 className="text-sm font-black leading-tight mb-1">
+                                {session.professional?.name || 'Professional'}
+                              </h4>
+                              <p className="text-xs font-bold text-gray-600 mb-1">
+                                {session.professional?.title || 'N/A'}
+                              </p>
+                              <p className="text-xs font-bold text-gray-700">
+                                {session.career?.title || 'Career Chat'}
+                              </p>
+                            </div>
+                            <span className={`px-2 py-1 ${statusColor} text-xs font-black border-2 border-black whitespace-nowrap`}>
+                              {statusText}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-1 text-xs font-bold text-gray-600">
+                            <Calendar className="w-3 h-3" />
+                            {date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="text-center py-6">
+                    <Calendar className="w-12 h-12 mx-auto mb-2 text-gray-400" />
+                    <p className="text-sm font-bold text-gray-600 mb-3">
+                      No sessions yet
+                    </p>
+                    <Link href="/mentors">
+                      <button className="px-4 py-2 bg-brutal-green text-white font-bold uppercase text-xs border-3 border-black shadow-brutal-sm hover:shadow-brutal transition-all">
+                        Book a Mentor
+                      </button>
+                    </Link>
+                  </div>
+                )}
               </div>
             </div>
 

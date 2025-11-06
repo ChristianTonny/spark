@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Search, Filter, ArrowRight, Bookmark } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Search, Filter, ArrowRight, Bookmark, GitCompare, Check } from 'lucide-react';
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { CareerCardSkeleton } from '@/components/loading-skeleton';
@@ -10,11 +11,14 @@ import { EmptyState } from '@/components/error-state';
 import { useToast } from '@/lib/use-toast';
 import { ToastContainer } from '@/components/toast-container';
 import { useConvexAuth } from '@/lib/hooks/useConvexAuth';
+import type { Id } from "@/convex/_generated/dataModel";
 
 export default function CareersPage() {
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [salaryFilter, setSalaryFilter] = useState('all');
+  const [selectedForComparison, setSelectedForComparison] = useState<Set<Id<"careers">>>(new Set());
   const toast = useToast();
   const { user, isLoading: authLoading } = useConvexAuth();
 
@@ -56,6 +60,37 @@ export default function CareersPage() {
     } catch (error) {
       toast.error('Failed to update bookmark');
     }
+  };
+
+  // Toggle career selection for comparison
+  const handleToggleSelection = (e: React.MouseEvent, careerId: Id<"careers">) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const newSelection = new Set(selectedForComparison);
+    
+    if (newSelection.has(careerId)) {
+      newSelection.delete(careerId);
+    } else {
+      if (newSelection.size >= 3) {
+        toast.error('You can only compare up to 3 careers at once');
+        return;
+      }
+      newSelection.add(careerId);
+    }
+    
+    setSelectedForComparison(newSelection);
+  };
+
+  // Navigate to comparison page
+  const handleCompare = () => {
+    if (selectedForComparison.size < 2) {
+      toast.error('Please select at least 2 careers to compare');
+      return;
+    }
+    
+    const ids = Array.from(selectedForComparison).join(',');
+    router.push(`/careers/compare?ids=${ids}`);
   };
 
   // Loading state - only wait for public data (careers and categories)
@@ -194,6 +229,23 @@ export default function CareersPage() {
                         {career.category}
                       </span>
                     </div>
+                    
+                    {/* Comparison Checkbox */}
+                    <button
+                      onClick={(e) => handleToggleSelection(e, career._id)}
+                      className={`absolute bottom-2 sm:bottom-3 left-2 sm:left-3 p-2 min-h-[40px] min-w-[40px] border-2 border-brutal-border shadow-brutal-sm hover:bg-brutal-blue hover:text-white transition-colors ${
+                        selectedForComparison.has(career._id) ? 'bg-brutal-blue text-white' : 'bg-white'
+                      }`}
+                      aria-label={selectedForComparison.has(career._id) ? 'Remove from comparison' : 'Add to comparison'}
+                      title={selectedForComparison.has(career._id) ? 'Remove from comparison' : 'Add to comparison'}
+                    >
+                      {selectedForComparison.has(career._id) ? (
+                        <Check className="w-5 h-5" />
+                      ) : (
+                        <GitCompare className="w-5 h-5" />
+                      )}
+                    </button>
+                    
                     <button
                       onClick={(e) => handleBookmark(e, career._id, career.title)}
                       className={`absolute top-2 sm:top-3 left-2 sm:left-3 p-2 min-h-[40px] min-w-[40px] border-2 border-brutal-border shadow-brutal-sm hover:bg-brutal-yellow transition-colors ${
@@ -285,6 +337,20 @@ export default function CareersPage() {
       
       {/* Toast Notifications */}
       <ToastContainer toasts={toast.toasts} onClose={toast.removeToast} />
+
+      {/* Floating Compare Button */}
+      {selectedForComparison.size > 0 && (
+        <div className="fixed bottom-6 right-6 z-50">
+          <button
+            onClick={handleCompare}
+            className="px-6 py-4 bg-brutal-blue text-white font-bold uppercase border-3 border-black shadow-brutal-lg hover:shadow-brutal-xl hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all flex items-center gap-3"
+          >
+            <GitCompare className="w-5 h-5" />
+            Compare Selected ({selectedForComparison.size})
+            <ArrowRight className="w-5 h-5" />
+          </button>
+        </div>
+      )}
     </div>
   );
 }
