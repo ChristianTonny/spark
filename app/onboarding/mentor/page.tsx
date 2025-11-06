@@ -16,7 +16,10 @@ export default function MentorOnboardingPage() {
     jobTitle: "",
     company: "",
     bio: "",
+    whyIMentor: "",
     yearsExperience: "",
+    location: "",
+    languages: [] as string[],
     careerInterests: [] as string[],
   });
 
@@ -34,6 +37,17 @@ export default function MentorOnboardingPage() {
     "Finance",
     "Marketing",
   ];
+
+  const availableLanguages = ["English", "Kinyarwanda", "French", "Swahili"];
+
+  const toggleLanguage = (lang: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      languages: prev.languages.includes(lang)
+        ? prev.languages.filter((l) => l !== lang)
+        : [...prev.languages, lang],
+    }));
+  };
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -54,7 +68,7 @@ export default function MentorOnboardingPage() {
     if (!user) return;
 
     // Validation
-    if (!formData.jobTitle || !formData.company || !formData.bio || !formData.yearsExperience) {
+    if (!formData.jobTitle || !formData.company || !formData.bio || !formData.whyIMentor || !formData.yearsExperience) {
       alert("Please fill in all required fields");
       return;
     }
@@ -64,13 +78,21 @@ export default function MentorOnboardingPage() {
       return;
     }
 
+    if (formData.languages.length === 0) {
+      alert("Please select at least one language");
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       await createProfessionalProfile({
         jobTitle: formData.jobTitle,
         company: formData.company,
         bio: formData.bio,
+        whyIMentor: formData.whyIMentor,
         yearsExperience: parseInt(formData.yearsExperience),
+        location: formData.location || "Not specified",
+        languages: formData.languages,
         careerCategories: formData.careerInterests,
       });
 
@@ -170,13 +192,74 @@ export default function MentorOnboardingPage() {
               value={formData.bio}
               onChange={(e) => handleInputChange("bio", e.target.value)}
               placeholder="Tell students about your career journey, what you're passionate about, and how you can help them..."
-              rows={5}
+              rows={4}
               className="w-full px-4 py-3 border-3 border-black shadow-brutal focus:shadow-brutal-lg focus:outline-none font-bold resize-none"
               required
             />
             <p className="text-sm font-bold text-gray-600 mt-2">
               {formData.bio.length} / 500 characters
             </p>
+          </div>
+
+          {/* Why I Mentor */}
+          <div>
+            <label className="text-lg font-black uppercase mb-3 block">
+              Why I Mentor *
+            </label>
+            <textarea
+              value={formData.whyIMentor}
+              onChange={(e) => handleInputChange("whyIMentor", e.target.value)}
+              placeholder="What motivates you to mentor students? Share your story..."
+              rows={3}
+              className="w-full px-4 py-3 border-3 border-black shadow-brutal focus:shadow-brutal-lg focus:outline-none font-bold resize-none"
+              required
+            />
+            <p className="text-sm font-bold text-gray-600 mt-2">
+              This helps students connect with your passion for mentoring
+            </p>
+          </div>
+
+          {/* Location */}
+          <div>
+            <label className="text-lg font-black uppercase mb-3 block">
+              Location (Optional)
+            </label>
+            <input
+              type="text"
+              value={formData.location}
+              onChange={(e) => handleInputChange("location", e.target.value)}
+              placeholder="e.g., Kigali, Rwanda or Remote"
+              className="w-full px-4 py-3 border-3 border-black shadow-brutal focus:shadow-brutal-lg focus:outline-none font-bold"
+            />
+          </div>
+
+          {/* Languages */}
+          <div>
+            <label className="text-lg font-black uppercase mb-3 block">
+              Languages You Speak *
+            </label>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {availableLanguages.map((lang) => {
+                const isSelected = formData.languages.includes(lang);
+                return (
+                  <button
+                    key={lang}
+                    type="button"
+                    onClick={() => toggleLanguage(lang)}
+                    className={`
+                      px-4 py-3 border-3 border-black font-bold text-sm
+                      transition-all
+                      ${isSelected
+                        ? 'bg-brutal-orange text-white shadow-brutal'
+                        : 'bg-white hover:shadow-brutal-sm'
+                      }
+                    `}
+                  >
+                    {lang}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           {/* Career Areas */}

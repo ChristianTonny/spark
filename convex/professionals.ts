@@ -81,7 +81,10 @@ export const create = mutation({
     jobTitle: v.string(),
     company: v.string(),
     bio: v.string(),
+    whyIMentor: v.string(),
     yearsExperience: v.number(),
+    location: v.string(),
+    languages: v.array(v.string()),
     careerCategories: v.array(v.string()),
   },
   handler: async (ctx, args) => {
@@ -109,7 +112,12 @@ export const create = mutation({
       jobTitle: args.jobTitle,
       company: args.company,
       bio: args.bio,
+      whyIMentor: args.whyIMentor,
       yearsExperience: args.yearsExperience,
+      location: args.location,
+      languages: args.languages,
+      availabilityStatus: "active", // Default to active
+      avgResponseTimeHours: 24, // Default 24 hours
       careerIds: careerIds,
       rating: 5.0, // Default rating
       chatsCompleted: 0,
