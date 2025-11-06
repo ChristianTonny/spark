@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Brain, Sparkles, Target, Clock, ArrowRight, History, TrendingUp, Eye, Trash2 } from 'lucide-react';
-import { formatAssessmentDate } from '@/lib/assessment-storage';
+import { formatAssessmentDate } from '@/lib/date-utils';
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { AssessmentResultSkeleton } from '@/components/loading-skeleton';
@@ -184,7 +184,7 @@ export default function AssessmentsPage() {
                         <div className="flex-1">
                           <div className="flex items-center gap-3 mb-2">
                             <span className="text-sm font-bold text-gray-600">
-                              {formatAssessmentDate(new Date(result.completedAt).toISOString())}
+                              {formatAssessmentDate(result.completedAt)}
                             </span>
                             <span className="px-2 py-1 bg-brutal-green text-black text-xs font-bold border-2 border-black">
                               {Math.round(topMatch?.matchPercentage || 0)}% Match
