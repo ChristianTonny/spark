@@ -41,6 +41,24 @@ export const current = query({
 });
 
 /**
+ * Debug auth - check what Clerk is sending
+ */
+export const debugAuth = query({
+  args: {},
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    return {
+      hasIdentity: !!identity,
+      identity: identity ? {
+        tokenIdentifier: identity.tokenIdentifier,
+        subject: identity.subject,
+        issuer: identity.issuer,
+      } : null,
+    };
+  },
+});
+
+/**
  * Store or update user from Clerk authentication
  * This gets called automatically when a user signs in
  */
