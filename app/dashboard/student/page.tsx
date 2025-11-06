@@ -24,17 +24,18 @@ export default function StudentDashboard() {
   const router = useRouter();
   const { user, clerkUser, isLoading } = useConvexAuth();
 
-  const studentData = {
-    name: clerkUser ? `${clerkUser.firstName} ${clerkUser.lastName}` : "Student",
-    gradeLevel: "Senior 5",
-    school: "Lycée de Kigali",
-    avatar: clerkUser?.imageUrl || "https://api.dicebear.com/7.x/initials/svg?seed=JM&backgroundColor=ffb627",
-  };
-
   // Fetch data from Convex (automatically uses authenticated user)
   const savedCareers = useQuery(api.savedCareers.list, user ? {} : "skip");
   const assessmentResults = useQuery(api.assessments.getResults, user ? {} : "skip");
+  const studentProfile = useQuery(api.studentProfiles.getCurrent, user ? {} : "skip");
   const deleteResult = useMutation(api.assessments.deleteResult);
+
+  const studentData = {
+    name: clerkUser ? `${clerkUser.firstName} ${clerkUser.lastName}` : "Student",
+    gradeLevel: studentProfile?.gradeLevel || "Not specified",
+    school: studentProfile?.school || "Not specified",
+    avatar: clerkUser?.imageUrl || "https://api.dicebear.com/7.x/initials/svg?seed=JM&backgroundColor=ffb627",
+  };
 
   // Show loading state while user is being synced
   if (isLoading) {

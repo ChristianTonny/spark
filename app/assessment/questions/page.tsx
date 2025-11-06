@@ -6,6 +6,7 @@ import { ArrowLeft, ArrowRight, Check } from 'lucide-react';
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { Spinner } from '@/components/loading-skeleton';
+import { matchCareersToAnswers } from '@/lib/assessment-matching';
 
 export default function AssessmentQuestionsPage() {
   const router = useRouter();
@@ -77,23 +78,19 @@ export default function AssessmentQuestionsPage() {
         setIsSaving(true);
 
         try {
-          // Mock career matches (hardcoded for now, similar to results page)
-          // In a real app, this would be calculated based on answers
-          // Using first 5 careers from database with mock scores
-          const mockMatches = allCareers.slice(0, 5).map((career, index) => ({
-            careerId: career._id,
-            matchPercentage: 95 - (index * 5), // 95%, 90%, 85%, 80%, 75%
-            matchReasons: [
-              'Based on your interests',
-              'Matches your skills',
-              'Aligns with your goals'
-            ].slice(0, 2 + (index % 2)), // Vary number of reasons
+          // Calculate real career matches based on user answers
+          const answersArray = Object.entries(updatedAnswers).map(([questionId, selectedOption]) => ({
+            questionId,
+            selectedOption
           }));
+
+          // Use real matching algorithm
+          const careerMatches = matchCareersToAnswers(allCareers, answersArray, 15);
 
           const result = await saveResult({
             assessmentId: assessment._id,
             answers: updatedAnswers,
-            careerMatches: mockMatches,
+            careerMatches: careerMatches,
           });
 
           // Redirect to results page with the result ID
