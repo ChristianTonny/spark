@@ -3,67 +3,63 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Search, Filter, ArrowRight, Bookmark } from 'lucide-react';
-import { careers, getCategories } from '@/lib/data';
+import { useQuery, useMutation } from "convex/react";
+import { api } from "../../convex/_generated/api";
 import { CareerCardSkeleton } from '@/components/loading-skeleton';
 import { EmptyState } from '@/components/error-state';
 import { useToast } from '@/lib/use-toast';
 import { ToastContainer } from '@/components/toast-container';
+import { useConvexAuth } from '@/lib/hooks/useConvexAuth';
 
 export default function CareersPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [salaryFilter, setSalaryFilter] = useState('all');
-  const [bookmarkedCareers, setBookmarkedCareers] = useState<string[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const toast = useToast();
+  const { user, isLoading: authLoading } = useConvexAuth();
 
-  const categories = ['All', ...getCategories()];
+  // Fetch data from Convex
+  const allCareers = useQuery(api.careers.search, {
+    searchQuery: searchQuery || undefined,
+    category: selectedCategory !== 'All' ? selectedCategory : undefined,
+    salaryFilter,
+  });
 
-  // Load bookmarks from localStorage on mount
-  useEffect(() => {
-    const bookmarks = JSON.parse(localStorage.getItem('bookmarkedCareers') || '[]');
-    setBookmarkedCareers(bookmarks);
-    // Simulate loading delay for demonstration
-    setTimeout(() => setIsLoading(false), 800);
-  }, []);
+  const categories = useQuery(api.careers.getCategories);
+
+  // Only fetch bookmarks if user is authenticated and synced
+  const bookmarkedIds = useQuery(api.savedCareers.getIds, user ? {} : "skip");
+  const toggleBookmark = useMutation(api.savedCareers.toggle);
+  const bookmarkedCareers = useQuery(api.savedCareers.list, user ? {} : "skip");
 
   // Toggle bookmark
-  const handleBookmark = (e: React.MouseEvent, careerId: string) => {
+  const handleBookmark = async (e: React.MouseEvent, careerId: string, careerTitle: string) => {
     e.preventDefault();
     e.stopPropagation();
-    
-    const bookmarks = JSON.parse(localStorage.getItem('bookmarkedCareers') || '[]');
-    const careerTitle = careers.find(c => c.id === careerId)?.title || 'Career';
-    let newBookmarks;
-    
-    if (bookmarks.includes(careerId)) {
-      newBookmarks = bookmarks.filter((id: string) => id !== careerId);
-      toast.success(`Removed ${careerTitle} from bookmarks`);
-    } else {
-      newBookmarks = [...bookmarks, careerId];
-      toast.success(`Added ${careerTitle} to bookmarks`);
+
+    // Require authentication to bookmark
+    if (!user) {
+      toast.error('Please sign in to bookmark careers');
+      return;
     }
-    
-    localStorage.setItem('bookmarkedCareers', JSON.stringify(newBookmarks));
-    setBookmarkedCareers(newBookmarks);
+
+    try {
+      const result = await toggleBookmark({
+        careerId,
+      });
+
+      if (result.action === 'added') {
+        toast.success(`Added ${careerTitle} to bookmarks`);
+      } else {
+        toast.success(`Removed ${careerTitle} from bookmarks`);
+      }
+    } catch (error) {
+      toast.error('Failed to update bookmark');
+    }
   };
 
-  // Filter careers
-  const filteredCareers = careers.filter((career) => {
-    const matchesSearch = searchQuery === '' || 
-      career.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      career.shortDescription.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    const matchesCategory = selectedCategory === 'All' || career.category === selectedCategory;
-    
-    const matchesSalary = 
-      salaryFilter === 'all' ||
-      (salaryFilter === 'low' && career.salaryMax <= 5000000) ||
-      (salaryFilter === 'mid' && career.salaryMin > 5000000 && career.salaryMax <= 10000000) ||
-      (salaryFilter === 'high' && career.salaryMin > 10000000);
-
-    return matchesSearch && matchesCategory && matchesSalary;
-  });
+  // Loading state - only wait for public data (careers and categories)
+  const isLoading = allCareers === undefined || categories === undefined;
 
   return (
     <div className="min-h-screen py-4 sm:py-8">
@@ -72,12 +68,12 @@ export default function CareersPage() {
         <div className="mb-6 sm:mb-8">
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black mb-3 sm:mb-4">Explore Careers</h1>
           <p className="text-base sm:text-lg md:text-xl text-gray-700">
-            Browse {careers.length}+ career paths and find your future
+            Browse {allCareers?.length || 0}+ career paths and find your future
           </p>
         </div>
 
         {/* Saved Careers Section */}
-        {bookmarkedCareers.length > 0 && (
+        {!isLoading && bookmarkedCareers && bookmarkedCareers.length > 0 && (
           <div className="mb-6 sm:mb-8 p-4 sm:p-6 bg-brutal-yellow border-3 border-brutal-border shadow-brutal-lg">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
               <div className="flex items-center gap-2">
@@ -92,10 +88,10 @@ export default function CareersPage() {
               </Link>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-              {careers.filter(c => bookmarkedCareers.includes(c.id)).slice(0, 3).map((career) => (
+              {bookmarkedCareers.slice(0, 3).map((career) => (
                 <Link
-                  key={career.id}
-                  href={`/careers/${career.id}`}
+                  key={career._id}
+                  href={`/careers/${career._id}`}
                   className="p-4 bg-white border-2 border-brutal-border hover:shadow-brutal transition-all"
                 >
                   <h3 className="font-black text-base sm:text-lg mb-1">{career.title}</h3>
@@ -126,7 +122,7 @@ export default function CareersPage() {
             <div className="flex-1">
               <label className="block font-black text-xs sm:text-sm uppercase mb-2">Category</label>
               <div className="flex flex-wrap gap-2">
-                {categories.map((category) => (
+                {['All', ...(categories || [])].map((category) => (
                   <button
                     key={category}
                     onClick={() => setSelectedCategory(category)}
@@ -166,7 +162,7 @@ export default function CareersPage() {
         {/* Results Count */}
         <div className="mb-6">
           <p className="text-base sm:text-lg font-bold text-gray-600">
-            {filteredCareers.length} {filteredCareers.length === 1 ? 'career' : 'careers'} found
+            {allCareers?.length || 0} {allCareers?.length === 1 ? 'career' : 'careers'} found
           </p>
         </div>
 
@@ -177,12 +173,12 @@ export default function CareersPage() {
               <CareerCardSkeleton key={i} />
             ))}
           </div>
-        ) : filteredCareers.length > 0 ? (
+        ) : allCareers && allCareers.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            {filteredCareers.map((career, index) => (
+            {allCareers.map((career, index) => (
               <Link
-                key={career.id}
-                href={`/careers/${career.id}`}
+                key={career._id}
+                href={`/careers/${career._id}`}
                 className="group block"
               >
                 <div className="bg-white border-3 border-brutal-border shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all overflow-hidden h-full flex flex-col">
@@ -199,14 +195,14 @@ export default function CareersPage() {
                       </span>
                     </div>
                     <button
-                      onClick={(e) => handleBookmark(e, career.id)}
+                      onClick={(e) => handleBookmark(e, career._id, career.title)}
                       className={`absolute top-2 sm:top-3 left-2 sm:left-3 p-2 min-h-[40px] min-w-[40px] border-2 border-brutal-border shadow-brutal-sm hover:bg-brutal-yellow transition-colors ${
-                        bookmarkedCareers.includes(career.id) ? 'bg-brutal-yellow' : 'bg-white'
+                        bookmarkedIds?.includes(career._id) ? 'bg-brutal-yellow' : 'bg-white'
                       }`}
-                      aria-label={bookmarkedCareers.includes(career.id) ? 'Remove bookmark' : 'Add bookmark'}
-                      title={bookmarkedCareers.includes(career.id) ? 'Remove bookmark' : 'Add bookmark'}
+                      aria-label={bookmarkedIds?.includes(career._id) ? 'Remove bookmark' : 'Add bookmark'}
+                      title={bookmarkedIds?.includes(career._id) ? 'Remove bookmark' : 'Add bookmark'}
                     >
-                      <Bookmark className={`w-5 h-5 ${bookmarkedCareers.includes(career.id) ? 'fill-current' : ''}`} />
+                      <Bookmark className={`w-5 h-5 ${bookmarkedIds?.includes(career._id) ? 'fill-current' : ''}`} />
                     </button>
                   </div>
 
@@ -269,7 +265,7 @@ export default function CareersPage() {
         )}
 
         {/* CTA Section */}
-        {filteredCareers.length > 0 && (
+        {allCareers && allCareers.length > 0 && (
           <div className="mt-16 text-center">
             <div className="inline-block p-8 bg-brutal-blue text-white border-3 border-brutal-border shadow-brutal-xl">
               <h3 className="text-3xl font-black mb-4">Not sure where to start?</h3>

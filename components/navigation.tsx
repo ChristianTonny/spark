@@ -1,8 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { Menu, X, Compass, BookOpen, Users, LayoutDashboard, Settings, User } from 'lucide-react';
+import { Menu, X, Compass, BookOpen, Users, LayoutDashboard } from 'lucide-react';
 import { useState } from 'react';
+import { SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
 
 export default function Navigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -43,34 +44,33 @@ export default function Navigation() {
             })}
 
             <div className="ml-4 flex items-center gap-2">
-              {/* Profile & Settings Icons */}
-              <Link
-                href="/dashboard/student"
-                className="p-2 border-2 border-brutal-border hover:shadow-brutal-sm transition-all"
-                title="Dashboard"
-              >
-                <User className="w-5 h-5" />
-              </Link>
-              <Link
-                href="/dashboard/student/settings"
-                className="p-2 border-2 border-brutal-border hover:shadow-brutal-sm transition-all"
-                title="Settings"
-              >
-                <Settings className="w-5 h-5" />
-              </Link>
-              
-              <Link
-                href="/login"
-                className="px-4 py-2 font-bold uppercase text-sm border-2 border-brutal-border hover:shadow-brutal-sm transition-all"
-              >
-                Login
-              </Link>
-              <Link
-                href="/signup"
-                className="px-4 py-2 bg-brutal-orange text-white font-bold uppercase text-sm border-2 border-brutal-border shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all"
-              >
-                Sign Up
-              </Link>
+              {/* Signed In - Show User Button */}
+              <SignedIn>
+                <UserButton
+                  appearance={{
+                    elements: {
+                      avatarBox: "w-10 h-10 border-2 border-brutal-border",
+                    }
+                  }}
+                  afterSignOutUrl="/"
+                />
+              </SignedIn>
+
+              {/* Signed Out - Show Login/Signup Buttons */}
+              <SignedOut>
+                <Link
+                  href="/sign-in"
+                  className="px-4 py-2 font-bold uppercase text-sm border-2 border-brutal-border hover:shadow-brutal-sm transition-all"
+                >
+                  Login
+                </Link>
+                <Link
+                  href="/sign-up"
+                  className="px-4 py-2 bg-brutal-orange text-white font-bold uppercase text-sm border-2 border-brutal-border shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all"
+                >
+                  Sign Up
+                </Link>
+              </SignedOut>
             </div>
           </div>
 
@@ -109,20 +109,37 @@ export default function Navigation() {
             })}
             
             <div className="pt-4 space-y-2 border-t-3 border-brutal-border">
-              <Link
-                href="/login"
-                onClick={() => setMobileMenuOpen(false)}
-                className="block text-center px-4 py-3 font-bold uppercase border-2 border-brutal-border shadow-brutal-sm"
-              >
-                Login
-              </Link>
-              <Link
-                href="/signup"
-                onClick={() => setMobileMenuOpen(false)}
-                className="block text-center px-4 py-3 bg-brutal-orange text-white font-bold uppercase border-2 border-brutal-border shadow-brutal"
-              >
-                Sign Up
-              </Link>
+              {/* Signed In - Show User Button */}
+              <SignedIn>
+                <div className="flex items-center justify-center py-3">
+                  <UserButton
+                    appearance={{
+                      elements: {
+                        avatarBox: "w-10 h-10 border-2 border-brutal-border",
+                      }
+                    }}
+                    afterSignOutUrl="/"
+                  />
+                </div>
+              </SignedIn>
+
+              {/* Signed Out - Show Login/Signup Buttons */}
+              <SignedOut>
+                <Link
+                  href="/sign-in"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block text-center px-4 py-3 font-bold uppercase border-2 border-brutal-border shadow-brutal-sm"
+                >
+                  Login
+                </Link>
+                <Link
+                  href="/sign-up"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block text-center px-4 py-3 bg-brutal-orange text-white font-bold uppercase border-2 border-brutal-border shadow-brutal"
+                >
+                  Sign Up
+                </Link>
+              </SignedOut>
             </div>
           </div>
         </div>

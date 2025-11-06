@@ -1,44 +1,22 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
-import { Search, Star, Calendar, MessageCircle, Filter } from 'lucide-react';
-import { professionals, careers } from '@/lib/data';
+import { Search, Star, Calendar, MessageCircle } from 'lucide-react';
+import { useQuery } from "convex/react";
+import { api } from "../../convex/_generated/api";
 import { MentorCardSkeleton } from '@/components/loading-skeleton';
 import { EmptyState } from '@/components/error-state';
 
 export default function MentorsPage() {
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCareer, setSelectedCareer] = useState('All');
-  const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    // Simulate loading delay
-    setTimeout(() => setIsLoading(false), 600);
-  }, []);
-
-  // Get unique careers from professionals
-  const careerOptions = ['All', ...new Set(
-    professionals.flatMap(prof => 
-      prof.careerIds.map(id => careers.find(c => c.id === id)?.title || '')
-    ).filter(Boolean)
-  )];
-
-  // Filter professionals
-  const filteredMentors = professionals.filter(mentor => {
-    const matchesSearch = searchQuery === '' || 
-      mentor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      mentor.jobTitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      mentor.company.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    const matchesCareer = selectedCareer === 'All' || 
-      mentor.careerIds.some(id => {
-        const career = careers.find(c => c.id === id);
-        return career?.title === selectedCareer;
-      });
-
-    return matchesSearch && matchesCareer;
+  // Fetch professionals from Convex
+  const allProfessionals = useQuery(api.professionals.search, {
+    searchQuery: searchQuery || undefined,
   });
+
+  const isLoading = allProfessionals === undefined;
 
   return (
     <div className="min-h-screen bg-background py-8">
@@ -65,31 +43,12 @@ export default function MentorsPage() {
             />
           </div>
 
-          {/* Career Filter */}
-          <div>
-            <label className="block font-black text-sm uppercase mb-2">Filter by Career</label>
-            <div className="flex flex-wrap gap-2">
-              {careerOptions.map((career) => (
-                <button
-                  key={career}
-                  onClick={() => setSelectedCareer(career)}
-                  className={`px-4 py-2 font-bold uppercase text-sm border-3 border-black transition-all ${
-                    selectedCareer === career
-                      ? 'bg-primary text-white shadow-brutal'
-                      : 'bg-white hover:shadow-brutal-sm'
-                  }`}
-                >
-                  {career}
-                </button>
-              ))}
-            </div>
-          </div>
         </div>
 
         {/* Results Count */}
         <div className="mb-6">
           <p className="text-lg font-bold">
-            {filteredMentors.length} {filteredMentors.length === 1 ? 'mentor' : 'mentors'} available
+            {allProfessionals?.length || 0} {allProfessionals?.length === 1 ? 'mentor' : 'mentors'} available
           </p>
         </div>
 
@@ -100,16 +59,12 @@ export default function MentorsPage() {
               <MentorCardSkeleton key={i} />
             ))}
           </div>
-        ) : filteredMentors.length > 0 ? (
+        ) : allProfessionals && allProfessionals.length > 0 ? (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredMentors.map((mentor) => {
-              const mentorCareers = mentor.careerIds
-                .map(id => careers.find(c => c.id === id))
-                .filter(Boolean);
-
+            {allProfessionals.map((mentor) => {
               return (
                 <div
-                  key={mentor.id}
+                  key={mentor._id}
                   className="bg-white border-3 border-black shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all"
                 >
                   {/* Header */}
@@ -118,12 +73,12 @@ export default function MentorsPage() {
                       <div className="w-20 h-20 border-3 border-black shadow-brutal-sm overflow-hidden flex-shrink-0">
                         <img
                           src={mentor.avatar}
-                          alt={mentor.name}
+                          alt={`${mentor.firstName} ${mentor.lastName}`}
                           className="w-full h-full object-cover"
                         />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h3 className="text-xl font-black mb-1 truncate">{mentor.name}</h3>
+                        <h3 className="text-xl font-black mb-1 truncate">{mentor.firstName} {mentor.lastName}</h3>
                         <p className="text-sm font-bold text-gray-700 mb-1">{mentor.jobTitle}</p>
                         <p className="text-sm font-bold text-gray-600">{mentor.company}</p>
                       </div>
@@ -149,28 +104,13 @@ export default function MentorsPage() {
                       {mentor.bio}
                     </p>
 
-                    {/* Expertise */}
-                    <div className="mb-4">
-                      <p className="text-xs font-black uppercase text-gray-600 mb-2">Expertise</p>
-                      <div className="flex flex-wrap gap-2">
-                        {mentorCareers.slice(0, 2).map((career) => (
-                          <span
-                            key={career?.id}
-                            className="px-2 py-1 bg-background text-xs font-bold uppercase border-2 border-black"
-                          >
-                            {career?.title}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-
                     {/* CTA Button */}
-                    <button 
+                    <button
                       onClick={() => {
                         if (mentor.calendlyUrl) {
                           window.open(mentor.calendlyUrl, '_blank', 'noopener,noreferrer');
                         } else {
-                          alert(`Booking with ${mentor.name} - Calendly link not available yet.`);
+                          alert(`Booking with ${mentor.firstName} ${mentor.lastName} - Calendly link not available yet.`);
                         }
                       }}
                       className="w-full px-4 py-3 bg-primary text-white font-bold uppercase text-sm border-3 border-black shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all flex items-center justify-center gap-2"
@@ -186,19 +126,18 @@ export default function MentorsPage() {
         ) : (
           <EmptyState
             title="No mentors found"
-            message="Try adjusting your search or filter to find mentors in different career paths."
+            message="Try adjusting your search to find mentors."
             action={{
-              label: 'Clear Filters',
+              label: 'Clear Search',
               onClick: () => {
                 setSearchQuery('');
-                setSelectedCareer('All');
               }
             }}
           />
         )}
 
         {/* Info Section */}
-        {filteredMentors.length > 0 && (
+        {allProfessionals && allProfessionals.length > 0 && (
           <div className="mt-16">
             <div className="bg-white border-3 border-black shadow-brutal p-8">
               <h2 className="text-3xl font-black mb-6 uppercase">How Mentor Sessions Work</h2>

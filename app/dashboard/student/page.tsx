@@ -1,6 +1,5 @@
 ﻿"use client";
 
-import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -16,39 +15,46 @@ import {
   User,
   BookOpen,
 } from "lucide-react";
-import { careers } from "@/lib/data";
-import { getAssessmentResults, formatAssessmentDate, deleteAssessmentResult } from "@/lib/assessment-storage";
+import { formatAssessmentDate } from "@/lib/assessment-storage";
+import { useQuery, useMutation } from "convex/react";
+import { api } from "../../../convex/_generated/api";
+import { useConvexAuth } from "@/lib/hooks/useConvexAuth";
 
 export default function StudentDashboard() {
   const router = useRouter();
-  const [bookmarkedCareers, setBookmarkedCareers] = useState<string[]>([]);
-  const [assessmentResults, setAssessmentResults] = useState<any[]>([]);
+  const { user, clerkUser, isLoading } = useConvexAuth();
 
   const studentData = {
-    name: "Jane Mukarwego",
+    name: clerkUser ? `${clerkUser.firstName} ${clerkUser.lastName}` : "Student",
     gradeLevel: "Senior 5",
     school: "Lycée de Kigali",
-    avatar: "https://api.dicebear.com/7.x/initials/svg?seed=JM&backgroundColor=ffb627",
+    avatar: clerkUser?.imageUrl || "https://api.dicebear.com/7.x/initials/svg?seed=JM&backgroundColor=ffb627",
   };
 
-  useEffect(() => {
-    const bookmarks = JSON.parse(localStorage.getItem("bookmarkedCareers") || "[]");
-    const results = getAssessmentResults();
-    setBookmarkedCareers(bookmarks);
-    setAssessmentResults(results);
-  }, []);
+  // Fetch data from Convex (automatically uses authenticated user)
+  const savedCareers = useQuery(api.savedCareers.list, user ? {} : "skip");
+  const assessmentResults = useQuery(api.assessments.getResults, user ? {} : "skip");
+  const deleteResult = useMutation(api.assessments.deleteResult);
 
-  const handleDeleteResult = (id: string) => {
+  // Show loading state while user is being synced
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-black border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-xl font-bold">Loading your dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const handleDeleteResult = async (resultId: string) => {
     if (confirm("Are you sure you want to delete this assessment result?")) {
-      deleteAssessmentResult(id);
-      setAssessmentResults(getAssessmentResults());
+      await deleteResult({ resultId: resultId as any });
     }
   };
 
-  const savedCareersData = bookmarkedCareers
-    .map((id: string) => careers.find(c => c.id === id))
-    .filter(Boolean)
-    .slice(0, 3);
+  const savedCareersData = savedCareers?.slice(0, 3) || [];
 
   return (
     <div className="min-h-screen bg-background py-8 px-4">
@@ -93,7 +99,7 @@ export default function StudentDashboard() {
           <div className="bg-brutal-yellow border-3 border-black shadow-brutal p-4 sm:p-6">
             <div className="flex items-center justify-between mb-2">
               <Bookmark className="w-6 h-6 sm:w-8 sm:h-8" />
-              <span className="text-3xl sm:text-4xl font-black">{bookmarkedCareers.length}</span>
+              <span className="text-3xl sm:text-4xl font-black">{savedCareers?.length || 0}</span>
             </div>
             <h3 className="text-lg sm:text-xl font-black uppercase">Saved Careers</h3>
             <p className="font-bold text-gray-700 text-sm sm:text-base">Careers you are interested in</p>
@@ -102,7 +108,7 @@ export default function StudentDashboard() {
           <div className="bg-brutal-pink border-3 border-black shadow-brutal p-4 sm:p-6">
             <div className="flex items-center justify-between mb-2">
               <Target className="w-6 h-6 sm:w-8 sm:h-8" />
-              <span className="text-3xl sm:text-4xl font-black">{assessmentResults.length}</span>
+              <span className="text-3xl sm:text-4xl font-black">{assessmentResults?.length || 0}</span>
             </div>
             <h3 className="text-lg sm:text-xl font-black uppercase">Assessments</h3>
             <p className="font-bold text-gray-700 text-sm sm:text-base">Career discovery tests taken</p>
@@ -112,7 +118,9 @@ export default function StudentDashboard() {
             <div className="flex items-center justify-between mb-2">
               <TrendingUp className="w-6 h-6 sm:w-8 sm:h-8" />
               <span className="text-3xl sm:text-4xl font-black">
-                {assessmentResults.length > 0 ? (assessmentResults[0].topMatches[0]?.matchScore || 0) : 0}%
+                {assessmentResults && assessmentResults.length > 0
+                  ? Math.round(assessmentResults[0].careerMatches[0]?.matchPercentage || 0)
+                  : 0}%
               </span>
             </div>
             <h3 className="text-lg sm:text-xl font-black uppercase">Top Match</h3>
@@ -144,8 +152,8 @@ export default function StudentDashboard() {
                   <div className="space-y-4">
                     {savedCareersData.map((career: any) => career && (
                       <Link
-                        key={career.id}
-                        href={`/careers/${career.id}`}
+                        key={career._id}
+                        href={`/careers/${career._id}`}
                         className="block"
                       >
                         <div className="border-2 border-black p-3 sm:p-4 hover:shadow-brutal transition-all">
@@ -211,44 +219,44 @@ export default function StudentDashboard() {
               </div>
 
               <div className="p-4 sm:p-6">
-                {assessmentResults.length > 0 ? (
+                {assessmentResults && assessmentResults.length > 0 ? (
                   <div className="space-y-4">
                     {assessmentResults.slice(0, 3).map((result) => {
-                      const topMatch = result.topMatches[0];
-                      const topCareer = careers.find(c => c.id === topMatch?.careerId);
+                      const topMatch = result.careerMatches[0];
+                      const topCareer = topMatch?.career;
 
                       return (
                         <div
-                          key={result.id}
+                          key={result._id}
                           className="border-2 border-black p-3 sm:p-4"
                         >
                           <div className="flex flex-col gap-3">
                             <div className="flex-1">
                               <div className="flex flex-wrap items-center gap-2 mb-2">
                                 <span className="text-xs sm:text-sm font-bold text-gray-600">
-                                  {formatAssessmentDate(result.completedAt)}
+                                  {formatAssessmentDate(new Date(result.completedAt).toISOString())}
                                 </span>
                                 <span className="px-2 py-1 bg-brutal-green text-black text-xs font-bold border-2 border-black">
-                                  {topMatch?.matchScore || 0}% Match
+                                  {Math.round(topMatch?.matchPercentage || 0)}% Match
                                 </span>
                               </div>
                               <h4 className="text-base sm:text-lg font-black mb-1">
                                 Top Match: {topCareer?.title || "Unknown Career"}
                               </h4>
                               <p className="text-xs sm:text-sm font-bold text-gray-700">
-                                {topCareer?.shortDescription || ""}
+                                {topCareer?.category || ""}
                               </p>
                             </div>
                             <div className="flex gap-2">
                               <button
-                                onClick={() => router.push(`/assessment/results?id=${result.id}`)}
+                                onClick={() => router.push(`/assessment/results?id=${result._id}`)}
                                 className="flex-1 sm:flex-initial px-4 py-2 sm:py-2 min-h-[44px] bg-white border-2 border-black shadow-brutal-sm hover:shadow-brutal transition-all flex items-center justify-center gap-2 font-bold text-sm"
                               >
                                 <Eye className="w-4 h-4" />
                                 View
                               </button>
                               <button
-                                onClick={() => handleDeleteResult(result.id)}
+                                onClick={() => handleDeleteResult(result._id)}
                                 className="px-3 sm:px-4 py-2 min-h-[44px] bg-white border-2 border-2 border-black shadow-brutal-sm hover:shadow-brutal hover:bg-red-50 transition-all"
                                 title="Delete result"
                               >
@@ -316,7 +324,7 @@ export default function StudentDashboard() {
                     1
                   </span>
                   <span className="font-bold text-sm sm:text-base">
-                    {assessmentResults.length === 0
+                    {!assessmentResults || assessmentResults.length === 0
                       ? "Take your first career assessment"
                       : "Explore your top matched careers"}
                   </span>
@@ -326,7 +334,7 @@ export default function StudentDashboard() {
                     2
                   </span>
                   <span className="font-bold text-sm sm:text-base">
-                    {bookmarkedCareers.length === 0
+                    {!savedCareers || savedCareers.length === 0
                       ? "Save careers you are interested in"
                       : "Book a chat with a professional mentor"}
                   </span>
