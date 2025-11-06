@@ -31,13 +31,25 @@ export default function MentorOnboardingPage() {
     setIsSubmitting(true);
     setError(null);
 
+    // Validate required fields
+    if (!formData.bio.trim()) {
+      setError('Please tell us about yourself in the bio section');
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (!formData.yearsExperience || parseInt(formData.yearsExperience) < 0) {
+      setError('Please enter your years of experience');
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
       await createProfessional({
         company: formData.company,
         jobTitle: formData.jobTitle,
-        bio: formData.bio || undefined,
-        yearsExperience: formData.yearsExperience ? parseInt(formData.yearsExperience) : undefined,
-        careerIds: [], // Can be set later
+        bio: formData.bio,
+        yearsExperience: parseInt(formData.yearsExperience),
         calendlyUrl: formData.calendlyUrl || undefined,
         ratePerChat: formData.ratePerChat ? parseFloat(formData.ratePerChat) : undefined,
       });
@@ -114,7 +126,7 @@ export default function MentorOnboardingPage() {
             <div>
               <label htmlFor="yearsExperience" className="flex items-center gap-2 font-black text-lg mb-2 uppercase">
                 <Award className="w-5 h-5" />
-                Years of Experience
+                Years of Experience *
               </label>
               <input
                 type="number"
@@ -122,6 +134,7 @@ export default function MentorOnboardingPage() {
                 name="yearsExperience"
                 value={formData.yearsExperience}
                 onChange={handleChange}
+                required
                 min="0"
                 max="50"
                 placeholder="e.g., 5"
@@ -132,13 +145,14 @@ export default function MentorOnboardingPage() {
             {/* Bio */}
             <div>
               <label htmlFor="bio" className="font-black text-lg mb-2 uppercase block">
-                About You
+                About You *
               </label>
               <textarea
                 id="bio"
                 name="bio"
                 value={formData.bio}
                 onChange={handleChange}
+                required
                 rows={4}
                 placeholder="Tell students about your career journey, expertise, and what you can help them with..."
                 className="w-full px-4 py-3 border-3 border-brutal-border shadow-brutal-sm focus:shadow-brutal focus:outline-none font-bold resize-none"
