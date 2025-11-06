@@ -106,7 +106,7 @@ export default function StudentDashboard() {
             <p className="font-bold text-gray-700 text-sm sm:text-base">Careers you are interested in</p>
           </div>
 
-          <div className="bg-brutal-pink border-3 border-black shadow-brutal p-4 sm:p-6">
+          <div className="bg-purple-400 border-3 border-black shadow-brutal p-4 sm:p-6">
             <div className="flex items-center justify-between mb-2">
               <Target className="w-6 h-6 sm:w-8 sm:h-8" />
               <span className="text-3xl sm:text-4xl font-black">{assessmentResults?.length || 0}</span>
@@ -115,7 +115,7 @@ export default function StudentDashboard() {
             <p className="font-bold text-gray-700 text-sm sm:text-base">Career discovery tests taken</p>
           </div>
 
-          <div className="bg-brutal-green border-3 border-black shadow-brutal p-4 sm:p-6">
+          <div className="bg-green-400 border-3 border-black shadow-brutal p-4 sm:p-6">
             <div className="flex items-center justify-between mb-2">
               <TrendingUp className="w-6 h-6 sm:w-8 sm:h-8" />
               <span className="text-3xl sm:text-4xl font-black">
@@ -212,8 +212,8 @@ export default function StudentDashboard() {
                     <h2 className="text-xl sm:text-2xl font-black uppercase">Assessment Results</h2>
                   </div>
                   <Link href="/assessments" className="w-full sm:w-auto">
-                    <button className="w-full sm:w-auto px-4 py-2 bg-brutal-pink text-white font-bold uppercase border-3 border-black shadow-brutal hover:shadow-brutal-lg transition-all text-sm">
-                      Take New
+                    <button className="w-full sm:w-auto px-4 py-2 bg-purple-600 text-white font-bold uppercase border-3 border-black shadow-brutal hover:shadow-brutal-lg transition-all text-sm">
+                      <span>Take New</span>
                     </button>
                   </Link>
                 </div>
@@ -298,19 +298,19 @@ export default function StudentDashboard() {
                 <Link href="/careers">
                   <button className="w-full px-4 py-3 min-h-[44px] bg-brutal-blue text-white font-bold uppercase border-3 border-black shadow-brutal hover:shadow-brutal-lg transition-all text-left flex items-center gap-3 text-sm sm:text-base">
                     <BookOpen className="w-5 h-5" />
-                    Explore Careers
+                    <span>Explore Careers</span>
                   </button>
                 </Link>
                 <Link href="/assessments">
-                  <button className="w-full px-4 py-3 min-h-[44px] bg-brutal-pink text-white font-bold uppercase border-3 border-black shadow-brutal hover:shadow-brutal-lg transition-all text-left flex items-center gap-3 text-sm sm:text-base">
+                  <button className="w-full px-4 py-3 min-h-[44px] bg-brutal-orange text-white font-bold uppercase border-3 border-black shadow-brutal hover:shadow-brutal-lg transition-all text-left flex items-center gap-3 text-sm sm:text-base">
                     <Sparkles className="w-5 h-5" />
-                    Take Assessment
+                    <span>Take Assessment</span>
                   </button>
                 </Link>
                 <Link href="/mentors">
-                  <button className="w-full px-4 py-3 min-h-[44px] bg-brutal-green text-white font-bold uppercase border-3 border-black shadow-brutal hover:shadow-brutal-lg transition-all text-left flex items-center gap-3 text-sm sm:text-base">
+                  <button className="w-full px-4 py-3 min-h-[44px] bg-green-600 text-white font-bold uppercase border-3 border-black shadow-brutal hover:shadow-brutal-lg transition-all text-left flex items-center gap-3 text-sm sm:text-base">
                     <Calendar className="w-5 h-5" />
-                    Book Mentor
+                    <span>Book Mentor</span>
                   </button>
                 </Link>
               </div>

@@ -4,7 +4,7 @@ import { Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Sparkles, ArrowRight, Bookmark, RotateCcw } from 'lucide-react';
-import { useQuery } from "convex/react";
+import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { Spinner } from '@/components/loading-skeleton';
 import { useConvexAuth } from '@/lib/hooks/useConvexAuth';
@@ -17,6 +17,12 @@ function AssessmentResultsContent() {
 
   // Fetch all results for current user (only if authenticated)
   const allResults = useQuery(api.assessments.getResults, user ? {} : "skip");
+
+  // Fetch saved career IDs
+  const savedCareerIds = useQuery(api.savedCareers.getIds, user ? {} : "skip");
+
+  // Bookmark mutation
+  const toggleBookmark = useMutation(api.savedCareers.toggle);
 
   // Find the specific result by ID, or use the most recent one
   let currentResult = null;
@@ -43,6 +49,19 @@ function AssessmentResultsContent() {
         reasons: m.matchReasons,
       })).filter(m => m.career !== null)
     : [];
+
+  // Handle bookmark toggle
+  const handleBookmarkToggle = async (careerId: string) => {
+    if (!user) {
+      alert('Please sign in to save careers');
+      return;
+    }
+    try {
+      await toggleBookmark({ careerId: careerId as any });
+    } catch (error) {
+      console.error('Failed to toggle bookmark:', error);
+    }
+  };
 
   // Show loading state
   if (isLoading) {
@@ -96,6 +115,7 @@ function AssessmentResultsContent() {
         <div className="space-y-6 mb-12">
           {displayMatches.map((match, index) => {
             const { career, matchScore, reasons } = match;
+            const isSaved = savedCareerIds?.includes(career._id) || false;
             const rankColors = [
               'bg-accent', // 1st - yellow
               'bg-primary', // 2nd - orange
@@ -176,9 +196,14 @@ function AssessmentResultsContent() {
                             <ArrowRight className="w-4 h-4" />
                           </button>
                         </Link>
-                        <button className="px-6 py-3 bg-white text-black font-bold uppercase text-sm border-3 border-black shadow-brutal-sm hover:shadow-brutal hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all flex items-center gap-2">
-                          <Bookmark className="w-4 h-4" />
-                          Save Career
+                        <button
+                          onClick={() => handleBookmarkToggle(career._id)}
+                          className={`px-6 py-3 font-bold uppercase text-sm border-3 border-black shadow-brutal-sm hover:shadow-brutal hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all flex items-center gap-2 ${
+                            isSaved ? 'bg-brutal-yellow text-black' : 'bg-white text-black'
+                          }`}
+                        >
+                          <Bookmark className={`w-4 h-4 ${isSaved ? 'fill-current' : ''}`} />
+                          {isSaved ? 'Saved' : 'Save Career'}
                         </button>
                       </div>
                     </div>

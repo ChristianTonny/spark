@@ -44,11 +44,11 @@ export default function AssessmentsPage() {
         </div>
 
         {/* Main Card */}
-        <div className="bg-white border-3 border-black shadow-brutal-lg p-4 sm:p-6 md:p-8 lg:p-12 mb-6 sm:mb-8">
+        <div className="bg-white border-4 border-black shadow-brutal-lg p-6 sm:p-8 md:p-10 lg:p-16 mb-6 sm:mb-8">
           {/* What to Expect */}
-          <div className="mb-8 sm:mb-10">
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-black uppercase mb-4 sm:mb-6">What to Expect</h2>
-            <p className="text-sm sm:text-base md:text-lg font-bold text-gray-700 mb-4">
+          <div className="mb-8 sm:mb-12">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-black uppercase mb-6 sm:mb-8">What to Expect</h2>
+            <p className="text-base sm:text-lg md:text-xl font-bold text-gray-700 mb-6">
               This 10-minute assessment will help you discover careers that match your interests,
               skills, and goals. Answer honestly - there are no right or wrong answers!
             </p>
@@ -71,7 +71,7 @@ export default function AssessmentsPage() {
             <div className="p-4 sm:p-6 bg-background border-3 border-black">
               <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
                 <div className="p-2 bg-secondary border-2 border-black">
-                  <Clock className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                  <Clock className="w-5 h-5 sm:w-6 sm:h-6 text-black" />
                 </div>
                 <h3 className="text-base sm:text-lg md:text-xl font-black uppercase">10 Minutes</h3>
               </div>

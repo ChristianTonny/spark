@@ -27,23 +27,25 @@ export const search = query({
   handler: async (ctx, args) => {
     let professionals = await ctx.db.query("professionals").collect();
 
-    // Filter by search query
-    if (args.searchQuery && args.searchQuery !== '') {
-      const query = args.searchQuery.toLowerCase();
-      professionals = professionals.filter(
-        (p) =>
-          p.company.toLowerCase().includes(query) ||
-          p.jobTitle.toLowerCase().includes(query)
-      );
-    }
-
-    // Enrich with user data
-    const enriched = await Promise.all(
+    // Filter by search query - need to enrich first to search by name
+    let enriched = await Promise.all(
       professionals.map(async (prof) => {
         const user = await ctx.db.get(prof.userId);
         return { ...prof, ...user };
       })
     );
+
+    // Filter by search query
+    if (args.searchQuery && args.searchQuery !== '') {
+      const query = args.searchQuery.toLowerCase();
+      enriched = enriched.filter(
+        (p) =>
+          p.company.toLowerCase().includes(query) ||
+          p.jobTitle.toLowerCase().includes(query) ||
+          (p.firstName && p.firstName.toLowerCase().includes(query)) ||
+          (p.lastName && p.lastName.toLowerCase().includes(query))
+      );
+    }
 
     return enriched;
   },

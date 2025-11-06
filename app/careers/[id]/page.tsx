@@ -224,7 +224,7 @@ export default function CareerDetailPage() {
             {career.requiredSkills.map((skill) => (
               <Badge
                 key={skill}
-                className="px-4 py-2 text-sm bg-white border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all"
+                className="px-4 py-2 text-sm bg-white text-black border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all"
               >
                 {skill}
               </Badge>
