@@ -63,26 +63,29 @@ export default function OnboardingPage() {
 
   const updateUserRole = useMutation(api.users.updateRole);
 
-  // If already has a role, redirect to appropriate dashboard
-  if (user && user.role && user.role !== 'student') {
-    if (user.role === 'mentor') {
-      router.push('/dashboard/mentor');
-      return null;
-    }
-    // Add redirects for other roles when those dashboards are ready
-    router.push('/dashboard/student');
-    return null;
-  }
-
   const handleRoleSelect = (role: UserRole) => {
     setSelectedRole(role);
   };
 
   const handleContinue = async () => {
-    if (!selectedRole || !user) return;
+    if (!selectedRole) {
+      alert('Please select a role');
+      return;
+    }
+
+    if (!clerkUser) {
+      alert('Please wait while we set up your account...');
+      return;
+    }
 
     setIsSubmitting(true);
     try {
+      // Wait for user to be synced to Convex if not already
+      if (!user) {
+        // Give it a moment for the user to sync
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+
       await updateUserRole({ role: selectedRole });
 
       // Redirect based on role

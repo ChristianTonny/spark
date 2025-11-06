@@ -106,13 +106,13 @@ export default function StudentDashboard() {
             <p className="font-bold text-gray-700 text-sm sm:text-base">Careers you are interested in</p>
           </div>
 
-          <div className="bg-purple-400 border-3 border-black shadow-brutal p-4 sm:p-6">
+          <div className="bg-brutal-orange border-3 border-black shadow-brutal p-4 sm:p-6">
             <div className="flex items-center justify-between mb-2">
-              <Target className="w-6 h-6 sm:w-8 sm:h-8" />
-              <span className="text-3xl sm:text-4xl font-black">{assessmentResults?.length || 0}</span>
+              <Target className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
+              <span className="text-3xl sm:text-4xl font-black text-white">{assessmentResults?.length || 0}</span>
             </div>
-            <h3 className="text-lg sm:text-xl font-black uppercase">Assessments</h3>
-            <p className="font-bold text-gray-700 text-sm sm:text-base">Career discovery tests taken</p>
+            <h3 className="text-lg sm:text-xl font-black uppercase text-white">Assessments</h3>
+            <p className="font-bold text-white/90 text-sm sm:text-base">Career discovery tests taken</p>
           </div>
 
           <div className="bg-green-400 border-3 border-black shadow-brutal p-4 sm:p-6">
