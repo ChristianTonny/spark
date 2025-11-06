@@ -68,6 +68,9 @@ export const saveResult = mutation({
         careerId: v.string(),
         matchPercentage: v.number(),
         matchReasons: v.array(v.string()),
+        interestScore: v.optional(v.number()),
+        valueScore: v.optional(v.number()),
+        environmentScore: v.optional(v.number()),
       })
     ),
   },

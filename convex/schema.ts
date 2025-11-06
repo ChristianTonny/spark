@@ -69,6 +69,31 @@ export default defineSchema({
     sponsoredByCompanyId: v.optional(v.string()),
     views: v.number(),
     saves: v.number(),
+
+    // Assessment matching metadata (RIASEC system)
+    interestProfile: v.object({
+      realistic: v.number(),      // 0-100 scale
+      investigative: v.number(),  // 0-100 scale
+      artistic: v.number(),       // 0-100 scale
+      social: v.number(),         // 0-100 scale
+      enterprising: v.number(),   // 0-100 scale
+      conventional: v.number(),   // 0-100 scale
+    }),
+
+    valueProfile: v.object({
+      impact: v.number(),         // 0-100 scale
+      income: v.number(),         // 0-100 scale
+      autonomy: v.number(),       // 0-100 scale
+      balance: v.number(),        // 0-100 scale
+      growth: v.number(),         // 0-100 scale
+      stability: v.number(),      // 0-100 scale
+    }),
+
+    workEnvironment: v.object({
+      teamSize: v.string(),       // 'solo' | 'independent' | 'small' | 'large' | 'leader' | 'minimal'
+      pace: v.string(),           // 'steady' | 'moderate' | 'intense' | 'flexible' | 'deadline-driven' | 'predictable'
+      structure: v.optional(v.string()), // 'flexible' | 'balanced' | 'structured' (optional for backward compatibility)
+    }),
   })
     .index("by_category", ["category"])
     .index("by_title", ["title"]),
@@ -142,10 +167,39 @@ export default defineSchema({
         careerId: v.string(),
         matchPercentage: v.number(),
         matchReasons: v.array(v.string()),
+        interestScore: v.optional(v.number()),
+        valueScore: v.optional(v.number()),
+        environmentScore: v.optional(v.number()),
       })
     ),
     completedAt: v.number(),
-    scores: v.optional(v.any()),
+
+    // RIASEC scores
+    scores: v.optional(
+      v.object({
+        riasec: v.object({
+          realistic: v.number(),
+          investigative: v.number(),
+          artistic: v.number(),
+          social: v.number(),
+          enterprising: v.number(),
+          conventional: v.number(),
+        }),
+        values: v.object({
+          impact: v.number(),
+          income: v.number(),
+          autonomy: v.number(),
+          balance: v.number(),
+          growth: v.number(),
+          stability: v.number(),
+        }),
+        environment: v.object({
+          teamSize: v.string(),
+          pace: v.string(),
+        }),
+        topRIASEC: v.array(v.string()), // Top 3 RIASEC codes
+      })
+    ),
   })
     .index("by_student", ["studentId"])
     .index("by_assessment", ["assessmentId"])

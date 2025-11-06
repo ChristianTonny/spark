@@ -77,23 +77,31 @@ export default function AssessmentQuestionsPage() {
         setIsSaving(true);
 
         try {
-          // Mock career matches (hardcoded for now, similar to results page)
-          // In a real app, this would be calculated based on answers
-          // Using first 5 careers from database with mock scores
-          const mockMatches = allCareers.slice(0, 5).map((career, index) => ({
-            careerId: career._id,
-            matchPercentage: 95 - (index * 5), // 95%, 90%, 85%, 80%, 75%
-            matchReasons: [
-              'Based on your interests',
-              'Matches your skills',
-              'Aligns with your goals'
-            ].slice(0, 2 + (index % 2)), // Vary number of reasons
+          // Calculate student profile from answers using RIASEC algorithm
+          const {
+            calculateProfileFromAnswers,
+            matchStudentToCareers,
+          } = await import('@/lib/assessment-algorithm');
+
+          const studentProfile = calculateProfileFromAnswers(updatedAnswers);
+
+          // Match student to all careers
+          const matches = matchStudentToCareers(studentProfile, allCareers, 10);
+
+          // Format matches for Convex
+          const careerMatches = matches.map(match => ({
+            careerId: match.careerId,
+            matchPercentage: match.matchPercentage,
+            matchReasons: match.matchReasons,
+            interestScore: match.interestScore,
+            valueScore: match.valueScore,
+            environmentScore: match.environmentScore,
           }));
 
           const result = await saveResult({
             assessmentId: assessment._id,
             answers: updatedAnswers,
-            careerMatches: mockMatches,
+            careerMatches,
           });
 
           // Redirect to results page with the result ID

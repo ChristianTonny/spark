@@ -38,28 +38,6 @@ export const seedAll = internalMutation({
       relatedCareerIds: ["career-2", "career-3"],
       views: 1247,
       saves: 89,
-      // Assessment metadata
-      interestProfile: {
-        realistic: 30,
-        investigative: 90,
-        artistic: 60,
-        social: 40,
-        enterprising: 50,
-        conventional: 40,
-      },
-      valueProfile: {
-        impact: 70,
-        income: 80,
-        autonomy: 75,
-        balance: 60,
-        growth: 90,
-        stability: 70,
-      },
-      workEnvironment: {
-        teamSize: "small",
-        pace: "moderate",
-        structure: "flexible",
-      },
     }));
 
     // Career 2: Data Scientist
@@ -79,28 +57,6 @@ export const seedAll = internalMutation({
       relatedCareerIds: ["career-1"],
       views: 0,
       saves: 0,
-      // Assessment metadata
-      interestProfile: {
-        realistic: 25,
-        investigative: 95,
-        artistic: 50,
-        social: 35,
-        enterprising: 55,
-        conventional: 70,
-      },
-      valueProfile: {
-        impact: 75,
-        income: 85,
-        autonomy: 70,
-        balance: 55,
-        growth: 95,
-        stability: 65,
-      },
-      workEnvironment: {
-        teamSize: "small",
-        pace: "moderate",
-        structure: "flexible",
-      },
     }));
 
     // Career 3: Registered Nurse
@@ -120,28 +76,6 @@ export const seedAll = internalMutation({
       relatedCareerIds: [],
       views: 0,
       saves: 0,
-      // Assessment metadata
-      interestProfile: {
-        realistic: 50,
-        investigative: 70,
-        artistic: 30,
-        social: 95,
-        enterprising: 40,
-        conventional: 60,
-      },
-      valueProfile: {
-        impact: 95,
-        income: 55,
-        autonomy: 50,
-        balance: 50,
-        growth: 70,
-        stability: 85,
-      },
-      workEnvironment: {
-        teamSize: "large",
-        pace: "intense",
-        structure: "structured",
-      },
     }));
 
     // Career 4: Medical Doctor
@@ -161,28 +95,6 @@ export const seedAll = internalMutation({
       relatedCareerIds: [],
       views: 0,
       saves: 0,
-      // Assessment metadata (following ASSESSMENT_RESEARCH.md example)
-      interestProfile: {
-        realistic: 60,
-        investigative: 95,
-        artistic: 30,
-        social: 90,
-        enterprising: 40,
-        conventional: 50,
-      },
-      valueProfile: {
-        impact: 95,
-        income: 80,
-        autonomy: 50,
-        balance: 30,
-        growth: 85,
-        stability: 90,
-      },
-      workEnvironment: {
-        teamSize: "large",
-        pace: "intense",
-        structure: "structured",
-      },
     }));
 
     // Career 5: Civil Engineer
@@ -202,28 +114,6 @@ export const seedAll = internalMutation({
       relatedCareerIds: [],
       views: 0,
       saves: 0,
-      // Assessment metadata
-      interestProfile: {
-        realistic: 80,
-        investigative: 75,
-        artistic: 45,
-        social: 35,
-        enterprising: 55,
-        conventional: 70,
-      },
-      valueProfile: {
-        impact: 80,
-        income: 70,
-        autonomy: 60,
-        balance: 65,
-        growth: 75,
-        stability: 80,
-      },
-      workEnvironment: {
-        teamSize: "small",
-        pace: "moderate",
-        structure: "structured",
-      },
     }));
 
     // Career 6: Architect
@@ -243,28 +133,6 @@ export const seedAll = internalMutation({
       relatedCareerIds: [],
       views: 0,
       saves: 0,
-      // Assessment metadata
-      interestProfile: {
-        realistic: 55,
-        investigative: 70,
-        artistic: 90,
-        social: 40,
-        enterprising: 60,
-        conventional: 50,
-      },
-      valueProfile: {
-        impact: 75,
-        income: 75,
-        autonomy: 85,
-        balance: 60,
-        growth: 80,
-        stability: 65,
-      },
-      workEnvironment: {
-        teamSize: "small",
-        pace: "flexible",
-        structure: "flexible",
-      },
     }));
 
     // Career 7: Teacher
@@ -284,28 +152,6 @@ export const seedAll = internalMutation({
       relatedCareerIds: [],
       views: 0,
       saves: 0,
-      // Assessment metadata (following ASSESSMENT_RESEARCH.md example)
-      interestProfile: {
-        realistic: 30,
-        investigative: 50,
-        artistic: 60,
-        social: 95,
-        enterprising: 55,
-        conventional: 45,
-      },
-      valueProfile: {
-        impact: 95,
-        income: 50,
-        autonomy: 60,
-        balance: 70,
-        growth: 75,
-        stability: 80,
-      },
-      workEnvironment: {
-        teamSize: "large",
-        pace: "moderate",
-        structure: "structured",
-      },
     }));
 
     // Career 8: Financial Analyst
@@ -325,28 +171,6 @@ export const seedAll = internalMutation({
       relatedCareerIds: [],
       views: 0,
       saves: 0,
-      // Assessment metadata (similar to Accountant from ASSESSMENT_RESEARCH.md)
-      interestProfile: {
-        realistic: 30,
-        investigative: 80,
-        artistic: 35,
-        social: 40,
-        enterprising: 60,
-        conventional: 90,
-      },
-      valueProfile: {
-        impact: 50,
-        income: 80,
-        autonomy: 55,
-        balance: 70,
-        growth: 75,
-        stability: 90,
-      },
-      workEnvironment: {
-        teamSize: "small",
-        pace: "steady",
-        structure: "structured",
-      },
     }));
 
     // Career 9: Marketing Manager
@@ -366,28 +190,6 @@ export const seedAll = internalMutation({
       relatedCareerIds: [],
       views: 0,
       saves: 0,
-      // Assessment metadata (Enterprising + Social + Artistic)
-      interestProfile: {
-        realistic: 25,
-        investigative: 50,
-        artistic: 75,
-        social: 70,
-        enterprising: 90,
-        conventional: 50,
-      },
-      valueProfile: {
-        impact: 60,
-        income: 75,
-        autonomy: 70,
-        balance: 65,
-        growth: 85,
-        stability: 60,
-      },
-      workEnvironment: {
-        teamSize: "small",
-        pace: "intense",
-        structure: "flexible",
-      },
     }));
 
     // Career 10: Graphic Designer
@@ -407,28 +209,6 @@ export const seedAll = internalMutation({
       relatedCareerIds: [],
       views: 0,
       saves: 0,
-      // Assessment metadata (following ASSESSMENT_RESEARCH.md example)
-      interestProfile: {
-        realistic: 30,
-        investigative: 50,
-        artistic: 95,
-        social: 45,
-        enterprising: 60,
-        conventional: 40,
-      },
-      valueProfile: {
-        impact: 60,
-        income: 60,
-        autonomy: 90,
-        balance: 70,
-        growth: 80,
-        stability: 50,
-      },
-      workEnvironment: {
-        teamSize: "small",
-        pace: "flexible",
-        structure: "flexible",
-      },
     }));
 
     // Create demo student user
@@ -540,171 +320,68 @@ export const seedAll = internalMutation({
       earningsLastMonth: 240000,
     }));
 
-    // Create assessment - 12-question RIASEC system
+    // Create assessment
     const assessmentId = await ctx.db.insert("assessments", {
       type: "interests",
       title: "Career Discovery Assessment",
-      description: "Discover careers that match your interests, skills, and goals using the RIASEC framework",
+      description: "Discover careers that match your interests, skills, and goals",
       icon: "❤️",
-      duration: 5,
-      questionCount: 12,
+      duration: 10,
+      questionCount: 5,
       questions: [
-        // SECTION 1: INTERESTS (RIASEC) - Questions 1-8
         {
           id: "q1",
-          text: "Which of these activities sounds most interesting to you?",
+          text: "Which activities do you enjoy most in your free time?",
           type: "multiple_choice",
           options: [
-            "Building or repairing things with your hands",
-            "Researching how things work",
-            "Creating art, music, or designs",
-            "Helping people solve their problems",
-            "Leading a team or starting a project",
-            "Organizing data and keeping records",
+            "Writing code, solving puzzles, or working with technology",
+            "Helping others, teaching, or volunteering",
+            "Creating art, designing, or making things",
+            "Organizing events, leading groups, or planning projects",
           ],
         },
         {
           id: "q2",
-          text: "You encounter a challenging problem. How do you prefer to solve it?",
+          text: "What subjects do you find most interesting in school?",
           type: "multiple_choice",
           options: [
-            "Try different solutions hands-on until something works",
-            "Research and analyze data to find the best solution",
-            "Think creatively and come up with innovative approaches",
-            "Ask others for advice and collaborate",
-            "Take charge and make quick decisions",
-            "Follow proven procedures and guidelines",
+            "Mathematics and Physics",
+            "Biology and Chemistry",
+            "Languages and Literature",
+            "History and Social Studies",
           ],
         },
         {
           id: "q3",
-          text: "Which work environment appeals to you most?",
+          text: "How do you prefer to work?",
           type: "multiple_choice",
           options: [
-            "Workshop or outdoor setting with tools and equipment",
-            "Laboratory or office with data and research",
-            "Creative studio with freedom to express ideas",
-            "Community setting helping and teaching others",
-            "Dynamic office with meetings and presentations",
-            "Structured office with clear processes",
+            "Independently, with minimal supervision",
+            "In a small team with close collaboration",
+            "In a large organization with clear structure",
+            "Mix of independent and team work",
           ],
         },
         {
           id: "q4",
-          text: "Which daily activity would you find most fulfilling?",
+          text: "What kind of work environment appeals to you?",
           type: "multiple_choice",
           options: [
-            "Operating machinery or equipment",
-            "Analyzing data and finding patterns",
-            "Designing, writing, or creating content",
-            "Teaching or mentoring others",
-            "Presenting ideas and convincing people",
-            "Managing schedules and organizing tasks",
+            "Office or indoor workspace",
+            "Outdoor or field work",
+            "Mix of office and travel",
+            "Remote or work from anywhere",
           ],
         },
         {
           id: "q5",
-          text: "Which skill do you most enjoy using?",
+          text: "Which skill comes most naturally to you?",
           type: "multiple_choice",
           options: [
-            "Physical coordination and technical skills",
-            "Critical thinking and research skills",
-            "Creative and artistic skills",
-            "Communication and empathy",
-            "Leadership and persuasion",
-            "Attention to detail and organization",
-          ],
-        },
-        {
-          id: "q6",
-          text: "You're assigned a group project. What role do you naturally take?",
-          type: "multiple_choice",
-          options: [
-            "The builder - making the physical product",
-            "The researcher - gathering information",
-            "The designer - creating the visual/creative elements",
-            "The communicator - presenting and coordinating",
-            "The leader - organizing the team and delegating",
-            "The planner - tracking deadlines and details",
-          ],
-        },
-        {
-          id: "q7",
-          text: "How do you prefer to learn new things?",
-          type: "multiple_choice",
-          options: [
-            "Hands-on practice and experimentation",
-            "Reading, research, and independent study",
-            "Creative exploration and self-expression",
-            "Group discussions and collaborative learning",
-            "Leading projects and learning by doing",
-            "Step-by-step instructions and structured courses",
-          ],
-        },
-        {
-          id: "q8",
-          text: "You feel most accomplished when you:",
-          type: "multiple_choice",
-          options: [
-            "Build or fix something that works perfectly",
-            "Discover new information or solve a complex problem",
-            "Create something beautiful or original",
-            "Help someone overcome a challenge",
-            "Achieve a goal and lead others to success",
-            "Complete tasks efficiently and accurately",
-          ],
-        },
-        // SECTION 2: VALUES & PRIORITIES - Questions 9-12
-        {
-          id: "q9",
-          text: "What matters most to you in a career?",
-          type: "multiple_choice",
-          options: [
-            "High salary and financial security",
-            "Making a positive impact on society",
-            "Creative freedom and self-expression",
-            "Work-life balance and personal time",
-            "Career growth and advancement opportunities",
-            "Job stability and clear expectations",
-          ],
-        },
-        {
-          id: "q10",
-          text: "Where do you see yourself in 10-15 years?",
-          type: "multiple_choice",
-          options: [
-            "Running my own business or being financially independent",
-            "Being an expert/specialist in my field",
-            "Creating work that inspires others",
-            "Leading a team or organization making a difference",
-            "Having a balanced life with time for family and hobbies",
-            "Holding a respected position in a stable organization",
-          ],
-        },
-        {
-          id: "q11",
-          text: "What work pace suits you best?",
-          type: "multiple_choice",
-          options: [
-            "Fast-paced with variety and new challenges daily",
-            "Moderate pace with focused deep work",
-            "Flexible pace where I control my schedule",
-            "Steady pace with regular routines",
-            "Intense bursts with clear deadlines",
-            "Predictable pace with minimal surprises",
-          ],
-        },
-        {
-          id: "q12",
-          text: "How do you prefer to work?",
-          type: "multiple_choice",
-          options: [
-            "Mostly alone with occasional collaboration",
-            "Independently but part of a larger team",
-            "In small teams (2-5 people)",
-            "In large teams with lots of interaction",
-            "Leading teams and managing people",
-            "Following clear procedures with minimal interaction",
+            "Analyzing problems and finding solutions",
+            "Communicating and connecting with people",
+            "Creating and designing new things",
+            "Managing and organizing tasks",
           ],
         },
       ],
