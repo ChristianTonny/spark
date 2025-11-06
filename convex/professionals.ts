@@ -1,5 +1,6 @@
-import { query } from "./_generated/server";
+import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
+import { getCurrentUserOrThrow } from "./users";
 
 // Get all professionals
 export const list = query({
@@ -69,5 +70,84 @@ export const getByCareerIds = query({
     );
 
     return enriched;
+  },
+});
+
+// Get current user's professional profile
+export const getCurrentProfessional = query({
+  args: {},
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      return null;
+    }
+
+    // Get user from users table
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_token", (q) => q.eq("tokenIdentifier", identity.tokenIdentifier))
+      .first();
+
+    if (!user) {
+      return null;
+    }
+
+    // Get professional profile
+    const professional = await ctx.db
+      .query("professionals")
+      .withIndex("by_user", (q) => q.eq("userId", user._id))
+      .first();
+
+    if (!professional) {
+      return null;
+    }
+
+    // Return combined data
+    return { ...professional, ...user };
+  },
+});
+
+// Create a professional profile
+export const create = mutation({
+  args: {
+    company: v.string(),
+    jobTitle: v.string(),
+    bio: v.string(), // Make required to match form
+    yearsExperience: v.number(), // Make required to match form
+    calendlyUrl: v.optional(v.string()),
+    ratePerChat: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const user = await getCurrentUserOrThrow(ctx);
+
+    // Check if professional profile already exists
+    const existing = await ctx.db
+      .query("professionals")
+      .withIndex("by_user", (q) => q.eq("userId", user._id))
+      .first();
+
+    if (existing) {
+      throw new Error("Professional profile already exists");
+    }
+
+    // Create professional profile
+    const professionalId = await ctx.db.insert("professionals", {
+      userId: user._id,
+      company: args.company,
+      jobTitle: args.jobTitle,
+      bio: args.bio,
+      yearsExperience: args.yearsExperience,
+      rating: 5.0, // Default rating
+      chatsCompleted: 0,
+      careerIds: [], // Will be set later in profile settings
+      availability: [], // Will be set later in availability settings
+      calendlyUrl: args.calendlyUrl,
+      ratePerChat: args.ratePerChat || 0,
+      totalEarnings: 0,
+      earningsThisMonth: 0,
+      earningsLastMonth: 0,
+    });
+
+    return professionalId;
   },
 });

@@ -1,104 +1,63 @@
-﻿'use client';
+'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import Link from 'next/link';
-import { 
-  User, Calendar, MessageCircle, Star, TrendingUp, Clock, 
-  Users, ArrowRight, CheckCircle, Settings, Bell
+import { useRouter } from 'next/navigation';
+import {
+  User, Calendar, MessageCircle, Star, TrendingUp, Clock,
+  Users, ArrowRight, CheckCircle, Settings, Bell, DollarSign, Award
 } from 'lucide-react';
+import { useQuery } from 'convex/react';
+import { api } from '../../../convex/_generated/api';
+import { useConvexAuth } from '../../../lib/hooks/useConvexAuth';
 
 export default function MentorDashboardPage() {
-  const [upcomingSessions, setUpcomingSessions] = useState<any[]>([]);
-  const [studentQuestions, setStudentQuestions] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
+  const { user, isLoading: authLoading, isAuthenticated } = useConvexAuth();
+  const professional = useQuery(api.professionals.getCurrentProfessional);
 
-  // Mock mentor profile - in a real app, this would come from authentication
-  const mentorProfile = {
-    id: 'prof-1',
-    name: 'Jean Claude Niyonsenga',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=JeanClaude',
-    company: 'Andela',
-    jobTitle: 'Senior Software Engineer',
-    rating: 4.9,
-    totalSessions: 47,
-    yearsExperience: 8,
-    responseRate: 98,
-    responseTime: '< 2 hours',
-  };
-
-  const stats = {
-    sessionsThisMonth: 12,
-    totalEarnings: 420,
-    avgRating: 4.9,
-    completionRate: 98,
-  };
-
-  // Load mock data
+  // Redirect if not authenticated or not a mentor
   useEffect(() => {
-    // Simulate loading
-    setTimeout(() => {
-      // Mock upcoming sessions
-      setUpcomingSessions([
-        {
-          id: 1,
-          studentName: 'Alex Johnson',
-          studentAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=AlexJohnson',
-          topic: 'Career advice in Software Engineering',
-          date: 'Nov 5, 2025',
-          time: '2:00 PM',
-          duration: '15 min',
-          status: 'confirmed',
-        },
-        {
-          id: 2,
-          studentName: 'Maria Garcia',
-          studentAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=MariaGarcia',
-          topic: 'Transitioning to tech career',
-          date: 'Nov 6, 2025',
-          time: '10:30 AM',
-          duration: '15 min',
-          status: 'confirmed',
-        },
-        {
-          id: 3,
-          studentName: 'David Kim',
-          studentAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=DavidKim',
-          topic: 'Learning web development',
-          date: 'Nov 7, 2025',
-          time: '4:15 PM',
-          duration: '15 min',
-          status: 'pending',
-        },
-      ]);
+    if (!authLoading && !isAuthenticated) {
+      router.push('/sign-in');
+    } else if (!authLoading && user && user.role !== 'mentor') {
+      // Redirect to appropriate dashboard
+      router.push(`/dashboard/${user.role}`);
+    }
+  }, [user, authLoading, isAuthenticated, router]);
 
-      // Mock student questions
-      setStudentQuestions([
-        {
-          id: 1,
-          studentName: 'Sarah Williams',
-          question: 'What programming language should I learn first as a beginner?',
-          askedAt: '2 hours ago',
-          replies: 0,
-        },
-        {
-          id: 2,
-          studentName: 'Michael Brown',
-          question: 'How do I build a portfolio with no experience?',
-          askedAt: '5 hours ago',
-          replies: 1,
-        },
-        {
-          id: 3,
-          studentName: 'Emily Chen',
-          question: 'What soft skills are most important in tech?',
-          askedAt: '1 day ago',
-          replies: 2,
-        },
-      ]);
+  // Redirect to onboarding if no professional profile
+  useEffect(() => {
+    if (!authLoading && isAuthenticated && professional === null && user?.role === 'mentor') {
+      router.push('/onboarding/mentor');
+    }
+  }, [professional, authLoading, isAuthenticated, user, router]);
 
-      setIsLoading(false);
-    }, 800);
-  }, []);
+  // Loading state
+  if (authLoading || professional === undefined) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-pulse">
+            <h1 className="text-4xl font-black mb-4">Loading your dashboard...</h1>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // No professional profile found
+  if (!professional) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <h1 className="text-4xl font-black mb-4">Redirecting to onboarding...</h1>
+        </div>
+      </div>
+    );
+  }
+
+  const fullName = `${professional.firstName} ${professional.lastName}`;
 
   return (
     <div className="min-h-screen bg-gray-50 py-4 sm:py-8">
@@ -108,7 +67,7 @@ export default function MentorDashboardPage() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
             <div>
               <h1 className="text-3xl sm:text-4xl md:text-5xl font-black mb-2">Mentor Dashboard</h1>
-              <p className="text-base sm:text-lg md:text-xl text-gray-700">Welcome back, {mentorProfile.name}!</p>
+              <p className="text-base sm:text-lg md:text-xl text-gray-700">Welcome back, {professional.firstName}!</p>
             </div>
             <div className="flex items-center gap-2 sm:gap-3">
               <Link
@@ -117,9 +76,6 @@ export default function MentorDashboardPage() {
                 title="Notifications"
               >
                 <Bell className="w-5 h-5" />
-                <span className="absolute -top-1 -right-1 w-5 h-5 bg-brutal-orange text-white text-xs font-black flex items-center justify-center rounded-full border-2 border-white">
-                  3
-                </span>
               </Link>
               <Link
                 href="/dashboard/mentor/settings"
@@ -133,33 +89,39 @@ export default function MentorDashboardPage() {
         </div>
 
         {/* Profile Overview Card */}
-        <div className="mb-6 sm:mb-8 bg-gradient-to-r from-brutal-blue to-brutal-purple border-3 border-brutal-border shadow-brutal-lg p-4 sm:p-6 md:p-8">
+        <div className="mb-6 sm:mb-8 bg-gradient-to-r from-brutal-orange to-brutal-pink border-3 border-brutal-border shadow-brutal-lg p-4 sm:p-6 md:p-8">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
-            <div className="w-20 h-20 sm:w-24 sm:h-24 bg-white border-3 border-brutal-border shadow-brutal flex-shrink-0">
-              <img
-                src={mentorProfile.avatar}
-                alt={mentorProfile.name}
-                className="w-full h-full"
-              />
+            <div className="w-20 h-20 sm:w-24 sm:h-24 bg-white border-3 border-brutal-border shadow-brutal flex-shrink-0 overflow-hidden">
+              {professional.avatar ? (
+                <img
+                  src={professional.avatar}
+                  alt={fullName}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-brutal-blue text-white text-3xl font-black">
+                  {professional.firstName?.[0]}{professional.lastName?.[0]}
+                </div>
+              )}
             </div>
 
             <div className="flex-1 w-full sm:w-auto">
-              <h2 className="text-2xl sm:text-3xl font-black text-white mb-1">{mentorProfile.name}</h2>
+              <h2 className="text-2xl sm:text-3xl font-black text-white mb-1">{fullName}</h2>
               <p className="text-base sm:text-lg md:text-xl font-bold text-white/90 mb-2 sm:mb-3">
-                {mentorProfile.jobTitle} at {mentorProfile.company}
+                {professional.jobTitle} at {professional.company}
               </p>
               <div className="flex flex-wrap gap-3 sm:gap-4 text-white text-sm sm:text-base">
                 <div className="flex items-center gap-2">
                   <Star className="w-4 h-4 sm:w-5 sm:h-5 fill-white" />
-                  <span className="font-bold">{mentorProfile.rating} Rating</span>
+                  <span className="font-bold">{professional.rating.toFixed(1)} Rating</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5" />
-                  <span className="font-bold">{mentorProfile.totalSessions} Sessions</span>
+                  <span className="font-bold">{professional.chatsCompleted} Sessions</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Clock className="w-4 h-4 sm:w-5 sm:h-5" />
-                  <span className="font-bold">{mentorProfile.responseTime} Response</span>
+                  <span className="font-bold">{professional.yearsExperience} years experience</span>
                 </div>
               </div>
             </div>
@@ -172,176 +134,99 @@ export default function MentorDashboardPage() {
               Edit Profile
             </Link>
           </div>
-        </div>        {/* Stats Grid */}
+        </div>
+
+        {/* Stats Grid */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-6 sm:mb-8">
-          {/* Sessions This Month */}
-          <div className="bg-brutal-yellow border-3 border-brutal-border shadow-brutal-lg p-4 sm:p-6">
+          {/* Sessions Completed */}
+          <div className="bg-brutal-blue text-white border-3 border-brutal-border shadow-brutal-lg p-4 sm:p-6">
             <div className="flex items-center justify-between mb-2">
-              <Calendar className="w-6 h-6 sm:w-8 sm:h-8" />
-              <span className="text-2xl sm:text-3xl font-black">{stats.sessionsThisMonth}</span>
+              <MessageCircle className="w-6 h-6 sm:w-8 sm:h-8" />
+              <span className="text-2xl sm:text-3xl font-black">{professional.chatsCompleted}</span>
             </div>
-            <p className="font-black uppercase text-xs sm:text-sm">Sessions This Month</p>
+            <p className="font-black uppercase text-xs sm:text-sm">Total Sessions</p>
           </div>
 
           {/* Total Earnings */}
           <div className="bg-brutal-green border-3 border-brutal-border shadow-brutal-lg p-4 sm:p-6">
             <div className="flex items-center justify-between mb-2">
-              <TrendingUp className="w-6 h-6 sm:w-8 sm:h-8" />
-              <span className="text-2xl sm:text-3xl font-black">${stats.totalEarnings}</span>
+              <DollarSign className="w-6 h-6 sm:w-8 sm:h-8" />
+              <span className="text-2xl sm:text-3xl font-black">{(professional.totalEarnings / 1000).toFixed(0)}K</span>
             </div>
-            <p className="font-black uppercase text-xs sm:text-sm">Total Earnings</p>
+            <p className="font-black uppercase text-xs sm:text-sm">Total Earnings (RWF)</p>
           </div>
 
           {/* Average Rating */}
-          <div className="bg-brutal-pink border-3 border-brutal-border shadow-brutal-lg p-4 sm:p-6">
+          <div className="bg-brutal-yellow border-3 border-brutal-border shadow-brutal-lg p-4 sm:p-6">
             <div className="flex items-center justify-between mb-2">
               <Star className="w-6 h-6 sm:w-8 sm:h-8 fill-black" />
-              <span className="text-2xl sm:text-3xl font-black">{stats.avgRating}</span>
+              <span className="text-2xl sm:text-3xl font-black">{professional.rating.toFixed(1)}</span>
             </div>
             <p className="font-black uppercase text-xs sm:text-sm">Average Rating</p>
           </div>
 
-          {/* Completion Rate */}
-          <div className="bg-brutal-blue border-3 border-brutal-border shadow-brutal-lg p-4 sm:p-6 text-white">
+          {/* Years Experience */}
+          <div className="bg-brutal-pink border-3 border-brutal-border shadow-brutal-lg p-4 sm:p-6">
             <div className="flex items-center justify-between mb-2">
-              <CheckCircle className="w-6 h-6 sm:w-8 sm:h-8" />
-              <span className="text-2xl sm:text-3xl font-black">{stats.completionRate}%</span>
+              <Award className="w-6 h-6 sm:w-8 sm:h-8" />
+              <span className="text-2xl sm:text-3xl font-black">{professional.yearsExperience}</span>
             </div>
-            <p className="font-black uppercase text-xs sm:text-sm">Completion Rate</p>
+            <p className="font-black uppercase text-xs sm:text-sm">Years Experience</p>
           </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
           {/* Left Column - Main Content */}
           <div className="lg:col-span-2 space-y-6 sm:space-y-8">
-            {/* Upcoming Sessions */}
+            {/* Bio Section */}
             <div className="bg-white border-3 border-brutal-border shadow-brutal-lg p-4 sm:p-6 md:p-8">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
-                <h2 className="text-xl sm:text-2xl md:text-3xl font-black uppercase flex items-center gap-2">
-                  <Calendar className="w-6 h-6 sm:w-8 sm:h-8" />
-                  Upcoming Sessions
-                </h2>
-                <Link
-                  href="/dashboard/mentor/sessions"
-                  className="text-sm font-bold text-brutal-text hover:underline flex items-center gap-1"
-                >
-                  View All <ArrowRight className="w-4 h-4" />
-                </Link>
-              </div>
-
-              {isLoading ? (
-                <div className="space-y-4">
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="h-20 sm:h-24 bg-gray-200 animate-pulse border-2 border-gray-300" />
-                  ))}
-                </div>
-              ) : upcomingSessions.length === 0 ? (
-                <div className="text-center py-8 sm:py-12">
-                  <Calendar className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 text-gray-400" />
-                  <p className="text-gray-600 font-bold mb-2 text-sm sm:text-base">No upcoming sessions</p>
-                  <p className="text-xs sm:text-sm text-gray-500">New bookings will appear here</p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {upcomingSessions.map((session) => (
-                    <div
-                      key={session.id}
-                      className="border-2 border-brutal-border p-4 sm:p-6 hover:shadow-brutal transition-all"
-                    >
-                      <div className="flex flex-col sm:flex-row items-start gap-3 sm:gap-4">
-                        <div className="w-12 h-12 sm:w-12 sm:h-12 bg-brutal-pink border-2 border-brutal-border flex-shrink-0">
-                          <img
-                            src={session.studentAvatar}
-                            alt={session.studentName}
-                            className="w-full h-full"
-                          />
-                        </div>
-
-                        <div className="flex-1 w-full">
-                          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-2">
-                            <div>
-                              <h3 className="text-lg sm:text-xl font-black">{session.studentName}</h3>
-                              <p className="text-xs sm:text-sm text-gray-700 font-bold">{session.topic}</p>
-                            </div>
-                            <span className={`px-3 py-1 text-xs font-black uppercase border-2 border-brutal-border self-start ${
-                              session.status === 'confirmed'
-                                ? 'bg-brutal-green'
-                                : 'bg-brutal-yellow'
-                            }`}>
-                              {session.status}
-                            </span>
-                          </div>
-
-                          <div className="flex flex-wrap gap-3 sm:gap-4 text-xs sm:text-sm font-bold text-gray-600">
-                            <span className="flex items-center gap-1">
-                              <Calendar className="w-4 h-4" />
-                              {session.date}
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <Clock className="w-4 h-4" />
-                              {session.time} ({session.duration})
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-black uppercase mb-4">About Me</h2>
+              <p className="text-gray-700 leading-relaxed">{professional.bio}</p>
             </div>
 
-            {/* Student Questions */}
+            {/* Getting Started Guide */}
             <div className="bg-white border-3 border-brutal-border shadow-brutal-lg p-4 sm:p-6 md:p-8">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
                 <h2 className="text-xl sm:text-2xl md:text-3xl font-black uppercase flex items-center gap-2">
-                  <MessageCircle className="w-6 h-6 sm:w-8 sm:h-8" />
-                  Student Questions
+                  <CheckCircle className="w-6 h-6 sm:w-8 sm:h-8" />
+                  Getting Started
                 </h2>
-                <Link
-                  href="/questions"
-                  className="text-sm font-bold text-brutal-text hover:underline flex items-center gap-1"
-                >
-                  View All <ArrowRight className="w-4 h-4" />
-                </Link>
               </div>
 
-              {isLoading ? (
-                <div className="space-y-4">
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="h-20 bg-gray-200 animate-pulse border-2 border-gray-300" />
-                  ))}
+              <div className="space-y-4">
+                <div className="border-2 border-brutal-border p-4 sm:p-6">
+                  <h3 className="text-lg font-black mb-2">1. Set Your Availability</h3>
+                  <p className="text-gray-700 mb-3">
+                    Let students know when you're available for mentoring sessions
+                  </p>
+                  <Link
+                    href="/dashboard/mentor/availability"
+                    className="inline-block px-6 py-2 bg-brutal-blue text-white font-bold uppercase text-sm border-2 border-brutal-border shadow-brutal hover:shadow-brutal-lg transition-all"
+                  >
+                    Set Availability
+                  </Link>
                 </div>
-              ) : studentQuestions.length === 0 ? (
-                <div className="text-center py-12">
-                  <MessageCircle className="w-16 h-16 mx-auto mb-4 text-gray-400" />
-                  <p className="text-gray-600 font-bold mb-2">No questions yet</p>
-                  <p className="text-sm text-gray-500">Student questions will appear here</p>
+
+                <div className="border-2 border-brutal-border p-4 sm:p-6">
+                  <h3 className="text-lg font-black mb-2">2. Browse Career Categories</h3>
+                  <p className="text-gray-700 mb-3">
+                    Choose which career paths you can provide guidance on
+                  </p>
+                  <Link
+                    href="/careers"
+                    className="inline-block px-6 py-2 bg-brutal-orange text-white font-bold uppercase text-sm border-2 border-brutal-border shadow-brutal hover:shadow-brutal-lg transition-all"
+                  >
+                    Browse Careers
+                  </Link>
                 </div>
-              ) : (
-                <div className="space-y-4">
-                  {studentQuestions.map((q) => (
-                    <div
-                      key={q.id}
-                      className="border-2 border-brutal-border p-4 hover:shadow-brutal-sm transition-all cursor-pointer"
-                    >
-                      <div className="flex items-start justify-between mb-2">
-                        <p className="font-bold text-gray-900">{q.question}</p>
-                        {q.replies > 0 && (
-                          <span className="px-2 py-1 bg-brutal-green text-xs font-black border-2 border-brutal-border">
-                            {q.replies} {q.replies === 1 ? 'Reply' : 'Replies'}
-                          </span>
-                        )}
-                      </div>
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-600 font-bold">
-                          Asked by {q.studentName}
-                        </span>
-                        <span className="text-gray-500 font-bold">{q.askedAt}</span>
-                      </div>
-                    </div>
-                  ))}
+
+                <div className="border-2 border-brutal-border p-4 sm:p-6">
+                  <h3 className="text-lg font-black mb-2">3. Wait for Bookings</h3>
+                  <p className="text-gray-700">
+                    Students will discover your profile and book sessions with you
+                  </p>
                 </div>
-              )}
+              </div>
             </div>
           </div>
 
@@ -358,74 +243,67 @@ export default function MentorDashboardPage() {
                   Update Availability
                 </Link>
                 <Link
-                  href="/dashboard/mentor/sessions"
-                  className="block w-full px-4 py-3 bg-brutal-pink font-bold uppercase text-sm border-2 border-brutal-border shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all text-center"
+                  href="/dashboard/mentor/profile"
+                  className="block w-full px-4 py-3 bg-brutal-orange text-white font-bold uppercase text-sm border-2 border-brutal-border shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all text-center"
                 >
-                  Manage Sessions
+                  Edit Profile
                 </Link>
                 <Link
-                  href="/questions/ask"
+                  href="/mentors"
                   className="block w-full px-4 py-3 bg-brutal-green font-bold uppercase text-sm border-2 border-brutal-border shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all text-center"
                 >
-                  Answer Questions
+                  View Public Profile
                 </Link>
               </div>
             </div>
 
             {/* Tips for Mentors */}
             <div className="bg-brutal-yellow border-3 border-brutal-border shadow-brutal-lg p-6">
-              <h3 className="text-xl font-black uppercase mb-4"> Mentor Tips</h3>
+              <h3 className="text-xl font-black uppercase mb-4">Mentor Tips</h3>
               <ul className="space-y-3">
                 <li className="flex items-start gap-2">
-                  <span className="text-lg"></span>
+                  <span className="text-lg">✓</span>
                   <span className="text-sm font-bold">Respond to sessions within 24 hours</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="text-lg"></span>
+                  <span className="text-lg">✓</span>
                   <span className="text-sm font-bold">Keep availability calendar updated</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="text-lg"></span>
+                  <span className="text-lg">✓</span>
                   <span className="text-sm font-bold">Share real career experiences</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="text-lg"></span>
+                  <span className="text-lg">✓</span>
                   <span className="text-sm font-bold">Be encouraging and supportive</span>
                 </li>
               </ul>
             </div>
 
-            {/* Performance */}
+            {/* Impact */}
             <div className="bg-white border-3 border-brutal-border shadow-brutal-lg p-6">
               <h3 className="text-xl font-black uppercase mb-4 flex items-center gap-2">
-                <TrendingUp className="w-5 h-5" />
-                This Month
+                <Users className="w-5 h-5" />
+                Your Impact
               </h3>
               <div className="space-y-4">
                 <div>
                   <div className="flex justify-between mb-2">
-                    <span className="text-sm font-bold">Session Goal</span>
-                    <span className="text-sm font-black">{stats.sessionsThisMonth}/15</span>
+                    <span className="text-sm font-bold">Sessions Goal</span>
+                    <span className="text-sm font-black">{professional.chatsCompleted}/50</span>
                   </div>
                   <div className="w-full h-3 bg-gray-200 border-2 border-brutal-border">
-                    <div 
+                    <div
                       className="h-full bg-brutal-blue"
-                      style={{ width: `${(stats.sessionsThisMonth / 15) * 100}%` }}
+                      style={{ width: `${Math.min((professional.chatsCompleted / 50) * 100, 100)}%` }}
                     />
                   </div>
                 </div>
-                
-                <div>
-                  <div className="flex justify-between mb-2">
-                    <span className="text-sm font-bold">Response Rate</span>
-                    <span className="text-sm font-black">{mentorProfile.responseRate}%</span>
-                  </div>
-                  <div className="w-full h-3 bg-gray-200 border-2 border-brutal-border">
-                    <div 
-                      className="h-full bg-brutal-green"
-                      style={{ width: `${mentorProfile.responseRate}%` }}
-                    />
-                  </div>
+
+                <div className="pt-4 border-t-2 border-gray-200">
+                  <p className="text-sm font-bold text-gray-700">
+                    You're helping shape the future of Rwandan students! 🇷🇼
+                  </p>
                 </div>
               </div>
             </div>
