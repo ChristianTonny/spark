@@ -1,6 +1,20 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
-import { getAuthUserId } from "@convex-dev/auth/server";
+
+// Helper to get current user ID
+async function getCurrentUserId(ctx: any) {
+  const identity = await ctx.auth.getUserIdentity();
+  if (!identity) {
+    return null;
+  }
+
+  const user = await ctx.db
+    .query("users")
+    .withIndex("by_token", (q) => q.eq("tokenIdentifier", identity.tokenIdentifier))
+    .first();
+
+  return user?._id;
+}
 
 /**
  * Send a message in a chat
@@ -11,7 +25,7 @@ export const send = mutation({
     content: v.string(),
   },
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
+    const userId = await getCurrentUserId(ctx);
     if (!userId) {
       throw new Error("Not authenticated");
     }
@@ -53,7 +67,7 @@ export const list = query({
     chatId: v.id("careerChats"),
   },
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
+    const userId = await getCurrentUserId(ctx);
     if (!userId) {
       return [];
     }
@@ -108,7 +122,7 @@ export const markAsRead = mutation({
     chatId: v.id("careerChats"),
   },
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
+    const userId = await getCurrentUserId(ctx);
     if (!userId) {
       throw new Error("Not authenticated");
     }
@@ -150,7 +164,7 @@ export const getUnreadCount = query({
     chatId: v.id("careerChats"),
   },
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
+    const userId = await getCurrentUserId(ctx);
     if (!userId) {
       return 0;
     }
@@ -172,7 +186,7 @@ export const getUnreadCount = query({
 export const getTotalUnreadCount = query({
   args: {},
   handler: async (ctx) => {
-    const userId = await getAuthUserId(ctx);
+    const userId = await getCurrentUserId(ctx);
     if (!userId) {
       return 0;
     }
@@ -221,7 +235,7 @@ export const createSystemMessage = mutation({
     content: v.string(),
   },
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
+    const userId = await getCurrentUserId(ctx);
     if (!userId) {
       throw new Error("Not authenticated");
     }

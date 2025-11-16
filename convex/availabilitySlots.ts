@@ -1,6 +1,20 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
-import { getAuthUserId } from "@convex-dev/auth/server";
+
+// Helper to get current user
+async function getCurrentUserId(ctx: any) {
+  const identity = await ctx.auth.getUserIdentity();
+  if (!identity) {
+    return null;
+  }
+
+  const user = await ctx.db
+    .query("users")
+    .withIndex("by_token", (q) => q.eq("tokenIdentifier", identity.tokenIdentifier))
+    .first();
+
+  return user?._id;
+}
 
 // Set or update availability slots for a mentor
 export const setAvailability = mutation({
@@ -15,7 +29,7 @@ export const setAvailability = mutation({
     ),
   },
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
+    const userId = await getCurrentUserId(ctx);
     if (!userId) {
       throw new Error("Not authenticated");
     }
@@ -64,7 +78,7 @@ export const getAvailability = query({
 
     // If no professionalId provided, use current user
     if (!professionalId) {
-      const userId = await getAuthUserId(ctx);
+      const userId = await getCurrentUserId(ctx);
       if (!userId) {
         throw new Error("Not authenticated");
       }
@@ -177,7 +191,7 @@ export const deleteSlot = mutation({
     slotId: v.id("availabilitySlots"),
   },
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
+    const userId = await getCurrentUserId(ctx);
     if (!userId) {
       throw new Error("Not authenticated");
     }
@@ -203,7 +217,7 @@ export const toggleSlotStatus = mutation({
     slotId: v.id("availabilitySlots"),
   },
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
+    const userId = await getCurrentUserId(ctx);
     if (!userId) {
       throw new Error("Not authenticated");
     }

@@ -1,6 +1,20 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
-import { getAuthUserId } from "@convex-dev/auth/server";
+
+// Helper to get current user ID
+async function getCurrentUserId(ctx: any) {
+  const identity = await ctx.auth.getUserIdentity();
+  if (!identity) {
+    return null;
+  }
+
+  const user = await ctx.db
+    .query("users")
+    .withIndex("by_token", (q) => q.eq("tokenIdentifier", identity.tokenIdentifier))
+    .first();
+
+  return user?._id;
+}
 
 /**
  * Get student's mentor session history
@@ -150,7 +164,7 @@ export const createBookingRequest = mutation({
     studentMessage: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
+    const userId = await getCurrentUserId(ctx);
     if (!userId) {
       throw new Error("Not authenticated");
     }
@@ -198,7 +212,7 @@ export const approveBooking = mutation({
     meetingUrl: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
+    const userId = await getCurrentUserId(ctx);
     if (!userId) {
       throw new Error("Not authenticated");
     }
@@ -253,7 +267,7 @@ export const rejectBooking = mutation({
     reason: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
+    const userId = await getCurrentUserId(ctx);
     if (!userId) {
       throw new Error("Not authenticated");
     }
@@ -291,7 +305,7 @@ export const cancelBooking = mutation({
     reason: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
+    const userId = await getCurrentUserId(ctx);
     if (!userId) {
       throw new Error("Not authenticated");
     }
@@ -348,7 +362,7 @@ export const getStudentBookings = query({
     ),
   },
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
+    const userId = await getCurrentUserId(ctx);
     if (!userId) {
       return [];
     }
@@ -433,7 +447,7 @@ export const getMentorBookings = query({
     ),
   },
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
+    const userId = await getCurrentUserId(ctx);
     if (!userId) {
       return [];
     }
@@ -514,7 +528,7 @@ export const getMentorBookings = query({
 export const getPendingRequestsCount = query({
   args: {},
   handler: async (ctx) => {
-    const userId = await getAuthUserId(ctx);
+    const userId = await getCurrentUserId(ctx);
     if (!userId) {
       return 0;
     }
