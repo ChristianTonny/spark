@@ -391,4 +391,64 @@ export default defineSchema({
     createdAt: v.number(),
     updatedAt: v.number(),
   }).index("by_user", ["userId"]),
+
+  // Mentor Resources (Blog/Articles/Videos/Opportunities)
+  mentorResources: defineTable({
+    authorId: v.id("users"), // Mentor who created it
+    type: v.union(
+      v.literal("article"),
+      v.literal("video"),
+      v.literal("opportunity"),
+      v.literal("guide")
+    ),
+    title: v.string(),
+    slug: v.string(), // URL-friendly identifier
+    content: v.string(), // Rich text/markdown content
+    coverImage: v.optional(v.string()),
+    excerpt: v.string(), // Short description
+    tags: v.array(v.string()), // e.g., ["software", "career-tips"]
+    category: v.string(), // e.g., "Career Advice", "Opportunities"
+
+    // Publishing workflow
+    status: v.union(
+      v.literal("draft"),
+      v.literal("published"),
+      v.literal("archived"),
+      v.literal("under_review")
+    ),
+    publishedAt: v.optional(v.number()),
+
+    // Engagement metrics
+    views: v.number(),
+    likes: v.number(),
+    saves: v.number(),
+
+    // Moderation
+    moderationStatus: v.union(
+      v.literal("pending"),
+      v.literal("approved"),
+      v.literal("flagged"),
+      v.literal("rejected")
+    ),
+    moderationNotes: v.optional(v.string()),
+
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_author", ["authorId"])
+    .index("by_status", ["status"])
+    .index("by_published", ["publishedAt"])
+    .index("by_slug", ["slug"])
+    .index("by_moderation", ["moderationStatus"]),
+
+  // Resource Engagement (Likes and Saves)
+  resourceEngagement: defineTable({
+    resourceId: v.id("mentorResources"),
+    userId: v.id("users"),
+    type: v.union(v.literal("like"), v.literal("save")),
+    createdAt: v.number(),
+  })
+    .index("by_resource_and_user", ["resourceId", "userId"])
+    .index("by_user", ["userId"])
+    .index("by_resource", ["resourceId"]),
 });

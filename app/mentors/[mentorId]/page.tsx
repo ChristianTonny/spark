@@ -304,10 +304,10 @@ export default function MentorProfilePage({
                             </button>
                             <button
                               onClick={() => handleDeleteRating(session.chatId)}
-                              className="px-4 py-2 bg-red-500 text-white font-bold uppercase text-sm border-3 border-black shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all flex items-center gap-2"
+                              className="px-4 py-2 bg-brutal-pink text-white font-bold uppercase text-sm border-3 border-black shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all flex items-center gap-2"
                             >
                               <Trash2 className="w-4 h-4" />
-                              Delete Rating
+                              Delete
                             </button>
                           </>
                         )}

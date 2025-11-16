@@ -1,5 +1,6 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
+import { notifyNewMessage } from "./notificationTriggers";
 
 // Helper to get current user ID
 async function getCurrentUserId(ctx: any) {
@@ -63,6 +64,17 @@ export const send = mutation({
       readBy: [userId], // Sender has automatically read their own message
       sentAt: Date.now(),
     });
+
+    // Determine recipient and send notification
+    const recipientUserId = isStudent ? professional?.userId : chat.studentId;
+    if (recipientUserId) {
+      await notifyNewMessage(ctx, {
+        recipientUserId: recipientUserId as any,
+        senderUserId: userId,
+        chatId: args.chatId,
+        messagePreview: args.content,
+      });
+    }
 
     return { messageId };
   },

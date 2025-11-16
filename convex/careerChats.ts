@@ -1,5 +1,12 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import {
+  notifyBookingRequest,
+  notifyBookingConfirmed,
+  notifyBookingRejected,
+  notifyRatingRequest,
+  notifyNewRating,
+} from "./notificationTriggers";
 
 // Helper to get current user ID
 async function getCurrentUserId(ctx: any) {
@@ -209,6 +216,13 @@ export const createBookingRequest = mutation({
       studentMessage: args.studentMessage,
     });
 
+    // Send notification to mentor
+    await notifyBookingRequest(ctx, {
+      mentorUserId: args.professionalId,
+      studentUserId: userId,
+      chatId,
+    });
+
     return { chatId };
   },
 });
@@ -274,6 +288,14 @@ export const approveBooking = mutation({
       sentAt: Date.now(),
     });
 
+    // Send notification to student
+    await notifyBookingConfirmed(ctx, {
+      studentUserId: chat.studentId as any,
+      mentorUserId: userId,
+      chatId: args.chatId,
+      scheduledAt: chat.scheduledAt,
+    });
+
     return { success: true };
   },
 });
@@ -320,6 +342,14 @@ export const rejectBooking = mutation({
     await ctx.db.patch(args.chatId, {
       status: "rejected",
       cancellationReason: args.reason,
+    });
+
+    // Send notification to student
+    await notifyBookingRejected(ctx, {
+      studentUserId: chat.studentId as any,
+      mentorUserId: userId,
+      chatId: args.chatId,
+      reason: args.reason,
     });
 
     return { success: true };
@@ -815,6 +845,17 @@ export const rateMentor = mutation({
       rating: averageRating,
     });
 
+    // Get professional user ID and notify mentor about new rating
+    const professional = await ctx.db.get(chat.professionalId);
+    if (professional) {
+      await notifyNewRating(ctx, {
+        mentorUserId: professional.userId,
+        studentUserId: user._id,
+        chatId: args.chatId,
+        rating: args.rating,
+      });
+    }
+
     return { success: true };
   },
 });
@@ -1200,6 +1241,17 @@ export const completeSession = mutation({
       status: "completed",
       completedAt: Date.now(),
     });
+
+    // Get professional user ID for notification
+    const professional = await ctx.db.get(chat.professionalId);
+    if (professional) {
+      // Send rating request notification to student
+      await notifyRatingRequest(ctx, {
+        studentUserId: user._id,
+        mentorUserId: professional.userId,
+        chatId: args.chatId,
+      });
+    }
 
     return { success: true };
   },

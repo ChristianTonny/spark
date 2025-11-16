@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Menu, X, Compass, BookOpen, Users, LayoutDashboard, Calendar, Clock } from 'lucide-react';
+import { Menu, X, Compass, BookOpen, Users, LayoutDashboard, Calendar, Clock, FileText } from 'lucide-react';
 import { useState } from 'react';
 import { SignedIn, SignedOut, UserButton, useUser } from '@clerk/nextjs';
 import { useQuery } from 'convex/react';
@@ -26,6 +26,7 @@ export default function Navigation() {
         { href: '/careers', label: 'Careers', icon: Compass },
         { href: '/assessments', label: 'Assessments', icon: BookOpen },
         { href: '/mentors', label: 'Mentors', icon: Users },
+        { href: '/resources', label: 'Resources', icon: BookOpen },
         { href: '/dashboard/student/bookings', label: 'My Bookings', icon: Calendar },
         { href: '/dashboard/student', label: 'Dashboard', icon: LayoutDashboard }
       );
@@ -36,7 +37,8 @@ export default function Navigation() {
       commonLinks.push(
         { href: '/dashboard/mentor', label: 'Dashboard', icon: LayoutDashboard },
         { href: '/dashboard/mentor/bookings', label: 'Bookings', icon: Calendar },
-        { href: '/dashboard/mentor/availability', label: 'Availability', icon: Clock }
+        { href: '/dashboard/mentor/availability', label: 'Availability', icon: Clock },
+        { href: '/dashboard/mentor/resources', label: 'Resources', icon: FileText }
         // TODO: Add Earnings tab once earnings feature is built
         // { href: '/dashboard/mentor/earnings', label: 'Earnings', icon: DollarSign }
       );

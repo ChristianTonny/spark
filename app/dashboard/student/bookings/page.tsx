@@ -104,17 +104,17 @@ export default function StudentBookingsPage() {
                   <div className="flex items-center justify-center gap-2">
                     <Icon className="w-5 h-5" />
                     <span className="hidden sm:inline">{tab.label}</span>
-                    {count > 0 && (
-                      <span
-                        className={`px-2 py-0.5 text-xs rounded-full border-2 ${
-                          activeTab === tab.key
-                            ? "bg-white text-black border-white"
-                            : "bg-brutal-orange text-white border-black"
-                        }`}
-                      >
-                        {count}
-                      </span>
-                    )}
+                    <span
+                      className={`px-2 py-0.5 text-xs rounded-full border-2 min-w-[24px] text-center ${
+                        activeTab === tab.key
+                          ? "bg-white text-black border-white"
+                          : count > 0
+                          ? "bg-brutal-orange text-white border-black"
+                          : "bg-gray-300 text-gray-600 border-gray-400"
+                      }`}
+                    >
+                      {count}
+                    </span>
                   </div>
                 </button>
               );
