@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { Mail, MessageSquare, Send, Twitter, Linkedin, Github } from 'lucide-react';
+import { useMutation } from 'convex/react';
+import { api } from '../../convex/_generated/api';
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -11,16 +13,35 @@ export default function ContactPage() {
     message: '',
   });
   const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
+  const [error, setError] = useState<string>('');
+
+  const submitMessage = useMutation(api.contactMessages.submit);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setStatus('sending');
-    
-    // TODO: Implement actual form submission
-    setTimeout(() => {
+    setError('');
+
+    try {
+      await submitMessage({
+        name: formData.name,
+        email: formData.email,
+        subject: formData.category,
+        message: formData.message,
+      });
+
       setStatus('sent');
       setFormData({ name: '', email: '', category: 'general', message: '' });
-    }, 1000);
+
+      // Reset success message after 5 seconds
+      setTimeout(() => {
+        setStatus('idle');
+      }, 5000);
+    } catch (err) {
+      console.error('Failed to send message:', err);
+      setStatus('error');
+      setError(err instanceof Error ? err.message : 'Failed to send message. Please try again.');
+    }
   };
 
   return (
@@ -128,7 +149,7 @@ export default function ContactPage() {
 
                 {status === 'error' && (
                   <div className="p-4 bg-red-100 border-3 border-red-500 text-gray-900 font-semibold">
-                    Something went wrong. Try emailing me directly: hello@opportunitymap.rw
+                    ✗ {error || 'Something went wrong. Please try again or email hello@opportunitymap.rw'}
                   </div>
                 )}
               </form>

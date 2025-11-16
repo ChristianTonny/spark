@@ -293,4 +293,30 @@ export default defineSchema({
     totalBookings: v.number(),
     studentsReached: v.number(),
   }).index("by_user", ["userId"]),
+
+  // User settings
+  userSettings: defineTable({
+    userId: v.id("users"),
+    // Notification preferences
+    emailNotifications: v.boolean(),
+    pushNotifications: v.boolean(),
+    weeklyDigest: v.boolean(),
+    careerRecommendations: v.boolean(),
+    // Privacy settings
+    profilePublic: v.boolean(),
+    showEmail: v.boolean(),
+    showProgress: v.boolean(),
+  }).index("by_user", ["userId"]),
+
+  // Contact form submissions
+  contactMessages: defineTable({
+    name: v.string(),
+    email: v.string(),
+    subject: v.string(),
+    message: v.string(),
+    status: v.union(v.literal("new"), v.literal("read"), v.literal("responded")),
+    submittedAt: v.number(),
+  })
+    .index("by_status", ["status"])
+    .index("by_email", ["email"]),
 });

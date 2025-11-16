@@ -1,25 +1,77 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { ArrowLeft, Save, Bell, Lock, Globe, User } from "lucide-react";
+import { ArrowLeft, Save, Bell, Lock } from "lucide-react";
+import { useQuery, useMutation } from "convex/react";
+import { api } from "../../../../convex/_generated/api";
+import { useConvexAuth } from "@/lib/hooks/useConvexAuth";
+import { Spinner } from "@/components/loading-skeleton";
 
 export default function StudentSettingsPage() {
-  const [notifications, setNotifications] = useState({
-    email: true,
-    push: false,
-    assessments: true,
-    mentors: true,
+  const { user, isLoading: authLoading } = useConvexAuth();
+  const [isSaving, setIsSaving] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch current settings
+  const currentSettings = useQuery(api.userSettings.getCurrent);
+  const updateSettings = useMutation(api.userSettings.update);
+
+  const [settings, setSettings] = useState({
+    emailNotifications: true,
+    weeklyDigest: true,
+    careerRecommendations: true,
+    profilePublic: false,
+    showEmail: false,
+    showProgress: true,
   });
 
-  const [privacy, setPrivacy] = useState({
-    profileVisible: true,
-    shareProgress: false,
-  });
+  // Load settings from backend
+  useEffect(() => {
+    if (currentSettings) {
+      setSettings({
+        emailNotifications: currentSettings.emailNotifications,
+        weeklyDigest: currentSettings.weeklyDigest,
+        careerRecommendations: currentSettings.careerRecommendations,
+        profilePublic: currentSettings.profilePublic,
+        showEmail: currentSettings.showEmail,
+        showProgress: currentSettings.showProgress,
+      });
+    }
+  }, [currentSettings]);
 
-  const handleSave = () => {
-    alert("Settings saved successfully!");
+  const handleSave = async () => {
+    setIsSaving(true);
+    setError(null);
+    setSuccess(false);
+
+    try {
+      await updateSettings(settings);
+      setSuccess(true);
+
+      // Hide success message after 3 seconds
+      setTimeout(() => {
+        setSuccess(false);
+      }, 3000);
+    } catch (err) {
+      console.error("Failed to save settings:", err);
+      setError(err instanceof Error ? err.message : "Failed to save settings. Please try again.");
+    } finally {
+      setIsSaving(false);
+    }
   };
+
+  if (authLoading || !user || currentSettings === undefined) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <Spinner size="lg" />
+          <p className="mt-4 text-xl font-bold">Loading settings...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background py-8 px-4">
@@ -35,6 +87,20 @@ export default function StudentSettingsPage() {
           <h1 className="text-4xl md:text-5xl font-black uppercase">Settings</h1>
           <p className="text-lg font-bold text-gray-700">Manage your account preferences</p>
         </div>
+
+        {/* Success Message */}
+        {success && (
+          <div className="bg-green-100 border-3 border-green-500 p-4 mb-6">
+            <p className="font-bold text-green-900">✓ Settings saved successfully!</p>
+          </div>
+        )}
+
+        {/* Error Message */}
+        {error && (
+          <div className="bg-red-100 border-3 border-red-500 p-4 mb-6">
+            <p className="font-bold text-red-900">✗ {error}</p>
+          </div>
+        )}
 
         <div className="space-y-6">
           {/* Notifications */}
@@ -53,32 +119,32 @@ export default function StudentSettingsPage() {
                 </div>
                 <input
                   type="checkbox"
-                  checked={notifications.email}
-                  onChange={(e) => setNotifications({...notifications, email: e.target.checked})}
+                  checked={settings.emailNotifications}
+                  onChange={(e) => setSettings({...settings, emailNotifications: e.target.checked})}
                   className="w-6 h-6 border-2 border-black"
                 />
               </div>
               <div className="flex items-center justify-between p-4 border-2 border-black">
                 <div>
-                  <h3 className="font-black">Assessment Reminders</h3>
-                  <p className="text-sm font-bold text-gray-700">Get notified about new assessments</p>
+                  <h3 className="font-black">Weekly Digest</h3>
+                  <p className="text-sm font-bold text-gray-700">Get weekly summary of your progress</p>
                 </div>
                 <input
                   type="checkbox"
-                  checked={notifications.assessments}
-                  onChange={(e) => setNotifications({...notifications, assessments: e.target.checked})}
+                  checked={settings.weeklyDigest}
+                  onChange={(e) => setSettings({...settings, weeklyDigest: e.target.checked})}
                   className="w-6 h-6 border-2 border-black"
                 />
               </div>
               <div className="flex items-center justify-between p-4 border-2 border-black">
                 <div>
-                  <h3 className="font-black">Mentor Messages</h3>
-                  <p className="text-sm font-bold text-gray-700">Notifications for mentor sessions</p>
+                  <h3 className="font-black">Career Recommendations</h3>
+                  <p className="text-sm font-bold text-gray-700">Notifications for new career suggestions</p>
                 </div>
                 <input
                   type="checkbox"
-                  checked={notifications.mentors}
-                  onChange={(e) => setNotifications({...notifications, mentors: e.target.checked})}
+                  checked={settings.careerRecommendations}
+                  onChange={(e) => setSettings({...settings, careerRecommendations: e.target.checked})}
                   className="w-6 h-6 border-2 border-black"
                 />
               </div>
@@ -101,8 +167,20 @@ export default function StudentSettingsPage() {
                 </div>
                 <input
                   type="checkbox"
-                  checked={privacy.profileVisible}
-                  onChange={(e) => setPrivacy({...privacy, profileVisible: e.target.checked})}
+                  checked={settings.profilePublic}
+                  onChange={(e) => setSettings({...settings, profilePublic: e.target.checked})}
+                  className="w-6 h-6 border-2 border-black"
+                />
+              </div>
+              <div className="flex items-center justify-between p-4 border-2 border-black">
+                <div>
+                  <h3 className="font-black">Show Email</h3>
+                  <p className="text-sm font-bold text-gray-700">Display email on public profile</p>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={settings.showEmail}
+                  onChange={(e) => setSettings({...settings, showEmail: e.target.checked})}
                   className="w-6 h-6 border-2 border-black"
                 />
               </div>
@@ -113,8 +191,8 @@ export default function StudentSettingsPage() {
                 </div>
                 <input
                   type="checkbox"
-                  checked={privacy.shareProgress}
-                  onChange={(e) => setPrivacy({...privacy, shareProgress: e.target.checked})}
+                  checked={settings.showProgress}
+                  onChange={(e) => setSettings({...settings, showProgress: e.target.checked})}
                   className="w-6 h-6 border-2 border-black"
                 />
               </div>
@@ -125,10 +203,11 @@ export default function StudentSettingsPage() {
           <div className="flex justify-end">
             <button
               onClick={handleSave}
-              className="px-8 py-4 bg-primary text-white font-bold uppercase border-3 border-black shadow-brutal hover:shadow-brutal-lg transition-all flex items-center gap-3"
+              disabled={isSaving}
+              className="px-8 py-4 bg-primary text-white font-bold uppercase border-3 border-black shadow-brutal hover:shadow-brutal-lg transition-all flex items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Save className="w-5 h-5" />
-              Save Settings
+              {isSaving ? "Saving..." : "Save Settings"}
             </button>
           </div>
         </div>
