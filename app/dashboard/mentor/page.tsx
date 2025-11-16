@@ -5,7 +5,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
   User, Calendar, MessageCircle, Star, TrendingUp, Clock,
-  Users, ArrowRight, CheckCircle, Settings, Bell, DollarSign, Award
+  Users, ArrowRight, CheckCircle, Settings, Bell, DollarSign, Award,
+  Video, ExternalLink
 } from 'lucide-react';
 import { useQuery } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
@@ -16,6 +17,8 @@ export default function MentorDashboardPage() {
   const router = useRouter();
   const { user, isLoading: authLoading } = useConvexAuth();
   const professional = useQuery(api.professionals.getCurrentProfessional);
+  const nextSession = useQuery(api.professionals.getNextMentorSession);
+  const upcomingSessions = useQuery(api.professionals.getMentorUpcomingSessions);
 
   // Protect this page - only mentors can access
   useRoleGuard(['mentor']);
@@ -52,6 +55,33 @@ export default function MentorDashboardPage() {
   }
 
   const fullName = `${professional.firstName} ${professional.lastName}`;
+
+  const formatDate = (timestamp: number) => {
+    const date = new Date(timestamp);
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    if (date.toDateString() === today.toDateString()) {
+      return 'Today';
+    } else if (date.toDateString() === tomorrow.toDateString()) {
+      return 'Tomorrow';
+    } else {
+      return date.toLocaleDateString('en-RW', {
+        weekday: 'short',
+        month: 'short',
+        day: 'numeric',
+      });
+    }
+  };
+
+  const formatTime = (timestamp: number) => {
+    return new Date(timestamp).toLocaleTimeString('en-RW', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    });
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 py-4 sm:py-8">
@@ -168,6 +198,106 @@ export default function MentorDashboardPage() {
             <p className="font-black uppercase text-xs sm:text-sm">Years Experience</p>
           </div>
         </div>
+
+        {/* Next Session Card */}
+        {nextSession && (
+          <div className="mb-6 sm:mb-8 bg-gradient-to-r from-brutal-green to-brutal-blue border-3 border-brutal-border shadow-brutal-lg p-4 sm:p-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+              <div className="flex items-center gap-3">
+                <Calendar className="w-8 h-8 text-white" />
+                <h2 className="text-2xl sm:text-3xl font-black text-white uppercase">Next Session</h2>
+              </div>
+              <Link
+                href="/dashboard/mentor/sessions"
+                className="px-4 py-2 min-h-[44px] bg-white text-brutal-text font-bold uppercase text-xs sm:text-sm border-2 border-brutal-border shadow-brutal hover:shadow-brutal-lg transition-all flex items-center gap-2 justify-center"
+              >
+                View All Sessions
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+
+            <div className="bg-white border-3 border-brutal-border shadow-brutal p-4">
+              <div className="flex flex-col sm:flex-row gap-4">
+                {/* Student Info */}
+                <div className="flex items-center gap-3 flex-1">
+                  <div className="w-12 h-12 sm:w-16 sm:h-16 bg-brutal-blue border-2 border-brutal-border shadow-brutal flex-shrink-0 overflow-hidden">
+                    {nextSession.student?.avatar ? (
+                      <img
+                        src={nextSession.student.avatar}
+                        alt={nextSession.student.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-white text-lg font-black">
+                        {nextSession.student?.name.split(' ').map((n: string) => n[0]).join('') || '?'}
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-black text-lg sm:text-xl mb-1">
+                      {nextSession.student?.name || 'Student'}
+                    </p>
+                    <p className="text-sm text-gray-600 mb-2">
+                      {nextSession.student?.gradeLevel} • {nextSession.career?.title}
+                    </p>
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-sm">
+                      <div className="flex items-center gap-1 font-bold">
+                        <Calendar className="w-4 h-4" />
+                        {formatDate(nextSession.scheduledAt)}
+                      </div>
+                      <div className="flex items-center gap-1 font-bold">
+                        <Clock className="w-4 h-4" />
+                        {formatTime(nextSession.scheduledAt)}
+                      </div>
+                      <div className="flex items-center gap-1 font-bold">
+                        <Clock className="w-4 h-4" />
+                        {nextSession.duration} min
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Action Button */}
+                {nextSession.meetingUrl && (
+                  <div className="sm:flex sm:items-center">
+                    <a
+                      href={nextSession.meetingUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block w-full sm:w-auto px-6 py-3 min-h-[44px] bg-brutal-blue text-white font-bold uppercase text-sm border-2 border-brutal-border shadow-brutal hover:shadow-brutal-lg transition-all flex items-center justify-center gap-2"
+                    >
+                      <Video className="w-5 h-5" />
+                      Join Meeting
+                      <ExternalLink className="w-4 h-4" />
+                    </a>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* No Upcoming Sessions - Encourage Setting Availability */}
+        {!nextSession && upcomingSessions !== undefined && upcomingSessions.length === 0 && (
+          <div className="mb-6 sm:mb-8 bg-brutal-yellow border-3 border-brutal-border shadow-brutal-lg p-4 sm:p-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+              <Calendar className="w-12 h-12 flex-shrink-0" />
+              <div className="flex-1">
+                <h3 className="text-xl sm:text-2xl font-black mb-2">No Upcoming Sessions</h3>
+                <p className="text-gray-700 mb-3">
+                  Set your availability so students can book mentorship sessions with you!
+                </p>
+              </div>
+              <Link
+                href="/dashboard/mentor/availability"
+                className="w-full sm:w-auto px-6 py-3 min-h-[44px] bg-brutal-blue text-white font-bold uppercase text-sm border-2 border-brutal-border shadow-brutal hover:shadow-brutal-lg transition-all flex items-center justify-center gap-2"
+              >
+                Set Availability
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
           {/* Left Column - Main Content */}

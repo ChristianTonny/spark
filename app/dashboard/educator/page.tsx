@@ -12,6 +12,9 @@ import {
   Upload,
   BarChart3,
   Download,
+  AlertTriangle,
+  Activity,
+  CheckCircle,
 } from 'lucide-react';
 import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
@@ -41,6 +44,30 @@ export default function EducatorDashboard() {
         return fullName.includes(query) || student.email.toLowerCase().includes(query);
       })
     : [];
+
+  // Calculate engagement metrics
+  const atRiskStudents = students
+    ? students.filter(s => s.assessmentsCompleted === 0 && s.careersExplored === 0)
+    : [];
+
+  const activeStudents = students
+    ? students.filter(s => s.assessmentsCompleted > 0 || s.careersExplored > 0)
+    : [];
+
+  const engagementRate = students && students.length > 0
+    ? Math.round((activeStudents.length / students.length) * 100)
+    : 0;
+
+  // Helper function to get activity status
+  const getActivityStatus = (student: any) => {
+    if (student.assessmentsCompleted > 0 && student.careersExplored > 0) {
+      return { color: 'bg-green-500', label: 'Active', textColor: 'text-green-600' };
+    } else if (student.assessmentsCompleted > 0 || student.careersExplored > 0) {
+      return { color: 'bg-yellow-500', label: 'Moderate', textColor: 'text-yellow-600' };
+    } else {
+      return { color: 'bg-red-500', label: 'At Risk', textColor: 'text-red-600' };
+    }
+  };
 
   if (isLoading) {
     return (
@@ -102,6 +129,110 @@ export default function EducatorDashboard() {
             </div>
             <h3 className="text-xl font-black uppercase">Saved Careers</h3>
             <p className="font-bold text-gray-700 text-sm">Total bookmarks</p>
+          </div>
+        </div>
+
+        {/* Engagement Health Score & At-Risk Students */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-8">
+          {/* Engagement Health Score */}
+          <div className={`border-3 border-black shadow-brutal-lg p-6 ${
+            engagementRate >= 70 ? 'bg-brutal-green' : engagementRate >= 40 ? 'bg-brutal-yellow' : 'bg-brutal-orange'
+          }`}>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <Activity className={`w-8 h-8 ${engagementRate >= 70 ? 'text-white' : ''}`} />
+                <div>
+                  <h3 className={`text-2xl font-black uppercase ${engagementRate >= 70 ? 'text-white' : ''}`}>
+                    Engagement Health
+                  </h3>
+                  <p className={`text-sm font-bold ${engagementRate >= 70 ? 'text-white/80' : 'text-gray-700'}`}>
+                    Students actively using platform
+                  </p>
+                </div>
+              </div>
+              <div className={`text-5xl font-black ${engagementRate >= 70 ? 'text-white' : ''}`}>
+                {engagementRate}%
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm font-bold">
+                <span className={engagementRate >= 70 ? 'text-white/90' : ''}>
+                  {activeStudents.length} Active / {students?.length || 0} Total
+                </span>
+                <span className={engagementRate >= 70 ? 'text-white/90' : ''}>
+                  {engagementRate >= 70 ? '✓ Healthy' : engagementRate >= 40 ? '⚠ Needs Attention' : '✗ Critical'}
+                </span>
+              </div>
+              <div className="w-full h-3 bg-white/20 border-2 border-black">
+                <div
+                  className="h-full bg-white"
+                  style={{ width: `${engagementRate}%` }}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* At-Risk Students Widget */}
+          <div className="bg-white border-3 border-black shadow-brutal-lg p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <AlertTriangle className="w-8 h-8 text-red-600" />
+                <div>
+                  <h3 className="text-2xl font-black uppercase">At-Risk Students</h3>
+                  <p className="text-sm font-bold text-gray-700">
+                    No assessments or saved careers
+                  </p>
+                </div>
+              </div>
+              <div className="text-5xl font-black text-red-600">
+                {atRiskStudents.length}
+              </div>
+            </div>
+            {atRiskStudents.length > 0 ? (
+              <div className="space-y-2">
+                <p className="text-sm font-bold text-gray-600 mb-3">
+                  Recent inactive students:
+                </p>
+                <div className="space-y-2 max-h-32 overflow-y-auto">
+                  {atRiskStudents.slice(0, 5).map((student) => (
+                    <div
+                      key={student._id}
+                      className="flex items-center justify-between p-2 bg-gray-50 border-2 border-gray-200"
+                    >
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 border-2 border-black shadow-brutal-sm overflow-hidden">
+                          <img
+                            src={student.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${student.firstName} ${student.lastName}&backgroundColor=ff6b6b`}
+                            alt={`${student.firstName} ${student.lastName}`}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <span className="font-bold text-sm">
+                          {student.firstName} {student.lastName}
+                        </span>
+                      </div>
+                      <Link href={`/dashboard/educator/students/${student._id}`}>
+                        <button className="px-2 py-1 bg-brutal-orange text-white border-2 border-black shadow-brutal-sm hover:shadow-brutal transition-all text-xs font-bold uppercase">
+                          View
+                        </button>
+                      </Link>
+                    </div>
+                  ))}
+                </div>
+                {atRiskStudents.length > 5 && (
+                  <p className="text-xs font-bold text-gray-500 text-center mt-2">
+                    +{atRiskStudents.length - 5} more at-risk students
+                  </p>
+                )}
+              </div>
+            ) : (
+              <div className="text-center py-4 bg-green-50 border-2 border-green-200">
+                <CheckCircle className="w-8 h-8 text-green-600 mx-auto mb-2" />
+                <p className="text-sm font-bold text-green-700">
+                  All students are engaged!
+                </p>
+              </div>
+            )}
           </div>
         </div>
 
@@ -189,15 +320,24 @@ export default function EducatorDashboard() {
                       </tr>
                     </thead>
                     <tbody className="divide-y-2 divide-gray-200">
-                      {filteredStudents.map((student) => (
+                      {filteredStudents.map((student) => {
+                        const activityStatus = getActivityStatus(student);
+                        return (
                         <tr key={student._id} className="hover:bg-gray-50">
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 border-2 border-black shadow-brutal-sm overflow-hidden flex-shrink-0">
-                                <img
-                                  src={student.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${student.firstName} ${student.lastName}&backgroundColor=ffb627`}
-                                  alt={`${student.firstName} ${student.lastName}`}
-                                  className="w-full h-full object-cover"
+                              <div className="relative">
+                                <div className="w-10 h-10 border-2 border-black shadow-brutal-sm overflow-hidden flex-shrink-0">
+                                  <img
+                                    src={student.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${student.firstName} ${student.lastName}&backgroundColor=ffb627`}
+                                    alt={`${student.firstName} ${student.lastName}`}
+                                    className="w-full h-full object-cover"
+                                  />
+                                </div>
+                                {/* Activity Indicator */}
+                                <div
+                                  className={`absolute -top-1 -right-1 w-4 h-4 ${activityStatus.color} border-2 border-white rounded-full`}
+                                  title={activityStatus.label}
                                 />
                               </div>
                               <div>
@@ -237,7 +377,7 @@ export default function EducatorDashboard() {
                             </Link>
                           </td>
                         </tr>
-                      ))}
+                      )})}
                     </tbody>
                   </table>
                 ) : (
