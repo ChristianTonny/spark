@@ -8,11 +8,16 @@ import { Spinner } from '@/components/loading-skeleton';
 
 type FilterStatus = 'all' | 'pending' | 'approved' | 'rejected';
 
+type ConfirmAction = { type: 'approve' | 'reject'; id: string; name: string } | null;
+
 export default function AdminDashboardPage() {
   const [filter, setFilter] = useState<FilterStatus>('all');
   const [selectedApplication, setSelectedApplication] = useState<any>(null);
   // Store review notes per application ID to prevent state leak
   const [reviewNotes, setReviewNotes] = useState<Record<string, string>>({});
+  const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [confirmAction, setConfirmAction] = useState<ConfirmAction>(null);
 
   // Fetch applications
   const allApplications = useQuery(api.mentorApplications.list);
@@ -45,39 +50,53 @@ export default function AdminDashboardPage() {
 
   const handleApprove = async (id: string) => {
     try {
+      setError(null);
+      setSuccessMessage(null);
       await approveApplication({
         id: id as any,
         reviewNotes: reviewNotes[id] || undefined
       });
       setSelectedApplication(null);
+      setConfirmAction(null);
+      setSuccessMessage('Application approved successfully!');
       // Clear notes for this application
       setReviewNotes(prev => {
         const updated = { ...prev };
         delete updated[id];
         return updated;
       });
-    } catch (error) {
-      console.error('Failed to approve:', error);
-      alert('Failed to approve application');
+      // Clear success message after 3 seconds
+      setTimeout(() => setSuccessMessage(null), 3000);
+    } catch (err) {
+      console.error('Failed to approve:', err);
+      setError(err instanceof Error ? err.message : 'Failed to approve application. Please try again.');
+      setConfirmAction(null);
     }
   };
 
   const handleReject = async (id: string) => {
     try {
+      setError(null);
+      setSuccessMessage(null);
       await rejectApplication({
         id: id as any,
         reviewNotes: reviewNotes[id] || undefined
       });
       setSelectedApplication(null);
+      setConfirmAction(null);
+      setSuccessMessage('Application rejected successfully.');
       // Clear notes for this application
       setReviewNotes(prev => {
         const updated = { ...prev };
         delete updated[id];
         return updated;
       });
-    } catch (error) {
-      console.error('Failed to reject:', error);
-      alert('Failed to reject application');
+      // Clear success message after 3 seconds
+      setTimeout(() => setSuccessMessage(null), 3000);
+    } catch (err) {
+      console.error('Failed to reject:', err);
+      setError(err instanceof Error ? err.message : 'Failed to reject application. Please try again.');
+      setConfirmAction(null);
     }
   };
 
@@ -128,6 +147,20 @@ export default function AdminDashboardPage() {
             </button>
           ))}
         </div>
+
+        {/* Success Message */}
+        {successMessage && (
+          <div className="mb-6 bg-green-100 border-3 border-green-500 p-4">
+            <p className="text-green-900 font-bold">✓ {successMessage}</p>
+          </div>
+        )}
+
+        {/* Error Message */}
+        {error && (
+          <div className="mb-6 bg-red-100 border-3 border-red-500 p-4">
+            <p className="text-red-900 font-bold">✗ {error}</p>
+          </div>
+        )}
 
         {/* Applications List */}
         {filteredApplications.length === 0 ? (
@@ -276,14 +309,14 @@ export default function AdminDashboardPage() {
 
                               <div className="flex gap-3">
                                 <button
-                                  onClick={() => handleApprove(app._id)}
+                                  onClick={() => setConfirmAction({ type: 'approve', id: app._id, name: app.fullName })}
                                   className="flex-1 px-6 py-3 bg-green-500 text-white font-bold uppercase border-3 border-black shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all"
                                 >
                                   <CheckCircle className="inline-block w-5 h-5 mr-2" />
                                   Approve Application
                                 </button>
                                 <button
-                                  onClick={() => handleReject(app._id)}
+                                  onClick={() => setConfirmAction({ type: 'reject', id: app._id, name: app.fullName })}
                                   className="flex-1 px-6 py-3 bg-red-500 text-white font-bold uppercase border-3 border-black shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all"
                                 >
                                   <XCircle className="inline-block w-5 h-5 mr-2" />
@@ -302,6 +335,51 @@ export default function AdminDashboardPage() {
           </div>
         )}
       </div>
+
+      {/* Confirmation Dialog */}
+      {confirmAction && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
+          <div className="bg-white border-4 border-black shadow-brutal-lg max-w-md w-full">
+            <div className={`p-6 border-b-4 border-black ${confirmAction.type === 'approve' ? 'bg-green-500' : 'bg-red-500'}`}>
+              <h3 className="text-2xl font-black uppercase text-white">
+                Confirm {confirmAction.type === 'approve' ? 'Approval' : 'Rejection'}
+              </h3>
+            </div>
+            <div className="p-6">
+              <p className="text-lg font-bold text-gray-900 mb-6">
+                Are you sure you want to {confirmAction.type} the application from <span className="text-primary">{confirmAction.name}</span>?
+              </p>
+              {confirmAction.type === 'reject' && (
+                <div className="bg-yellow-100 border-3 border-yellow-500 p-4 mb-6">
+                  <p className="text-sm font-bold text-yellow-900">
+                    ⚠️ This action cannot be undone. The applicant will be notified of the rejection.
+                  </p>
+                </div>
+              )}
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setConfirmAction(null)}
+                  className="flex-1 px-6 py-3 bg-white text-gray-900 font-bold uppercase border-3 border-black shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    if (confirmAction.type === 'approve') {
+                      handleApprove(confirmAction.id);
+                    } else {
+                      handleReject(confirmAction.id);
+                    }
+                  }}
+                  className={`flex-1 px-6 py-3 ${confirmAction.type === 'approve' ? 'bg-green-500' : 'bg-red-500'} text-white font-bold uppercase border-3 border-black shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all`}
+                >
+                  {confirmAction.type === 'approve' ? 'Approve' : 'Reject'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -57,6 +57,7 @@ export const getIds = query({
 });
 
 // Toggle bookmark (add or remove) for the current authenticated user
+// Note: Convex mutations are transactional, preventing race conditions
 export const toggle = mutation({
   args: {
     careerId: v.string(),
@@ -64,44 +65,47 @@ export const toggle = mutation({
   handler: async (ctx, args) => {
     const user = await getCurrentUserOrThrow(ctx);
 
-    // Check if already bookmarked
-    const bookmarks = await ctx.db
+    // Verify career exists before bookmarking
+    const career = await ctx.db.get(args.careerId as any);
+    if (!career) {
+      throw new Error("Career not found");
+    }
+
+    // Check if already bookmarked (more efficient - only query for this specific combo)
+    const existing = await ctx.db
       .query("savedCareers")
       .withIndex("by_student", (q) => q.eq("studentId", user._id.toString()))
-      .collect();
-
-    const existing = bookmarks.find((b) => b.careerId === args.careerId);
+      .filter((q) => q.eq(q.field("careerId"), args.careerId))
+      .first();
 
     if (existing) {
       // Remove bookmark
       await ctx.db.delete(existing._id);
 
       // Decrement career saves count
-      const career = await ctx.db.get(args.careerId as any);
-      if (career && 'saves' in career) {
+      if ('saves' in career && typeof career.saves === 'number') {
         await ctx.db.patch(args.careerId as any, {
           saves: Math.max(0, career.saves - 1),
         });
       }
 
-      return { action: "removed" };
+      return { action: "removed", careerId: args.careerId };
     } else {
       // Add bookmark
-      await ctx.db.insert("savedCareers", {
+      const bookmarkId = await ctx.db.insert("savedCareers", {
         studentId: user._id.toString(),
         careerId: args.careerId,
         savedAt: Date.now(),
       });
 
       // Increment career saves count
-      const career = await ctx.db.get(args.careerId as any);
-      if (career && 'saves' in career) {
+      if ('saves' in career && typeof career.saves === 'number') {
         await ctx.db.patch(args.careerId as any, {
           saves: career.saves + 1,
         });
       }
 
-      return { action: "added" };
+      return { action: "added", careerId: args.careerId, bookmarkId };
     }
   },
 });

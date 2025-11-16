@@ -95,6 +95,8 @@ export const upsert = mutation({
 });
 
 // Increment career explored count
+// Note: Convex mutations are atomic at the document level,
+// so concurrent increments are handled safely by Convex's transaction system
 export const incrementCareersExplored = mutation({
   args: {},
   handler: async (ctx) => {
@@ -105,15 +107,22 @@ export const incrementCareersExplored = mutation({
       .withIndex("by_user", (q) => q.eq("userId", user._id))
       .unique();
 
-    if (profile) {
-      await ctx.db.patch(profile._id, {
-        careersExplored: profile.careersExplored + 1,
-      });
+    if (!profile) {
+      throw new Error("Student profile not found");
     }
+
+    const newCount = profile.careersExplored + 1;
+    await ctx.db.patch(profile._id, {
+      careersExplored: newCount,
+    });
+
+    return { careersExplored: newCount };
   },
 });
 
 // Increment assessments taken
+// Note: Convex mutations are atomic at the document level,
+// so concurrent increments are handled safely by Convex's transaction system
 export const incrementAssessmentsTaken = mutation({
   args: {},
   handler: async (ctx) => {
@@ -124,10 +133,15 @@ export const incrementAssessmentsTaken = mutation({
       .withIndex("by_user", (q) => q.eq("userId", user._id))
       .unique();
 
-    if (profile) {
-      await ctx.db.patch(profile._id, {
-        assessmentsTaken: profile.assessmentsTaken + 1,
-      });
+    if (!profile) {
+      throw new Error("Student profile not found");
     }
+
+    const newCount = profile.assessmentsTaken + 1;
+    await ctx.db.patch(profile._id, {
+      assessmentsTaken: newCount,
+    });
+
+    return { assessmentsTaken: newCount };
   },
 });

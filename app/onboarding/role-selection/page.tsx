@@ -21,7 +21,10 @@ interface RoleOption {
  * Role Selection Page
  *
  * SECURITY: This page captures the user's role selection during onboarding
- * and stores it in both Clerk (public metadata) and Convex.
+ * and stores it in both Clerk publicMetadata (source of truth) and Convex (for backend queries).
+ *
+ * Clerk publicMetadata is updated first to ensure consistent auth state,
+ * then synced to Convex for efficient database queries.
  *
  * Once set, roles cannot be changed by users to prevent privilege escalation.
  */
@@ -73,7 +76,14 @@ export default function RoleSelectionPage() {
     setError(null);
 
     try {
-      // Update role in Convex
+      // Update role in Clerk publicMetadata first (source of truth for auth)
+      await user.update({
+        publicMetadata: {
+          role: selectedRole,
+        },
+      });
+
+      // Update role in Convex (synced for backend queries)
       await updateUserRole({ role: selectedRole });
 
       // Redirect based on role

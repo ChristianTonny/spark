@@ -23,16 +23,18 @@ export default function BulkUploadModal({ isOpen, onClose }: BulkUploadModalProp
   const [students, setStudents] = useState<ParsedStudent[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [result, setResult] = useState<any>(null);
-  
+  const [error, setError] = useState<string | null>(null);
+
   const importStudents = useMutation(api.bulkOperations.importStudents);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (selectedFile && selectedFile.type === 'text/csv') {
       setFile(selectedFile);
+      setError(null);
       parseCSV(selectedFile);
     } else {
-      alert('Please select a valid CSV file');
+      setError('Please select a valid CSV file');
     }
   };
 
@@ -66,16 +68,17 @@ export default function BulkUploadModal({ isOpen, onClose }: BulkUploadModalProp
 
   const handleUpload = async () => {
     if (students.length === 0) {
-      alert('No valid students to import');
+      setError('No valid students to import');
       return;
     }
 
     setIsProcessing(true);
+    setError(null);
     try {
       const importResult = await importStudents({ students });
       setResult(importResult);
-    } catch (error) {
-      alert('Failed to import students: ' + (error instanceof Error ? error.message : 'Unknown error'));
+    } catch (err) {
+      setError('Failed to import students: ' + (err instanceof Error ? err.message : 'Unknown error'));
     } finally {
       setIsProcessing(false);
     }
@@ -98,6 +101,7 @@ Aline,Uwamahoro,aline.uwamahoro@school.rw,Senior 6,Green Hills Academy`;
     setFile(null);
     setStudents([]);
     setResult(null);
+    setError(null);
     onClose();
   };
 
@@ -136,6 +140,16 @@ Aline,Uwamahoro,aline.uwamahoro@school.rw,Senior 6,Green Hills Academy`;
                   <li>Review the preview and confirm import</li>
                 </ol>
               </div>
+
+              {/* Error Message */}
+              {error && (
+                <div className="mb-6 bg-red-100 border-3 border-red-500 p-4">
+                  <div className="flex items-center gap-2">
+                    <AlertCircle className="w-5 h-5 text-red-700" />
+                    <p className="text-red-900 font-bold">{error}</p>
+                  </div>
+                </div>
+              )}
 
               {/* Download Template Button */}
               <button

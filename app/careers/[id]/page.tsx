@@ -32,6 +32,7 @@ export default function CareerDetailPage() {
   const { user } = useConvexAuth();
 
   const [showVideo, setShowVideo] = useState(false);
+  const [bookmarkError, setBookmarkError] = useState<string | null>(null);
 
   // Fetch career from Convex
   const career = useQuery(api.careers.getById, { id: careerId as any });
@@ -53,12 +54,19 @@ export default function CareerDetailPage() {
   // Handle bookmark toggle
   const handleBookmark = async () => {
     if (!user) {
-      alert('Please sign in to bookmark careers');
+      setBookmarkError('Please sign in to bookmark careers');
+      setTimeout(() => setBookmarkError(null), 3000);
       return;
     }
-    await toggleBookmark({
-      careerId,
-    });
+    try {
+      setBookmarkError(null);
+      await toggleBookmark({
+        careerId,
+      });
+    } catch (err) {
+      setBookmarkError(err instanceof Error ? err.message : 'Failed to update bookmark');
+      setTimeout(() => setBookmarkError(null), 3000);
+    }
   };
 
   const isBookmarked = bookmarkedIds?.includes(careerId);
@@ -131,6 +139,13 @@ export default function CareerDetailPage() {
                 Book a Chat
               </Button>
             </div>
+
+            {/* Bookmark Error Message */}
+            {bookmarkError && (
+              <div className="mt-4 bg-red-100 border-2 border-red-500 p-3">
+                <p className="text-red-900 font-bold text-sm">✗ {bookmarkError}</p>
+              </div>
+            )}
           </div>
 
           {/* Key Info Grid */}

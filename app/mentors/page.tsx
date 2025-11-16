@@ -10,6 +10,7 @@ import { EmptyState } from '@/components/error-state';
 
 export default function MentorsPage() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [bookingMessage, setBookingMessage] = useState<string | null>(null);
 
   // Fetch professionals from Convex
   const allProfessionals = useQuery(api.professionals.search, {
@@ -51,6 +52,13 @@ export default function MentorsPage() {
             {allProfessionals?.length || 0} {allProfessionals?.length === 1 ? 'mentor' : 'mentors'} available
           </p>
         </div>
+
+        {/* Booking Message */}
+        {bookingMessage && (
+          <div className="mb-6 bg-yellow-100 border-3 border-yellow-500 p-4">
+            <p className="text-yellow-900 font-bold">ℹ️ {bookingMessage}</p>
+          </div>
+        )}
 
         {/* Mentors Grid */}
         {isLoading ? (
@@ -110,7 +118,8 @@ export default function MentorsPage() {
                         if (mentor.calendlyUrl) {
                           window.open(mentor.calendlyUrl, '_blank', 'noopener,noreferrer');
                         } else {
-                          alert(`Booking with ${mentor.firstName} ${mentor.lastName} - Calendly link not available yet.`);
+                          setBookingMessage(`${mentor.firstName} ${mentor.lastName}'s calendar is not yet available. Please check back later.`);
+                          setTimeout(() => setBookingMessage(null), 5000);
                         }
                       }}
                       className="w-full px-4 py-3 bg-primary text-white font-bold uppercase text-sm border-3 border-black shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all flex items-center justify-center gap-2"
