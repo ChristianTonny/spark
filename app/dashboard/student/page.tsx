@@ -20,6 +20,7 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { useConvexAuth } from "@/lib/hooks/useConvexAuth";
 import { useRoleGuard } from "@/lib/hooks/useRoleGuard";
+import { PendingRatings } from "@/components/PendingRatings";
 
 export default function StudentDashboard() {
   const router = useRouter();
@@ -32,7 +33,7 @@ export default function StudentDashboard() {
   const savedCareers = useQuery(api.savedCareers.list, user ? {} : "skip");
   const assessmentResults = useQuery(api.assessments.getResults, user ? {} : "skip");
   const studentProfile = useQuery(api.studentProfiles.getCurrent, user ? {} : "skip");
-  const mentorSessions = useQuery(api.careerChats.getStudentSessions, user ? {} : "skip");
+  const confirmedBookings = useQuery(api.careerChats.getStudentBookings, user ? { status: "confirmed" } : "skip");
   const deleteResult = useMutation(api.assessments.deleteResult);
 
   const studentData = {
@@ -132,6 +133,11 @@ export default function StudentDashboard() {
             <h3 className="text-lg sm:text-xl font-black uppercase">Top Match</h3>
             <p className="font-bold text-gray-700 text-sm sm:text-base">Your best career match score</p>
           </div>
+        </div>
+
+        {/* Pending Ratings Section */}
+        <div className="mb-6 sm:mb-8">
+          <PendingRatings />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -390,69 +396,74 @@ export default function StudentDashboard() {
               </div>
             </div>
 
-            {/* Mentor Sessions History */}
+            {/* Upcoming Mentor Sessions */}
             <div className="bg-white border-3 border-black shadow-brutal-lg">
               <div className="p-4 sm:p-6 border-b-3 border-black">
-                <div className="flex items-center gap-2">
-                  <Calendar className="w-5 h-5" />
-                  <h2 className="text-lg sm:text-xl font-black uppercase">Mentor Sessions</h2>
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="w-5 h-5" />
+                    <h2 className="text-lg sm:text-xl font-black uppercase">Upcoming Sessions</h2>
+                  </div>
+                  <Link href="/dashboard/student/bookings">
+                    <button className="px-3 py-1 bg-white border-2 border-black shadow-brutal-sm hover:shadow-brutal transition-all text-xs font-bold">
+                      View All
+                    </button>
+                  </Link>
                 </div>
               </div>
               <div className="p-4 sm:p-6">
-                {mentorSessions && mentorSessions.length > 0 ? (
+                {confirmedBookings && confirmedBookings.length > 0 ? (
                   <div className="space-y-3">
-                    {mentorSessions.slice(0, 3).map((session) => {
-                      const date = new Date(session.scheduledAt);
-                      const isPast = session.scheduledAt < Date.now();
-                      
-                      let statusColor = 'bg-gray-200';
-                      let statusText = 'Unknown';
-                      
-                      if (session.status === 'scheduled' && !isPast) {
-                        statusColor = 'bg-brutal-blue';
-                        statusText = 'Upcoming';
-                      } else if (session.status === 'completed') {
-                        statusColor = 'bg-brutal-green';
-                        statusText = 'Completed';
-                      } else if (session.status === 'cancelled') {
-                        statusColor = 'bg-gray-300';
-                        statusText = 'Cancelled';
-                      } else if (session.status === 'no_show') {
-                        statusColor = 'bg-brutal-orange';
-                        statusText = 'No Show';
-                      }
+                    {confirmedBookings.slice(0, 3).map((booking) => {
+                      const date = booking.scheduledAt ? new Date(booking.scheduledAt) : null;
 
                       return (
-                        <div key={session._id} className="border-2 border-black p-3">
+                        <div key={booking._id} className="border-2 border-black p-3">
                           <div className="flex items-start gap-2 mb-2">
                             <div className="flex-1 min-w-0">
                               <h4 className="text-sm font-black leading-tight mb-1">
-                                {session.professional?.name || 'Professional'}
+                                {booking.mentor?.name || 'Mentor'}
                               </h4>
                               <p className="text-xs font-bold text-gray-600 mb-1">
-                                {session.professional?.title || 'N/A'}
+                                {booking.mentor?.title || 'N/A'}
+                                {booking.mentor?.company && ` at ${booking.mentor.company}`}
                               </p>
-                              <p className="text-xs font-bold text-gray-700">
-                                {session.career?.title || 'Career Chat'}
-                              </p>
+                              {booking.career && (
+                                <p className="text-xs font-bold text-gray-700">
+                                  {booking.career.title}
+                                </p>
+                              )}
                             </div>
-                            <span className={`px-2 py-1 ${statusColor} text-xs font-black border-2 border-black whitespace-nowrap`}>
-                              {statusText}
+                            <span className="px-2 py-1 bg-brutal-green text-black text-xs font-black border-2 border-black whitespace-nowrap">
+                              Confirmed
                             </span>
                           </div>
-                          <div className="flex items-center gap-1 text-xs font-bold text-gray-600">
-                            <Calendar className="w-3 h-3" />
-                            {date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                          </div>
+                          {date && (
+                            <div className="flex items-center gap-1 text-xs font-bold text-gray-600">
+                              <Calendar className="w-3 h-3" />
+                              {date.toLocaleDateString('en-RW', {
+                                timeZone: 'Africa/Kigali',
+                                month: 'short',
+                                day: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              })}
+                            </div>
+                          )}
                         </div>
                       );
                     })}
+                    <Link href="/dashboard/student/bookings">
+                      <button className="w-full px-4 py-2 bg-white border-2 border-black shadow-brutal-sm hover:shadow-brutal transition-all font-bold text-sm">
+                        View All Bookings
+                      </button>
+                    </Link>
                   </div>
                 ) : (
                   <div className="text-center py-6">
                     <Calendar className="w-12 h-12 mx-auto mb-2 text-gray-400" />
                     <p className="text-sm font-bold text-gray-600 mb-3">
-                      No sessions yet
+                      No upcoming sessions
                     </p>
                     <Link href="/mentors">
                       <button className="px-4 py-2 bg-brutal-green text-white font-bold uppercase text-xs border-3 border-black shadow-brutal-sm hover:shadow-brutal transition-all">

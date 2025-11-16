@@ -249,27 +249,83 @@ export default defineSchema({
     .index("by_student", ["studentId"])
     .index("by_career", ["careerId"]),
 
-  // Career chat sessions
+  // Career chat sessions (with booking workflow)
   careerChats: defineTable({
     studentId: v.string(),
     professionalId: v.id("professionals"),
-    careerId: v.string(),
-    scheduledAt: v.number(),
+    careerId: v.optional(v.string()), // Optional - can chat without specific career focus
+    scheduledAt: v.optional(v.number()), // Optional until booking is confirmed
     duration: v.number(),
     status: v.union(
-      v.literal("scheduled"),
+      v.literal("pending"),      // Student requested, waiting for mentor approval
+      v.literal("confirmed"),    // Mentor approved
+      v.literal("scheduled"),    // Time has been set (backward compatibility)
       v.literal("completed"),
       v.literal("cancelled"),
+      v.literal("rejected"),     // Mentor declined
       v.literal("no_show")
     ),
     meetingUrl: v.optional(v.string()),
     rating: v.optional(v.number()),
     feedback: v.optional(v.string()),
+
+    // Booking workflow fields
+    requestedAt: v.number(),     // When student requested
+    confirmedAt: v.optional(v.number()), // When mentor approved
+    cancellationReason: v.optional(v.string()),
+    studentMessage: v.optional(v.string()), // Optional message from student during booking
+
     completedAt: v.optional(v.number()),
   })
     .index("by_student", ["studentId"])
     .index("by_professional", ["professionalId"])
-    .index("by_status", ["status"]),
+    .index("by_status", ["status"])
+    .index("by_student_and_status", ["studentId", "status"])
+    .index("by_professional_and_status", ["professionalId", "status"]),
+
+  // Availability slots for mentors
+  availabilitySlots: defineTable({
+    professionalId: v.id("users"),
+
+    // Slot details
+    dayOfWeek: v.number(), // 0-6 (Sunday-Saturday)
+    startTime: v.string(), // "09:00" format
+    endTime: v.string(),   // "17:00" format
+
+    // Capacity (how many students can book this slot)
+    maxBookings: v.number(), // Default 1, can be increased for group sessions
+
+    // Status
+    isActive: v.boolean(), // Mentor can temporarily disable slots
+
+    // Recurrence
+    effectiveFrom: v.number(), // Unix timestamp
+    effectiveUntil: v.optional(v.number()), // Optional end date
+  })
+    .index("by_professional", ["professionalId"])
+    .index("by_professional_and_day", ["professionalId", "dayOfWeek"])
+    .index("by_professional_and_active", ["professionalId", "isActive"]),
+
+  // Chat messages for mentor-student conversations
+  messages: defineTable({
+    chatId: v.id("careerChats"), // Link to booking
+    senderId: v.string(), // User ID of sender
+
+    // Message content
+    content: v.string(),
+    type: v.union(
+      v.literal("text"),
+      v.literal("system") // System notifications like "Booking confirmed"
+    ),
+
+    // Read status
+    readBy: v.array(v.string()), // Array of user IDs who read this message
+
+    // Timestamps
+    sentAt: v.number(),
+  })
+    .index("by_chat", ["chatId"])
+    .index("by_chat_and_time", ["chatId", "sentAt"]),
 
   // Company profiles
   companies: defineTable({
@@ -286,5 +342,53 @@ export default defineSchema({
     totalViews: v.number(),
     totalBookings: v.number(),
     studentsReached: v.number(),
+  }).index("by_user", ["userId"]),
+
+  // Notifications
+  notifications: defineTable({
+    userId: v.id("users"), // Recipient of notification
+    type: v.union(
+      v.literal("booking"),
+      v.literal("message"),
+      v.literal("review"),
+      v.literal("system")
+    ),
+    title: v.string(),
+    message: v.string(),
+    read: v.boolean(),
+    createdAt: v.number(),
+
+    // Optional links to related entities
+    relatedChatId: v.optional(v.id("careerChats")),
+    relatedUserId: v.optional(v.id("users")), // e.g., who sent the message
+
+    // Optional metadata for additional context
+    metadata: v.optional(v.any()),
+  })
+    .index("by_user", ["userId"])
+    .index("by_user_and_read", ["userId", "read"])
+    .index("by_user_and_created", ["userId", "createdAt"]),
+
+  // User Settings
+  userSettings: defineTable({
+    userId: v.id("users"),
+
+    // Notification preferences
+    emailNotifications: v.boolean(),
+    pushNotifications: v.boolean(),
+    marketingEmails: v.boolean(),
+    bookingReminders: v.boolean(),
+    messageNotifications: v.boolean(),
+
+    // Privacy settings
+    profileVisibility: v.union(
+      v.literal("public"),
+      v.literal("private")
+    ),
+    showOnlineStatus: v.boolean(),
+
+    // Timestamps
+    createdAt: v.number(),
+    updatedAt: v.number(),
   }).index("by_user", ["userId"]),
 });

@@ -1,22 +1,82 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import Link from 'next/link';
-import { Search, Star, Calendar, MessageCircle } from 'lucide-react';
+import { Search, Star, Calendar, MessageCircle, Award, CheckCircle, Clock } from 'lucide-react';
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { MentorCardSkeleton } from '@/components/loading-skeleton';
 import { EmptyState } from '@/components/error-state';
+import { BookingModal } from '@/components/BookingModal';
+import { ChatDrawer } from '@/components/ChatDrawer';
+import { Id } from "@/convex/_generated/dataModel";
+import { useConvexAuth } from '@/lib/hooks/useConvexAuth';
 
 export default function MentorsPage() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedMentorId, setSelectedMentorId] = useState<Id<"users"> | null>(null);
+  const [selectedMentorName, setSelectedMentorName] = useState('');
+  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
+  const [isChatDrawerOpen, setIsChatDrawerOpen] = useState(false);
+  const [selectedChatId, setSelectedChatId] = useState<Id<"careerChats"> | null>(null);
+  const [selectedChatInfo, setSelectedChatInfo] = useState<{
+    mentorName: string;
+    scheduledAt?: number;
+  } | null>(null);
+
+  const { user } = useConvexAuth();
 
   // Fetch professionals from Convex
   const allProfessionals = useQuery(api.professionals.search, {
     searchQuery: searchQuery || undefined,
   });
 
+  // Fetch current user's professional profile if they're a mentor
+  const currentProfessional = useQuery(
+    api.professionals.getCurrentProfessional,
+    user?.role === 'mentor' ? {} : 'skip'
+  );
+
+  // Fetch student's interaction history with mentors
+  const mentorInteractions = useQuery(
+    api.careerChats.getStudentMentorInteractions,
+    user?.role === 'student' ? {} : 'skip'
+  );
+
+  // Fetch mentors the student has booked
+  const yourMentors = useQuery(
+    api.careerChats.getStudentMentors,
+    user?.role === 'student' ? {} : 'skip'
+  );
+
   const isLoading = allProfessionals === undefined;
+
+  // Sort mentors to show current user first, then similar careers
+  const sortedProfessionals = useMemo(() => {
+    if (!allProfessionals) return [];
+
+    // If user is a mentor viewing their own profile
+    if (currentProfessional && user?.role === 'mentor') {
+      const currentUserId = currentProfessional.userId;
+      const currentCareerIds = currentProfessional.careerIds || [];
+
+      // Separate current user from others
+      const currentUser = allProfessionals.find(p => p.userId === currentUserId);
+      const otherMentors = allProfessionals.filter(p => p.userId !== currentUserId);
+
+      // Sort others by career similarity
+      const sortedOthers = otherMentors.sort((a, b) => {
+        const aMatchCount = (a.careerIds || []).filter(id => currentCareerIds.includes(id)).length;
+        const bMatchCount = (b.careerIds || []).filter(id => currentCareerIds.includes(id)).length;
+        return bMatchCount - aMatchCount; // Higher match count first
+      });
+
+      // Return current user first, then similar mentors
+      return currentUser ? [currentUser, ...sortedOthers] : sortedOthers;
+    }
+
+    return allProfessionals;
+  }, [allProfessionals, currentProfessional, user]);
 
   return (
     <div className="min-h-screen bg-background py-8">
@@ -45,12 +105,107 @@ export default function MentorsPage() {
 
         </div>
 
+        {/* Your Mentors Section (for students who have booked mentors) */}
+        {yourMentors && yourMentors.length > 0 && !searchQuery && (
+          <div className="bg-brutal-yellow border-3 border-black shadow-brutal-lg p-6 mb-8">
+            <h2 className="text-2xl font-black uppercase mb-4 flex items-center gap-2">
+              <Award className="w-6 h-6" />
+              Your Mentors
+            </h2>
+            <p className="text-sm font-bold mb-4">
+              Mentors you have booked or are currently working with
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {yourMentors.map((mentor) => (
+                <Link key={mentor.userId} href={`/mentors/${mentor.userId}`}>
+                  <div className="border-3 border-black bg-white p-4 hover:shadow-brutal transition-all cursor-pointer">
+                    <div className="flex items-start gap-3 mb-3">
+                      {/* Avatar */}
+                      <div className="w-16 h-16 border-3 border-black shadow-brutal-sm overflow-hidden flex-shrink-0">
+                        {mentor.avatar ? (
+                          <img
+                            src={mentor.avatar}
+                            alt={mentor.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center bg-brutal-orange text-white text-xl font-black">
+                            {mentor.name.split(' ').map(n => n[0]).join('')}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Info */}
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-black text-lg truncate">{mentor.name}</h3>
+                        <p className="text-sm font-bold text-gray-600 truncate">{mentor.jobTitle}</p>
+                        <p className="text-xs font-bold text-gray-500 truncate">{mentor.company}</p>
+                      </div>
+                    </div>
+
+                    {/* Status and Rating */}
+                    <div className="flex items-center justify-between pt-3 border-t-2 border-gray-200">
+                      <div className="flex items-center gap-1">
+                        <Star className="w-4 h-4 fill-accent text-accent" />
+                        <span className="font-black text-sm">{mentor.rating.toFixed(1)}</span>
+                      </div>
+
+                      {/* Status Badge */}
+                      {mentor.status === 'pending' && (
+                        <span className="px-2 py-1 bg-brutal-orange text-white text-xs font-black border-2 border-black">
+                          PENDING
+                        </span>
+                      )}
+                      {mentor.status === 'confirmed' && (
+                        <span className="px-2 py-1 bg-brutal-blue text-white text-xs font-black border-2 border-black">
+                          CONFIRMED
+                        </span>
+                      )}
+                      {mentor.status === 'completed' && (
+                        <span className="px-2 py-1 bg-brutal-green text-black text-xs font-black border-2 border-black">
+                          COMPLETED
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Scheduled Date */}
+                    {mentor.scheduledAt && (
+                      <div className="mt-2 flex items-center gap-1 text-xs font-bold text-gray-600">
+                        <Calendar className="w-3 h-3" />
+                        <span>
+                          {new Date(mentor.scheduledAt).toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                          })}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Results Count */}
         <div className="mb-6">
           <p className="text-lg font-bold">
-            {allProfessionals?.length || 0} {allProfessionals?.length === 1 ? 'mentor' : 'mentors'} available
+            {sortedProfessionals?.length || 0} {sortedProfessionals?.length === 1 ? 'mentor' : 'mentors'} available
           </p>
         </div>
+
+        {/* Your Profile Banner (for mentors viewing their own profile) */}
+        {currentProfessional && user?.role === 'mentor' && !searchQuery && (
+          <div className="mb-6 bg-brutal-yellow border-3 border-black shadow-brutal-lg p-4">
+            <div className="flex items-center gap-2">
+              <Award className="w-5 h-5" />
+              <p className="font-black text-sm uppercase">Your Profile Preview Below</p>
+            </div>
+            <p className="text-sm font-bold mt-1">
+              This is how students see your mentor profile. Other mentors in your field are shown after.
+            </p>
+          </div>
+        )}
 
         {/* Mentors Grid */}
         {isLoading ? (
@@ -59,16 +214,25 @@ export default function MentorsPage() {
               <MentorCardSkeleton key={i} />
             ))}
           </div>
-        ) : allProfessionals && allProfessionals.length > 0 ? (
+        ) : sortedProfessionals && sortedProfessionals.length > 0 ? (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {allProfessionals.map((mentor) => {
+            {sortedProfessionals.map((mentor, index) => {
+              const isCurrentUser = currentProfessional && mentor.userId === currentProfessional.userId;
+
+              // Check student's interaction history with this mentor
+              const hasContacted = mentorInteractions?.contactedMentorIds.includes(mentor.userId);
+              const hasActiveBooking = mentorInteractions?.activeBookingMentorIds.includes(mentor.userId);
+              const hasChatHistory = mentorInteractions?.chatHistoryMentorIds.includes(mentor.userId);
+
               return (
                 <div
                   key={mentor._id}
-                  className="bg-white border-3 border-black shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all"
+                  className={`bg-white border-3 border-black shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all ${
+                    isCurrentUser ? 'ring-4 ring-brutal-yellow' : ''
+                  }`}
                 >
                   {/* Header */}
-                  <div className="p-6 border-b-3 border-black">
+                  <Link href={`/mentors/${mentor.userId}`} className={`block p-6 border-b-3 border-black ${isCurrentUser ? 'bg-brutal-yellow/20' : ''} hover:bg-gray-50 transition-colors`}>
                     <div className="flex items-start gap-4">
                       <div className="w-20 h-20 border-3 border-black shadow-brutal-sm overflow-hidden flex-shrink-0">
                         <img
@@ -78,12 +242,21 @@ export default function MentorsPage() {
                         />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h3 className="text-xl font-black mb-1 truncate">{mentor.firstName} {mentor.lastName}</h3>
+                        <div className="flex items-center gap-2">
+                          <h3 className="text-xl font-black mb-1 truncate">
+                            {mentor.firstName} {mentor.lastName}
+                          </h3>
+                          {isCurrentUser && (
+                            <span className="px-2 py-0.5 bg-brutal-yellow border-2 border-black text-xs font-black uppercase">
+                              You
+                            </span>
+                          )}
+                        </div>
                         <p className="text-sm font-bold text-gray-700 mb-1">{mentor.jobTitle}</p>
                         <p className="text-sm font-bold text-gray-600">{mentor.company}</p>
                       </div>
                     </div>
-                  </div>
+                  </Link>
 
                   {/* Content */}
                   <div className="p-6">
@@ -99,25 +272,77 @@ export default function MentorsPage() {
                       </div>
                     </div>
 
+                    {/* Interaction Indicators (for students) */}
+                    {user?.role === 'student' && (hasContacted || hasActiveBooking || hasChatHistory) && (
+                      <div className="mb-4 flex flex-wrap gap-2">
+                        {hasActiveBooking && (
+                          <div className="flex items-center gap-1 px-2 py-1 bg-brutal-green border-2 border-black text-xs font-black uppercase">
+                            <Clock className="w-3 h-3" />
+                            <span>Active Booking</span>
+                          </div>
+                        )}
+                        {hasChatHistory && (
+                          <div className="flex items-center gap-1 px-2 py-1 bg-brutal-blue text-white border-2 border-black text-xs font-black uppercase">
+                            <MessageCircle className="w-3 h-3" />
+                            <span>Chat History</span>
+                          </div>
+                        )}
+                        {hasContacted && !hasActiveBooking && !hasChatHistory && (
+                          <div className="flex items-center gap-1 px-2 py-1 bg-gray-200 border-2 border-black text-xs font-black uppercase">
+                            <CheckCircle className="w-3 h-3" />
+                            <span>Contacted</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
                     {/* Bio */}
                     <p className="text-sm font-bold text-gray-700 mb-4 line-clamp-2">
                       {mentor.bio}
                     </p>
 
                     {/* CTA Button */}
-                    <button
-                      onClick={() => {
-                        if (mentor.calendlyUrl) {
-                          window.open(mentor.calendlyUrl, '_blank', 'noopener,noreferrer');
-                        } else {
-                          alert(`Booking with ${mentor.firstName} ${mentor.lastName} - Calendly link not available yet.`);
-                        }
-                      }}
-                      className="w-full px-4 py-3 bg-primary text-white font-bold uppercase text-sm border-3 border-black shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all flex items-center justify-center gap-2"
-                    >
-                      <Calendar className="w-4 h-4" />
-                      Book Session
-                    </button>
+                    {isCurrentUser ? (
+                      <Link href="/dashboard/mentor/profile">
+                        <button className="w-full px-4 py-3 bg-brutal-yellow text-black font-bold uppercase text-sm border-3 border-black shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all flex items-center justify-center gap-2">
+                          Edit Your Profile
+                        </button>
+                      </Link>
+                    ) : user?.role === 'student' && hasChatHistory ? (
+                      <MessageMentorButton
+                        mentorUserId={mentor.userId}
+                        mentorName={`${mentor.firstName} ${mentor.lastName}`}
+                        onChatOpen={(chatId, mentorName, scheduledAt) => {
+                          setSelectedChatId(chatId);
+                          setSelectedChatInfo({ mentorName, scheduledAt });
+                          setIsChatDrawerOpen(true);
+                        }}
+                      />
+                    ) : user?.role === 'student' && hasActiveBooking ? (
+                      <button
+                        onClick={() => {
+                          setSelectedMentorId(mentor.userId);
+                          setSelectedMentorName(`${mentor.firstName} ${mentor.lastName}`);
+                          setIsBookingModalOpen(true);
+                        }}
+                        className="w-full px-4 py-3 bg-brutal-green text-black font-bold uppercase text-sm border-3 border-black shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all flex items-center justify-center gap-2"
+                      >
+                        <Clock className="w-4 h-4" />
+                        View Booking
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => {
+                          setSelectedMentorId(mentor.userId);
+                          setSelectedMentorName(`${mentor.firstName} ${mentor.lastName}`);
+                          setIsBookingModalOpen(true);
+                        }}
+                        className="w-full px-4 py-3 bg-primary text-white font-bold uppercase text-sm border-3 border-black shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all flex items-center justify-center gap-2"
+                      >
+                        <Calendar className="w-4 h-4" />
+                        Book Session
+                      </button>
+                    )}
                   </div>
                 </div>
               );
@@ -137,7 +362,7 @@ export default function MentorsPage() {
         )}
 
         {/* Info Section */}
-        {allProfessionals && allProfessionals.length > 0 && (
+        {sortedProfessionals && sortedProfessionals.length > 0 && (
           <div className="mt-16">
             <div className="bg-white border-3 border-black shadow-brutal p-8">
               <h2 className="text-3xl font-black mb-6 uppercase">How Mentor Sessions Work</h2>
@@ -181,6 +406,65 @@ export default function MentorsPage() {
           </Link>
         </div>
       </div>
+
+      {/* Booking Modal */}
+      {selectedMentorId && (
+        <BookingModal
+          isOpen={isBookingModalOpen}
+          onClose={() => {
+            setIsBookingModalOpen(false);
+            setSelectedMentorId(null);
+            setSelectedMentorName('');
+          }}
+          mentorId={selectedMentorId}
+          mentorName={selectedMentorName}
+        />
+      )}
+
+      {/* Chat Drawer */}
+      <ChatDrawer
+        isOpen={isChatDrawerOpen}
+        onClose={() => {
+          setIsChatDrawerOpen(false);
+          setSelectedChatId(null);
+          setSelectedChatInfo(null);
+        }}
+        chatId={selectedChatId}
+        bookingInfo={selectedChatInfo ? {
+          otherPersonName: selectedChatInfo.mentorName,
+          scheduledAt: selectedChatInfo.scheduledAt,
+        } : undefined}
+      />
     </div>
+  );
+}
+
+// Component to handle Message Mentor button with chat lookup
+function MessageMentorButton({
+  mentorUserId,
+  mentorName,
+  onChatOpen,
+}: {
+  mentorUserId: Id<"users">;
+  mentorName: string;
+  onChatOpen: (chatId: Id<"careerChats">, mentorName: string, scheduledAt?: number) => void;
+}) {
+  const chatData = useQuery(api.careerChats.getChatWithMentor, { mentorUserId });
+
+  const handleClick = () => {
+    if (chatData) {
+      onChatOpen(chatData.chatId, chatData.mentorName, chatData.scheduledAt);
+    }
+  };
+
+  return (
+    <button
+      onClick={handleClick}
+      disabled={!chatData}
+      className="w-full px-4 py-3 bg-brutal-blue text-white font-bold uppercase text-sm border-3 border-black shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+    >
+      <MessageCircle className="w-4 h-4" />
+      Message Mentor
+    </button>
   );
 }

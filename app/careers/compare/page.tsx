@@ -99,19 +99,39 @@ function CareerComparisonContent() {
     },
     {
       label: 'Education Required',
-      getValue: (career: any) => career.educationRequired,
+      getValue: (career: any) => career.requiredEducation,
     },
     {
       label: 'Personality Type',
-      getValue: (career: any) => career.riasecTypes.join(', '),
+      getValue: (career: any) => {
+        if (!career.interestProfile) return 'Not specified';
+        const scores = career.interestProfile;
+        const types = [
+          { name: 'Realistic', score: scores.realistic },
+          { name: 'Investigative', score: scores.investigative },
+          { name: 'Artistic', score: scores.artistic },
+          { name: 'Social', score: scores.social },
+          { name: 'Enterprising', score: scores.enterprising },
+          { name: 'Conventional', score: scores.conventional },
+        ];
+        return types
+          .sort((a, b) => b.score - a.score)
+          .slice(0, 3)
+          .map(t => t.name)
+          .join(', ');
+      },
     },
     {
       label: 'Work Environment',
-      getValue: (career: any) => career.workEnvironment,
+      getValue: (career: any) => {
+        if (!career.workEnvironment) return 'Not specified';
+        const env = career.workEnvironment;
+        return `${env.teamSize || 'N/A'} team, ${env.pace || 'N/A'} pace`;
+      },
     },
     {
-      label: 'Growth Outlook',
-      getValue: (career: any) => career.growthOutlook,
+      label: 'Top Skills',
+      getValue: (career: any) => career.requiredSkills?.slice(0, 3).join(', ') || 'Not specified',
     },
   ];
 

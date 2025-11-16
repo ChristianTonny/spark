@@ -151,3 +151,147 @@ export const create = mutation({
     return professionalId;
   },
 });
+
+// Update professional profile
+export const updateProfile = mutation({
+  args: {
+    company: v.optional(v.string()),
+    jobTitle: v.optional(v.string()),
+    bio: v.optional(v.string()),
+    yearsExperience: v.optional(v.number()),
+    ratePerChat: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const user = await getCurrentUserOrThrow(ctx);
+
+    // Get existing professional profile
+    const professional = await ctx.db
+      .query("professionals")
+      .withIndex("by_user", (q) => q.eq("userId", user._id))
+      .first();
+
+    if (!professional) {
+      throw new Error("Professional profile not found");
+    }
+
+    // Update only provided fields
+    const updates: any = {};
+    if (args.company !== undefined) updates.company = args.company;
+    if (args.jobTitle !== undefined) updates.jobTitle = args.jobTitle;
+    if (args.bio !== undefined) updates.bio = args.bio;
+    if (args.yearsExperience !== undefined) updates.yearsExperience = args.yearsExperience;
+    if (args.ratePerChat !== undefined) updates.ratePerChat = args.ratePerChat;
+
+    await ctx.db.patch(professional._id, updates);
+
+    return professional._id;
+  },
+});
+
+/**
+ * Recalculate mentor stats based on actual completed bookings
+ * Called after session completion or rating
+ */
+export const recalculateMentorStats = mutation({
+  args: {
+    professionalId: v.id("professionals"),
+  },
+  handler: async (ctx, args) => {
+    // Get all completed chats for this mentor
+    const completedChats = await ctx.db
+      .query("careerChats")
+      .withIndex("by_professional_and_status", (q) =>
+        q.eq("professionalId", args.professionalId).eq("status", "completed")
+      )
+      .collect();
+
+    const chatsCompleted = completedChats.length;
+
+    // Calculate average rating from chats that have ratings
+    const ratedChats = completedChats.filter((chat) => chat.rating !== undefined);
+    const averageRating =
+      ratedChats.length > 0
+        ? ratedChats.reduce((sum, chat) => sum + (chat.rating || 0), 0) / ratedChats.length
+        : 5.0; // Default to 5.0 if no ratings yet
+
+    // Update professional stats
+    await ctx.db.patch(args.professionalId, {
+      chatsCompleted,
+      rating: averageRating,
+    });
+
+    return { chatsCompleted, rating: averageRating };
+  },
+});
+
+/**
+ * Get detailed mentor profile by user ID
+ * Used for individual mentor profile pages
+ */
+export const getMentorProfile = query({
+  args: {
+    userId: v.id("users"),
+  },
+  handler: async (ctx, args) => {
+    // Get professional profile
+    const professional = await ctx.db
+      .query("professionals")
+      .withIndex("by_user", (q) => q.eq("userId", args.userId))
+      .first();
+
+    if (!professional) {
+      return null;
+    }
+
+    // Get user details
+    const user = await ctx.db.get(args.userId);
+    if (!user) {
+      return null;
+    }
+
+    // Get completed chats with ratings for reviews
+    const completedChats = await ctx.db
+      .query("careerChats")
+      .withIndex("by_professional_and_status", (q) =>
+        q.eq("professionalId", professional._id).eq("status", "completed")
+      )
+      .order("desc")
+      .take(10); // Last 10 reviews
+
+    // Enrich reviews with student info
+    const reviews = await Promise.all(
+      completedChats
+        .filter((chat) => chat.rating !== undefined && chat.feedback)
+        .map(async (chat) => {
+          const student = await ctx.db
+            .query("users")
+            .filter((q) => q.eq(q.field("_id"), chat.studentId))
+            .first();
+
+          return {
+            rating: chat.rating!,
+            feedback: chat.feedback,
+            studentName: student ? `${student.firstName} ${student.lastName}` : "Anonymous",
+            completedAt: chat.completedAt || chat.requestedAt,
+          };
+        })
+    );
+
+    // Get rating distribution
+    const ratingDistribution = {
+      5: completedChats.filter((c) => c.rating === 5).length,
+      4: completedChats.filter((c) => c.rating === 4).length,
+      3: completedChats.filter((c) => c.rating === 3).length,
+      2: completedChats.filter((c) => c.rating === 2).length,
+      1: completedChats.filter((c) => c.rating === 1).length,
+    };
+
+    return {
+      ...professional,
+      ...user,
+      reviews,
+      ratingDistribution,
+      totalReviews: reviews.length,
+    };
+  },
+});

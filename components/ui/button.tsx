@@ -5,19 +5,19 @@ import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-lg text-base font-semibold ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-spark-blue focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 touch-target",
+  "inline-flex items-center justify-center whitespace-nowrap text-base font-bold uppercase border-3 border-black transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 touch-target",
   {
     variants: {
       variant: {
-        default: "bg-spark-blue text-white hover:bg-spark-blue-dark active:scale-[0.98] shadow-md hover:shadow-lg",
+        default: "bg-brutal-blue text-white shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-2px] hover:translate-y-[-2px]",
         destructive:
-          "bg-red-500 text-white hover:bg-red-600 active:scale-[0.98] shadow-md hover:shadow-lg",
+          "bg-red-500 text-white shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-2px] hover:translate-y-[-2px]",
         outline:
-          "border-2 border-spark-blue bg-white text-spark-blue hover:bg-blue-50 active:scale-[0.98]",
+          "bg-white text-black shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-2px] hover:translate-y-[-2px]",
         secondary:
-          "bg-gray-100 text-gray-900 hover:bg-gray-200 active:scale-[0.98]",
-        ghost: "hover:bg-gray-100 hover:text-gray-900",
-        link: "text-spark-blue underline-offset-4 hover:underline",
+          "bg-gray-100 text-black shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-2px] hover:translate-y-[-2px]",
+        ghost: "border-none shadow-none hover:bg-gray-100 hover:text-gray-900",
+        link: "border-none shadow-none text-spark-blue underline-offset-4 hover:underline",
       },
       size: {
         default: "h-12 px-6 py-3",
