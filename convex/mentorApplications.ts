@@ -1,5 +1,6 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { getCurrentUserOrThrow } from "./users";
 
 // Submit a new mentor application
 export const submit = mutation({
@@ -29,10 +30,17 @@ export const submit = mutation({
   },
 });
 
-// Get all mentor applications (admin only - we'll add auth later)
+// Get all mentor applications (admin only)
 export const list = query({
   args: {},
   handler: async (ctx) => {
+    const currentUser = await getCurrentUserOrThrow(ctx);
+
+    // Only admins can view all applications
+    if (currentUser.role !== "admin") {
+      throw new Error("Unauthorized: Only admins can view mentor applications");
+    }
+
     return await ctx.db
       .query("mentorApplications")
       .order("desc")
@@ -40,10 +48,17 @@ export const list = query({
   },
 });
 
-// Get applications by status
+// Get applications by status (admin only)
 export const listByStatus = query({
   args: { status: v.union(v.literal("pending"), v.literal("approved"), v.literal("rejected")) },
   handler: async (ctx, args) => {
+    const currentUser = await getCurrentUserOrThrow(ctx);
+
+    // Only admins can view applications
+    if (currentUser.role !== "admin") {
+      throw new Error("Unauthorized: Only admins can view mentor applications");
+    }
+
     return await ctx.db
       .query("mentorApplications")
       .filter((q) => q.eq(q.field("status"), args.status))
@@ -52,21 +67,35 @@ export const listByStatus = query({
   },
 });
 
-// Get single application by ID
+// Get single application by ID (admin only)
 export const getById = query({
   args: { id: v.id("mentorApplications") },
   handler: async (ctx, args) => {
+    const currentUser = await getCurrentUserOrThrow(ctx);
+
+    // Only admins can view individual applications
+    if (currentUser.role !== "admin") {
+      throw new Error("Unauthorized: Only admins can view mentor applications");
+    }
+
     return await ctx.db.get(args.id);
   },
 });
 
 // Approve application (admin only)
 export const approve = mutation({
-  args: { 
+  args: {
     id: v.id("mentorApplications"),
     reviewNotes: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    const currentUser = await getCurrentUserOrThrow(ctx);
+
+    // Only admins can approve applications
+    if (currentUser.role !== "admin") {
+      throw new Error("Unauthorized: Only admins can approve mentor applications");
+    }
+
     await ctx.db.patch(args.id, {
       status: "approved",
       reviewedAt: Date.now(),
@@ -79,11 +108,18 @@ export const approve = mutation({
 
 // Reject application (admin only)
 export const reject = mutation({
-  args: { 
+  args: {
     id: v.id("mentorApplications"),
     reviewNotes: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    const currentUser = await getCurrentUserOrThrow(ctx);
+
+    // Only admins can reject applications
+    if (currentUser.role !== "admin") {
+      throw new Error("Unauthorized: Only admins can reject mentor applications");
+    }
+
     await ctx.db.patch(args.id, {
       status: "rejected",
       reviewedAt: Date.now(),
@@ -94,10 +130,17 @@ export const reject = mutation({
   },
 });
 
-// Delete application
+// Delete application (admin only)
 export const deleteApplication = mutation({
   args: { id: v.id("mentorApplications") },
   handler: async (ctx, args) => {
+    const currentUser = await getCurrentUserOrThrow(ctx);
+
+    // Only admins can delete applications
+    if (currentUser.role !== "admin") {
+      throw new Error("Unauthorized: Only admins can delete mentor applications");
+    }
+
     await ctx.db.delete(args.id);
     return { success: true };
   },

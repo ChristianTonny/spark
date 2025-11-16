@@ -11,8 +11,9 @@ type FilterStatus = 'all' | 'pending' | 'approved' | 'rejected';
 export default function AdminDashboardPage() {
   const [filter, setFilter] = useState<FilterStatus>('all');
   const [selectedApplication, setSelectedApplication] = useState<any>(null);
-  const [reviewNotes, setReviewNotes] = useState('');
-  
+  // Store review notes per application ID to prevent state leak
+  const [reviewNotes, setReviewNotes] = useState<Record<string, string>>({});
+
   // Fetch applications
   const allApplications = useQuery(api.mentorApplications.list);
   const approveApplication = useMutation(api.mentorApplications.approve);
@@ -44,12 +45,17 @@ export default function AdminDashboardPage() {
 
   const handleApprove = async (id: string) => {
     try {
-      await approveApplication({ 
+      await approveApplication({
         id: id as any,
-        reviewNotes: reviewNotes || undefined 
+        reviewNotes: reviewNotes[id] || undefined
       });
       setSelectedApplication(null);
-      setReviewNotes('');
+      // Clear notes for this application
+      setReviewNotes(prev => {
+        const updated = { ...prev };
+        delete updated[id];
+        return updated;
+      });
     } catch (error) {
       console.error('Failed to approve:', error);
       alert('Failed to approve application');
@@ -58,12 +64,17 @@ export default function AdminDashboardPage() {
 
   const handleReject = async (id: string) => {
     try {
-      await rejectApplication({ 
+      await rejectApplication({
         id: id as any,
-        reviewNotes: reviewNotes || undefined 
+        reviewNotes: reviewNotes[id] || undefined
       });
       setSelectedApplication(null);
-      setReviewNotes('');
+      // Clear notes for this application
+      setReviewNotes(prev => {
+        const updated = { ...prev };
+        delete updated[id];
+        return updated;
+      });
     } catch (error) {
       console.error('Failed to reject:', error);
       alert('Failed to reject application');
@@ -255,8 +266,8 @@ export default function AdminDashboardPage() {
                                   Review Notes (optional)
                                 </label>
                                 <textarea
-                                  value={reviewNotes}
-                                  onChange={(e) => setReviewNotes(e.target.value)}
+                                  value={reviewNotes[app._id] || ''}
+                                  onChange={(e) => setReviewNotes(prev => ({ ...prev, [app._id]: e.target.value }))}
                                   placeholder="Add notes about your decision..."
                                   rows={3}
                                   className="w-full px-4 py-3 border-3 border-black focus:outline-none focus:ring-3 focus:ring-primary resize-none text-gray-900"

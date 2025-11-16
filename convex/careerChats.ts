@@ -42,9 +42,8 @@ export const getStudentSessions = query({
         }
         
         // Note: careerId is stored as string, not ID reference
-        // We'll need to find the career by matching
-        const allCareers = await ctx.db.query("careers").collect();
-        const career = allCareers.find(c => c._id === chat.careerId);
+        // Use indexed lookup instead of loading all careers (N+1 fix)
+        const career = chat.careerId ? await ctx.db.get(chat.careerId as any) : null;
 
         return {
           _id: chat._id,
@@ -114,8 +113,8 @@ export const getUpcomingSessions = query({
           professionalUser = await ctx.db.get(professional.userId);
         }
         
-        const allCareers = await ctx.db.query("careers").collect();
-        const career = allCareers.find(c => c._id === chat.careerId);
+        // Use indexed lookup instead of loading all careers (N+1 fix)
+        const career = chat.careerId ? await ctx.db.get(chat.careerId as any) : null;
 
         return {
           _id: chat._id,

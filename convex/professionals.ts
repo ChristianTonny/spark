@@ -2,25 +2,54 @@ import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { getCurrentUserOrThrow } from "./users";
 
-// Get all professionals
+/**
+ * Safely enrich professional data with public user fields only
+ * Filters out sensitive data like earnings and auth tokens
+ */
+async function enrichProfessionalPublic(ctx: any, prof: any) {
+  const user = await ctx.db.get(prof.userId);
+  if (!user) return null;
+
+  // Only return public fields - exclude sensitive earnings and auth data
+  return {
+    _id: prof._id,
+    _creationTime: prof._creationTime,
+    userId: prof.userId,
+    company: prof.company,
+    jobTitle: prof.jobTitle,
+    bio: prof.bio,
+    yearsExperience: prof.yearsExperience,
+    rating: prof.rating,
+    chatsCompleted: prof.chatsCompleted,
+    careerIds: prof.careerIds,
+    availability: prof.availability,
+    calendlyUrl: prof.calendlyUrl,
+    // Exclude: totalEarnings, earningsThisMonth, earningsLastMonth, ratePerChat
+    // User fields (public only)
+    firstName: user.firstName,
+    lastName: user.lastName,
+    avatar: user.avatar,
+    // Exclude: tokenIdentifier, clerkId, email, phone
+  };
+}
+
+// Get all professionals (public data only)
 export const list = query({
   args: {},
   handler: async (ctx) => {
     const professionals = await ctx.db.query("professionals").collect();
 
-    // Enrich with user data
+    // Enrich with public user data only
     const enriched = await Promise.all(
-      professionals.map(async (prof) => {
-        const user = await ctx.db.get(prof.userId);
-        return { ...prof, ...user };
-      })
+      professionals.map((prof) => enrichProfessionalPublic(ctx, prof))
     );
 
-    return enriched;
+    // Filter out any null results
+    return enriched.filter((p) => p !== null);
   },
 });
 
-// Search professionals
+// Search professionals (public data only)
 export const search = query({
   args: {
     searchQuery: v.optional(v.string()),
@@ -38,19 +67,17 @@ export const search = query({
       );
     }
 
-    // Enrich with user data
+    // Enrich with public user data only
     const enriched = await Promise.all(
-      professionals.map(async (prof) => {
-        const user = await ctx.db.get(prof.userId);
-        return { ...prof, ...user };
-      })
+      professionals.map((prof) => enrichProfessionalPublic(ctx, prof))
     );
 
-    return enriched;
+    // Filter out any null results
+    return enriched.filter((p) => p !== null);
   },
 });
 
-// Get professionals by career IDs
+// Get professionals by career IDs (public data only)
 export const getByCareerIds = query({
   args: { careerIds: v.array(v.string()) },
   handler: async (ctx, args) => {
@@ -61,19 +88,17 @@ export const getByCareerIds = query({
       p.careerIds.some((id) => args.careerIds.includes(id))
     );
 
-    // Enrich with user data
+    // Enrich with public user data only
     const enriched = await Promise.all(
-      filtered.map(async (prof) => {
-        const user = await ctx.db.get(prof.userId);
-        return { ...prof, ...user };
-      })
+      filtered.map((prof) => enrichProfessionalPublic(ctx, prof))
     );
 
-    return enriched;
+    // Filter out any null results
+    return enriched.filter((p) => p !== null);
   },
 });
 
-// Get current user's professional profile
+// Get current user's professional profile (includes private data for own profile)
 export const getCurrentProfessional = query({
   args: {},
   handler: async (ctx) => {
@@ -102,8 +127,18 @@ export const getCurrentProfessional = query({
       return null;
     }
 
-    // Return combined data
-    return { ...professional, ...user };
+    // Return combined data with ALL fields (user viewing their own profile)
+    // Safe to include earnings and private data here
+    return {
+      ...professional,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      avatar: user.avatar,
+      role: user.role,
+      // Exclude sensitive auth fields
+      // tokenIdentifier and clerkId not needed on frontend
+    };
   },
 });
 

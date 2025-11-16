@@ -6,12 +6,11 @@ import { getCurrentUser, getCurrentUserOrThrow } from "./users";
 export const getAllStudents = query({
   args: {},
   handler: async (ctx) => {
-    const currentUser = await getCurrentUser(ctx);
+    const currentUser = await getCurrentUserOrThrow(ctx);
 
     // Only educators can access this
-    if (!currentUser || currentUser.role !== "student") {
-      // For now, allow all authenticated users to see this
-      // In production, you'd check for educator role
+    if (currentUser.role !== "educator") {
+      throw new Error("Unauthorized: Only educators can access student data");
     }
 
     const allUsers = await ctx.db
@@ -79,7 +78,12 @@ export const getAllStudents = query({
 export const getEducatorStats = query({
   args: {},
   handler: async (ctx) => {
-    const currentUser = await getCurrentUser(ctx);
+    const currentUser = await getCurrentUserOrThrow(ctx);
+
+    // Only educators can access this
+    if (currentUser.role !== "educator") {
+      throw new Error("Unauthorized: Only educators can access stats");
+    }
 
     // Get all students
     const students = await ctx.db
@@ -137,7 +141,12 @@ export const getEducatorStats = query({
 export const getStudentDetail = query({
   args: { studentId: v.id("users") },
   handler: async (ctx, args) => {
-    const currentUser = await getCurrentUser(ctx);
+    const currentUser = await getCurrentUserOrThrow(ctx);
+
+    // Only educators can access student details
+    if (currentUser.role !== "educator") {
+      throw new Error("Unauthorized: Only educators can access student details");
+    }
 
     const student = await ctx.db.get(args.studentId);
     if (!student || student.role !== "student") {

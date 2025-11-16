@@ -103,7 +103,7 @@ function CareerComparisonContent() {
     },
     {
       label: 'Personality Type',
-      getValue: (career: any) => career.riasecTypes.join(', '),
+      getValue: (career: any) => career.riasecTypes?.join(', ') || 'Not specified',
     },
     {
       label: 'Work Environment',
