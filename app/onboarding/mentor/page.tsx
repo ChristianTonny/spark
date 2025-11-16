@@ -5,12 +5,16 @@ import { useRouter } from 'next/navigation';
 import { useMutation } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
 import { Briefcase, User, Award, Link as LinkIcon } from 'lucide-react';
+import { useRoleGuard } from '@/lib/hooks/useRoleGuard';
 
 /**
  * Mentor onboarding form
  * Collects professional information before allowing access to mentor dashboard
  */
 export default function MentorOnboardingPage() {
+  // Protect this page - only mentors can access
+  useRoleGuard(['mentor']);
+
   const router = useRouter();
   const createProfessional = useMutation(api.professionals.create);
 
