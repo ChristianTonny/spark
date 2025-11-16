@@ -36,7 +36,16 @@ export const send = mutation({
       throw new Error("Chat not found");
     }
 
-    if (chat.studentId !== userId && chat.professionalId !== userId) {
+    const professional =
+      chat.professionalId !== undefined
+        ? await ctx.db.get(chat.professionalId)
+        : null;
+
+    const isStudent = chat.studentId === userId;
+    const isMentor =
+      professional !== null ? professional.userId === userId : false;
+
+    if (!isStudent && !isMentor) {
       throw new Error("Not authorized to send messages in this chat");
     }
 
@@ -78,7 +87,16 @@ export const list = query({
       return [];
     }
 
-    if (chat.studentId !== userId && chat.professionalId !== userId) {
+    const professional =
+      chat.professionalId !== undefined
+        ? await ctx.db.get(chat.professionalId)
+        : null;
+
+    const isStudent = chat.studentId === userId;
+    const isMentor =
+      professional !== null ? professional.userId === userId : false;
+
+    if (!isStudent && !isMentor) {
       return [];
     }
 
@@ -133,7 +151,16 @@ export const markAsRead = mutation({
       throw new Error("Chat not found");
     }
 
-    if (chat.studentId !== userId && chat.professionalId !== userId) {
+    const professional =
+      chat.professionalId !== undefined
+        ? await ctx.db.get(chat.professionalId)
+        : null;
+
+    const isStudent = chat.studentId === userId;
+    const isMentor =
+      professional !== null ? professional.userId === userId : false;
+
+    if (!isStudent && !isMentor) {
       throw new Error("Not authorized");
     }
 
@@ -200,13 +227,25 @@ export const getTotalUnreadCount = query({
       )
       .collect();
 
-    const mentorChats = await ctx.db
-      .query("careerChats")
-      .withIndex("by_professional", (q) => q.eq("professionalId", userId))
-      .filter((q) =>
-        q.or(q.eq(q.field("status"), "confirmed"), q.eq(q.field("status"), "completed"))
-      )
-      .collect();
+    const professional = await ctx.db
+      .query("professionals")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .first();
+
+    const mentorChats = professional
+      ? await ctx.db
+          .query("careerChats")
+          .withIndex("by_professional", (q) =>
+            q.eq("professionalId", professional._id)
+          )
+          .filter((q) =>
+            q.or(
+              q.eq(q.field("status"), "confirmed"),
+              q.eq(q.field("status"), "completed")
+            )
+          )
+          .collect()
+      : [];
 
     const allChats = [...studentChats, ...mentorChats];
 

@@ -35,7 +35,11 @@ export const setAvailability = mutation({
     }
 
     // Verify user is a mentor
-    const user = await ctx.db.get(userId);
+    const user = await ctx.db
+      .query("users")
+      .filter((q) => q.eq(q.field("_id"), userId))
+      .first();
+    
     if (!user || user.role !== "mentor") {
       throw new Error("Only mentors can set availability");
     }
@@ -105,7 +109,7 @@ export const getAvailableSlots = query({
   handler: async (ctx, args) => {
     const { professionalId, startDate, endDate } = args;
 
-    // Get mentor's availability template
+    // Get mentor's availability template (uses user ID)
     const availabilitySlots = await ctx.db
       .query("availabilitySlots")
       .withIndex("by_professional", (q) => q.eq("professionalId", professionalId))
@@ -116,11 +120,22 @@ export const getAvailableSlots = query({
       return [];
     }
 
+    // Get the professional record (careerChats uses professional ID, not user ID)
+    const professional = await ctx.db
+      .query("professionals")
+      .withIndex("by_user", (q) => q.eq("userId", professionalId))
+      .first();
+
+    if (!professional) {
+      // Mentor doesn't have a professional profile yet
+      return [];
+    }
+
     // Get existing bookings for this mentor in the date range
     const existingBookings = await ctx.db
       .query("careerChats")
       .withIndex("by_professional_and_status", (q) =>
-        q.eq("professionalId", professionalId).eq("status", "confirmed")
+        q.eq("professionalId", professional._id).eq("status", "confirmed")
       )
       .filter((q) =>
         q.and(

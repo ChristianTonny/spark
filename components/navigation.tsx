@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Menu, X, Compass, BookOpen, Users, LayoutDashboard } from 'lucide-react';
+import { Menu, X, Compass, BookOpen, Users, LayoutDashboard, Calendar, Clock } from 'lucide-react';
 import { useState } from 'react';
 import { SignedIn, SignedOut, UserButton, useUser } from '@clerk/nextjs';
 import { useQuery } from 'convex/react';
@@ -20,19 +20,33 @@ export default function Navigation() {
   const getNavLinks = () => {
     const commonLinks = [];
 
-    // Only students see all main pages
+    // Students see career exploration pages + dashboard + bookings
     if (userRole === 'student') {
       commonLinks.push(
         { href: '/careers', label: 'Careers', icon: Compass },
         { href: '/assessments', label: 'Assessments', icon: BookOpen },
-        { href: '/mentors', label: 'Mentors', icon: Users }
+        { href: '/mentors', label: 'Mentors', icon: Users },
+        { href: '/dashboard/student/bookings', label: 'My Bookings', icon: Calendar },
+        { href: '/dashboard/student', label: 'Dashboard', icon: LayoutDashboard }
       );
     }
 
-    // Educators and mentors only see Dashboard
-    // Dashboard link points to role-specific dashboard
-    const dashboardPath = getDashboardPath(userRole as any);
-    commonLinks.push({ href: dashboardPath, label: 'Dashboard', icon: LayoutDashboard });
+    // Mentors see mentor-specific navigation
+    if (userRole === 'mentor') {
+      commonLinks.push(
+        { href: '/dashboard/mentor', label: 'Dashboard', icon: LayoutDashboard },
+        { href: '/dashboard/mentor/bookings', label: 'Bookings', icon: Calendar },
+        { href: '/dashboard/mentor/availability', label: 'Availability', icon: Clock }
+        // TODO: Add Earnings tab once earnings feature is built
+        // { href: '/dashboard/mentor/earnings', label: 'Earnings', icon: DollarSign }
+      );
+    }
+
+    // Educators and other roles see Dashboard only
+    if (userRole === 'educator' || (userRole !== 'student' && userRole !== 'mentor')) {
+      const dashboardPath = getDashboardPath(userRole as any);
+      commonLinks.push({ href: dashboardPath, label: 'Dashboard', icon: LayoutDashboard });
+    }
 
     return commonLinks;
   };

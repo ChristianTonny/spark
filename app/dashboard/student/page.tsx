@@ -20,6 +20,7 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { useConvexAuth } from "@/lib/hooks/useConvexAuth";
 import { useRoleGuard } from "@/lib/hooks/useRoleGuard";
+import { PendingRatings } from "@/components/PendingRatings";
 
 export default function StudentDashboard() {
   const router = useRouter();
@@ -132,6 +133,11 @@ export default function StudentDashboard() {
             <h3 className="text-lg sm:text-xl font-black uppercase">Top Match</h3>
             <p className="font-bold text-gray-700 text-sm sm:text-base">Your best career match score</p>
           </div>
+        </div>
+
+        {/* Pending Ratings Section */}
+        <div className="mb-6 sm:mb-8">
+          <PendingRatings />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

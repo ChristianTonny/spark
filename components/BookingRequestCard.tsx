@@ -147,7 +147,7 @@ export function BookingRequestCard({ booking }: BookingRequestCardProps) {
             <Button
               onClick={handleApprove}
               disabled={isApproving || isRejecting}
-              className="flex-1 bg-brutal-green hover:bg-brutal-green/90 text-black"
+              className="flex-1 !bg-brutal-green hover:!bg-brutal-green/90 !text-black"
             >
               <Check className="w-5 h-5 mr-2" />
               {isApproving ? "Approving..." : "Approve"}
@@ -156,7 +156,7 @@ export function BookingRequestCard({ booking }: BookingRequestCardProps) {
               onClick={() => setShowRejectForm(true)}
               disabled={isApproving || isRejecting}
               variant="outline"
-              className="flex-1 border-red-500 text-red-600 hover:bg-red-50"
+              className="flex-1 !text-red-600 hover:!bg-red-50"
             >
               <X className="w-5 h-5 mr-2" />
               Decline
@@ -177,7 +177,7 @@ export function BookingRequestCard({ booking }: BookingRequestCardProps) {
               <Button
                 onClick={handleReject}
                 disabled={isRejecting}
-                className="flex-1 bg-red-500 hover:bg-red-600"
+                className="flex-1 !bg-red-500 hover:!bg-red-600"
               >
                 {isRejecting ? "Declining..." : "Confirm Decline"}
               </Button>

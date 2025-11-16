@@ -9,7 +9,10 @@
       "Bash(npx tsc:*)",
       "Bash(dir:*)",
       "Bash(npm run dev:*)",
-      "Bash(taskkill:*)"
+      "Bash(taskkill:*)",
+      "Bash(npx convex dev:*)",
+      "Bash(Select-String -Path \"convex\\seed.ts\" -Pattern \"chatsCompleted|rating:\")",
+      "Bash(Select-Object -First 20)"
     ],
     "deny": [],
     "ask": []

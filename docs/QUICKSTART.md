@@ -1,372 +1,455 @@
-# 🚀 Quick Start Guide
+# 🚀 SPARK - Quick Start Guide
 
-Get Spark Learning Platform running in 5 minutes!
+Get the SPARK platform running locally in 5 minutes!
 
-## Prerequisites Check
+---
 
+## Prerequisites
+
+**Required:**
+- Node.js 18+ ([Download](https://nodejs.org/))
+- npm or yarn package manager
+- Git
+
+**Accounts Needed:**
+- [Convex](https://convex.dev) - Backend database (free tier available)
+- [Clerk](https://clerk.com) - Authentication (free tier available)
+
+---
+
+## Installation
+
+### 1. Clone Repository
 ```bash
-# Check Node.js version (should be 18+)
-node --version
-
-# Check npm version
-npm --version
+git clone https://github.com/ChristianTonny/spark.git
+cd spark
 ```
 
-## Installation Steps
-
-### 1. Install Dependencies
+### 2. Install Dependencies
 ```bash
 npm install
 ```
 
-This will install:
+This installs:
 - Next.js 14.1.0
 - React 18
 - TypeScript
 - Tailwind CSS
+- Convex
+- Clerk
 - shadcn/ui components
-- React Hook Form + Zod
-- Lucide React icons
 
-### 2. Run Development Server
+### 3. Set Up Environment Variables
+
+Create `.env.local` file in project root:
+
+```env
+# Convex
+NEXT_PUBLIC_CONVEX_URL=https://your-project.convex.cloud
+
+# Clerk
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
+CLERK_SECRET_KEY=sk_test_...
+```
+
+**Get Convex URL:**
+1. Go to [dashboard.convex.dev](https://dashboard.convex.dev)
+2. Create new project
+3. Copy deployment URL
+
+**Get Clerk Keys:**
+1. Go to [dashboard.clerk.com](https://dashboard.clerk.com)
+2. Create new application
+3. Copy publishable key and secret key
+
+### 4. Initialize Convex
+
+```bash
+npx convex dev
+```
+
+This will:
+- Link to your Convex project
+- Deploy database schema
+- Set up real-time functions
+- Run seed data (optional)
+
+### 5. Start Development Server
+
+**In a separate terminal:**
 ```bash
 npm run dev
 ```
 
-Server will start at: **http://localhost:3000**
+Server starts at: **http://localhost:3000**
+
+---
 
 ## 🎯 What's Available
 
-### Global Navigation
+### Public Pages (No Login Required)
 
-All pages include a unified navigation bar at the top with:
-- **Logo** - Spark Learning branding
-- **Links** - Browse Content, Ask Question, Practice Tests
-- **Settings** - Gear icon for user settings
-- **Auth Buttons** - Sign In and Get Started
-- **Mobile Menu** - Responsive hamburger menu
+**1. Landing Page** - `/`
+- Hero section with value proposition
+- Feature showcase
+- Call-to-action buttons
 
-### Pages You Can Visit
+**2. Career Library** - `/careers`
+- Browse 100+ career options
+- Search and filter functionality
+- Bookmark careers
+- Click to view career details
 
-1. **Homepage** - `/`
-   - Landing page with features
-   - Call-to-action buttons
-   - Stats section
-   - Footer with links
+**3. Career Details** - `/careers/[id]`
+- Full career information
+- Salary ranges, education requirements
+- Skills needed
+- Career path progression
+- Related careers
+- Book sessions with mentors
 
-2. **Login** - `/login`
-   - Email/phone authentication
-   - Password show/hide toggle
-   - "Remember me" option
-   - Google sign-in (UI only)
-   - Guest access link
+**4. Mentors** - `/mentors`
+- Browse professional mentors
+- Filter by expertise, rating
+- View mentor profiles
+- Book sessions
 
-3. **Signup** - `/signup`
-   - Step 1: Role selection (Student/Educator/Mentor)
-   - Step 2: Role-specific information form
-     - Student: Grade level, district, language
-     - Educator: Qualification, subject, experience, institution
-     - Mentor: Expertise, availability, background, motivation
-   - Step 3: Terms and preferences
-   - Success screen with role-based redirect
+**5. Mentor Profile** - `/mentors/[id]`
+- Mentor bio and expertise
+- Rating and reviews
+- Session booking
+- Real-time chat
+- View your sessions with this mentor
+- Rate completed sessions (CRUD: Create, Edit, Delete ratings)
 
-4. **Password Reset** - `/reset-password`
-   - Step 1: Enter email
-   - Step 2: Verify code
-   - Step 3: Set new password
-   - Step 4: Success confirmation
+**6. Assessments** - `/assessments`
+- Career guidance assessments
+- View assessment history
+- Retake assessments
 
-5. **Browse Content** - `/content`
-   - Search bar with filters (subject, grade, type)
-   - Content cards with metadata
-   - Download and preview buttons
-   - Rating and download count
-   - Verified badge for approved content
-   - "Back to Dashboard" button
+**7. Assessment Flow** - `/assessment/questions`
+- 5-question assessment
+- Progress tracking
+- Results with career matches
 
-6. **Ask Question** - `/questions/ask`
-   - Subject selection dropdown
-   - Question title and details
-   - Urgency level (low, medium, high)
-   - File attachment (UI)
-   - Form validation
-   - Success screen with confirmation
+---
 
-7. **Practice Tests** - `/practice`
-   - Test selection screen with difficulty badges
-   - Timer countdown during test
-   - Question navigator
-   - Progress bar
-   - Multiple choice answers
-   - Results screen with score breakdown
-   - "Back to Dashboard" button
+### Student Dashboard (Login Required)
 
-8. **Student Dashboard** - `/dashboard/student`
-   - Profile overview with avatar
-   - 4 stat cards (streak, downloads, questions, practice)
-   - Recent activity timeline
-   - Downloaded content with progress bars
-   - Learning goals tracker
-   - Achievement badges (locked/unlocked)
-   - Quick action buttons
+**Dashboard** - `/dashboard/student`
+- Overview of saved careers
+- Upcoming sessions
+- Assessment results
+- Quick actions
 
-9. **Educator Dashboard** - `/dashboard/educator`
-   - Profile with subject expertise and rating
-   - 4 stat cards (uploaded, verified, students reached, avg rating)
-   - Pending verification queue with urgency levels
-   - Recent uploads with download stats
-   - Student engagement by subject
-   - Quick actions
+---
 
-10. **Mentor Dashboard** - `/dashboard/mentor`
-    - Profile with expertise and helpful rating
-    - 4 stat cards (questions answered, students helped, response time, helpful %)
-    - Question queue with urgency indicators
-    - Recent answers with helpful votes
-    - Subject breakdown chart
-    - Achievement badges
-    - Quick actions
+### Mentor Dashboard (Login Required)
 
-11. **Student Profile** - `/dashboard/student/profile`
-    - Edit profile form
-    - Personal information
-    - Grade level and school
-    - Form validation
+**Dashboard** - `/dashboard/mentor`
+- Booking requests
+- Confirmed sessions
+- Completed sessions
+- Quick stats
 
-12. **Student Settings** - `/dashboard/student/settings`
-    - Notification preferences
-    - Data saver mode
-    - Language selection
-    - Privacy settings
+**Bookings** - `/dashboard/mentor/bookings`
+- Pending requests (approve/decline)
+- Confirmed sessions
+- Past sessions with ratings
+- Tabs for organization
 
-### UI Components Available
+**Notifications** - `/dashboard/mentor/notifications`
+- Real-time notifications
+- Mark as read
+- Notification types: bookings, messages, system
 
-Located in `components/ui/`:
-- `Button` - Multiple variants (default, outline, ghost, link) with loading states
-- `Input` - With icon support and error messages
-- `Card` - Content containers with header/footer
-- `Badge` - Status indicators (success, warning, offline, online)
-- `Checkbox` - Form checkboxes
-- `Label` - Form labels
+**Settings** - `/dashboard/mentor/settings`
+- Notification preferences
+- Privacy settings
+- Account management
 
-### Special Components
+**Profile** - `/dashboard/mentor/profile`
+- Edit bio and expertise
+- Manage availability
+- Update profile photo
 
-- `Navigation` - Global navigation bar (located in `components/`)
-  - Sticky top positioning
-  - Logo and branding
-  - Main navigation links
-  - Settings icon
-  - Auth buttons
-  - Mobile-responsive menu
+---
 
-- `ConnectionStatus` - Shows online/offline/syncing states (optional, not in layout)
-  - Auto-detects network status
-  - Banner display
-  - Different colors for each state
+## 🧪 Testing the Platform
 
-## 📱 Testing Responsive Design
+### Test as Student
 
-### Using Browser DevTools
-
-1. Open Chrome/Edge DevTools (F12)
-2. Click device toolbar icon (Ctrl+Shift+M)
-3. Test these views:
-   - **Mobile**: iPhone SE (375px)
-   - **Tablet**: iPad (768px)
-   - **Desktop**: 1920px
-
-### Recommended Test Devices
-
-- Mobile: 375px - 640px
-- Tablet: 640px - 1024px
-- Desktop: 1024px+
-
-## 🎨 Design Tokens
-
-### Using Custom Colors
-
-```tsx
-// Tailwind classes
-<div className="bg-spark-blue text-white">
-<div className="text-spark-green">
-<Badge variant="offline" />
+**1. Sign Up:**
+```
+Go to http://localhost:3000/sign-up
+→ Create account with email
+→ Auto-assigned "student" role
 ```
 
-### Using Icons
-
-```tsx
-import { BookOpen, Download, Mail } from "lucide-react";
-
-<BookOpen className="h-5 w-5" />
+**2. Explore Careers:**
+```
+/careers → Browse careers
+→ Click career card → View details
+→ Click bookmark icon → Save career
 ```
 
-## 🔧 Common Tasks
+**3. Take Assessment:**
+```
+/assessments → Click "Start Assessment"
+→ Answer 5 questions
+→ View career recommendations
+→ See results saved in history
+```
 
-### Add a New Page
+**4. Book a Mentor:**
+```
+/mentors → Browse mentors
+→ Click "Book Session" → Select time slot
+→ Booking request sent (status: pending)
+```
 
-1. Create file in `app/` directory:
+**5. View Your Bookings:**
+```
+/mentors/[mentorId] → See "Your Sessions" section
+→ View pending/confirmed/completed sessions
+→ After session completes → Rate mentor (5 stars + feedback)
+→ Edit or delete your rating anytime
+```
+
+**6. Message a Mentor:**
+```
+/mentors/[mentorId] → Click "Message Mentor"
+→ ChatDrawer opens
+→ Send real-time messages
+```
+
+---
+
+### Test as Mentor
+
+**1. Switch Role:**
+```
+Use Convex dashboard to change user role to "mentor"
+→ Or create new account and manually set role
+```
+
+**2. Manage Bookings:**
+```
+/dashboard/mentor/bookings → View requests
+→ Click "Approve" or "Decline"
+→ Session status updates in real-time
+```
+
+**3. View Notifications:**
+```
+/dashboard/mentor/notifications
+→ See booking notifications
+→ Mark as read
+```
+
+**4. Update Settings:**
+```
+/dashboard/mentor/settings
+→ Toggle notification preferences
+→ Saves to database automatically
+```
+
+**5. View Your Ratings:**
+```
+/mentors/[yourMentorId] → See your profile
+→ View rating breakdown
+→ Read student reviews
+→ See average rating auto-calculated
+```
+
+---
+
+## 🎨 Design System
+
+**"Brutal" Design Language:**
+- Thick black borders (3px)
+- Bold shadows
+- High contrast colors
+- No rounded corners
+- Uppercase headings
+
+**Colors:**
+```tsx
+brutal-blue    // Primary actions
+brutal-green   // Success states
+brutal-yellow  // Highlights, CTAs
+brutal-orange  // Warnings
+brutal-pink    // Accents
+brutal-purple  // Special elements
+```
+
+**Example Component:**
+```tsx
+<div className="border-3 border-black shadow-brutal-lg p-6 bg-white">
+  <h2 className="text-2xl font-black uppercase mb-4">
+    Session Booking
+  </h2>
+  <button className="px-6 py-3 bg-brutal-blue text-white font-bold uppercase border-3 border-black shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all">
+    Book Now
+  </button>
+</div>
+```
+
+---
+
+## 🔧 Common Development Tasks
+
+### Add Test Data
+
+**Using Convex Dashboard:**
 ```bash
-app/new-page/page.tsx
+1. Go to dashboard.convex.dev
+2. Select your project
+3. Go to "Functions" tab
+4. Run: seed.seedCareers()
+5. Run: seed.seedProfessionals()
+6. Run: seed.seedAssessments()
 ```
 
-2. Use this template:
-```tsx
-export default function NewPage() {
-  return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <h1>New Page</h1>
-    </div>
-  );
+**Using Test Helpers:**
+```bash
+# Get current user ID
+Query: testHelpers:getCurrentUser
+
+# Create test completed session
+Mutation: testHelpers:createTestCompletedSession
+Args: {
+  "studentUserId": "YOUR_ID",
+  "mentorUserId": "MENTOR_ID"
+}
+
+# Create multiple test sessions
+Mutation: testHelpers:createMultipleTestSessions
+Args: {
+  "studentUserId": "YOUR_ID",
+  "count": 3
 }
 ```
 
-### Create a Form with Validation
+### View Database
 
-```tsx
-"use client";
+```bash
+# Open Convex dashboard
+npx convex dashboard
 
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-
-const schema = z.object({
-  email: z.string().email("Invalid email"),
-  password: z.string().min(6, "Too short"),
-});
-
-type FormData = z.infer<typeof schema>;
-
-export default function MyForm() {
-  const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
-    resolver: zodResolver(schema),
-  });
-
-  const onSubmit = (data: FormData) => {
-    console.log(data);
-  };
-
-  return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <Input {...register("email")} error={errors.email?.message} />
-      <Input type="password" {...register("password")} error={errors.password?.message} />
-      <Button type="submit">Submit</Button>
-    </form>
-  );
-}
+# Or visit: https://dashboard.convex.dev
 ```
 
-### Add Mock Data
+### Reset Database
 
-```tsx
-// At the top of your component
-const mockData = {
-  users: [
-    { id: 1, name: "Jane Doe", email: "jane@example.com" },
-    { id: 2, name: "John Smith", email: "john@example.com" },
-  ],
-};
-
-// Use in JSX
-{mockData.users.map(user => (
-  <div key={user.id}>{user.name}</div>
-))}
+```bash
+# Clear all data and re-seed
+npx convex run seed:clearAll
+npx convex run seed:seedAll
 ```
+
+### Check TypeScript Errors
+
+```bash
+npm run typecheck
+```
+
+### Build for Production
+
+```bash
+npm run build
+npm run start
+```
+
+---
 
 ## 🐛 Troubleshooting
 
 ### Port 3000 Already in Use
 
+**Windows:**
 ```bash
-# Kill the process
-npx kill-port 3000
-
-# Or use different port
-npm run dev -- -p 3001
+netstat -ano | findstr :3000
+taskkill /PID <PID> /F
 ```
 
-### Module Not Found Errors
-
+**Mac/Linux:**
 ```bash
-# Clear cache and reinstall
-rm -rf node_modules package-lock.json
-npm install
+lsof -ti:3000 | xargs kill -9
 ```
 
-### TypeScript Errors
+### Convex Not Connecting
 
 ```bash
-# Check for errors
-npm run typecheck
-
-# Some errors might auto-fix on save
+# Restart Convex dev server
+npx convex dev --once
+npx convex dev
 ```
 
-### Styling Not Applying
+### Clerk Auth Not Working
 
-1. Check Tailwind class names are correct
-2. Restart dev server (Ctrl+C, then `npm run dev`)
-3. Clear browser cache
+**Check:**
+1. Environment variables are set correctly
+2. Clerk domain matches (localhost:3000)
+3. API keys are from correct Clerk app
 
-## 📊 Performance Tips
-
-### For Development
-
-- Hot reload is automatic
-- Changes appear instantly
-- No need to refresh browser
-
-### For Production
+### Database Empty
 
 ```bash
-# Build optimized version
-npm run build
-
-# Test production build
-npm run start
+# Run seed functions
+npx convex run seed:seedCareers
+npx convex run seed:seedProfessionals
 ```
 
-## 🎯 Next Steps
+### Can't See Ratings UI
 
-### Enhance Existing Dashboards
-- Add real-time data updates
-- Create detailed views for content, questions, and analytics
-- Add filtering and search functionality
-- Implement sorting and pagination
+**Requirements:**
+- Must have a **completed** session with a mentor
+- Session must be marked as complete
+- Only then will "Rate Now" button appear
 
-### Build Admin Dashboard
-- Copy educator/mentor dashboard structure
-- Add user management features
-- Platform-wide analytics
-- Content moderation tools
-
-### Add Backend Integration
-- Create API routes in `app/api/`
-- Connect to database (PostgreSQL/MongoDB)
-- Implement authentication with JWT/sessions
-- Use React Query for data fetching
-- Handle loading and error states
-
-### Implement Profile Settings
-- `/dashboard/{role}/profile` - Edit profile page
-- `/dashboard/{role}/settings` - User preferences
-- Account security settings
-- Notification preferences
-
-## 📚 Learn More
-
-- [Next.js Docs](https://nextjs.org/docs)
-- [Tailwind CSS](https://tailwindcss.com/docs)
-- [TypeScript](https://www.typescriptlang.org/docs)
-- [React Hook Form](https://react-hook-form.com)
-- [Zod Validation](https://zod.dev)
-
-## ❓ Need Help?
-
-1. Check the main README.md
-2. Look at existing component examples
-3. Search Next.js documentation
-4. Ask in project discussions
+**To create test completed session:**
+```bash
+1. Go to Convex dashboard
+2. Run: testHelpers:createTestCompletedSession
+3. Pass your studentUserId and mentorUserId
+4. Refresh mentor profile page
+5. "Rate Now" button will appear
+```
 
 ---
 
-Happy coding! 🎉
+## 📚 Learn More
+
+**Documentation:**
+- [Next.js Docs](https://nextjs.org/docs)
+- [Convex Docs](https://docs.convex.dev)
+- [Clerk Docs](https://clerk.com/docs)
+- [Tailwind CSS](https://tailwindcss.com/docs)
+
+**Project Docs:**
+- [PROJECT_CONTEXT.md](./PROJECT_CONTEXT.md) - Architecture overview
+- [REMAINING_TASKS.md](./REMAINING_TASKS.md) - What's left to build
+- [CHANGELOG.md](./CHANGELOG.md) - Recent updates
+
+---
+
+## 🎯 Next Steps
+
+**After Setup:**
+1. ✅ Explore the platform as a student
+2. ✅ Test booking flow
+3. ✅ Test rating system (create, edit, delete)
+4. ✅ Test chat messaging
+5. ✅ Check mentor dashboard
+
+**To Contribute:**
+1. Read [PROJECT_CONTEXT.md](./PROJECT_CONTEXT.md)
+2. Check [REMAINING_TASKS.md](./REMAINING_TASKS.md)
+3. Pick a task and start building!
+
+---
+
+**Happy coding! 🎉**
+
+**Need help?** Check PROJECT_CONTEXT.md or ask in GitHub issues.

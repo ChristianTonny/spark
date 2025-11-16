@@ -34,16 +34,47 @@ export function BookingModal({
   const [selectedCareerId, setSelectedCareerId] = useState<string>("");
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [queryParams, setQueryParams] = useState<{
+    professionalId: Id<"users">;
+    startDate: number;
+    endDate: number;
+  } | null>(null);
 
-  // Get available slots for next 14 days
-  const now = Date.now();
-  const twoWeeksLater = now + 14 * 24 * 60 * 60 * 1000;
+  useEffect(() => {
+    if (!isOpen) {
+      setQueryParams(null);
+      return;
+    }
 
-  const availableSlots = useQuery(api.availabilitySlots.getAvailableSlots, {
-    professionalId: mentorId,
-    startDate: now,
-    endDate: twoWeeksLater,
-  });
+    const now = Date.now();
+    setQueryParams({
+      professionalId: mentorId,
+      startDate: now,
+      endDate: now + 14 * 24 * 60 * 60 * 1000,
+    });
+  }, [isOpen, mentorId]);
+
+  const availableSlots = useQuery(
+    api.availabilitySlots.getAvailableSlots,
+    queryParams ?? "skip"
+  );
+
+  // Debug logging
+  useEffect(() => {
+    if (!isOpen) return;
+
+    console.log("BookingModal opened for mentor:", mentorId);
+    console.log("Query parameters:", queryParams);
+    console.log("Available slots result:", availableSlots);
+
+    if (availableSlots === undefined) {
+      console.log("Query is still loading...");
+    } else if (availableSlots === null) {
+      console.log("Query returned null (error state)");
+    } else if (Array.isArray(availableSlots)) {
+      console.log("Query succeeded! Found slots:", availableSlots.length);
+    }
+  }, [isOpen, mentorId, queryParams, availableSlots]);
 
   const createBookingRequest = useMutation(api.careerChats.createBookingRequest);
 
@@ -136,8 +167,16 @@ export function BookingModal({
           <div className="p-6 space-y-6">
             {/* Time Slot Picker */}
             {availableSlots === undefined ? (
-              <div className="text-center py-8">
-                <p className="font-bold">Loading available time slots...</p>
+              <div className="border-3 border-black p-8 bg-white text-center">
+                <div className="flex flex-col items-center gap-4">
+                  <div className="animate-spin w-8 h-8 border-3 border-black border-t-transparent rounded-full"></div>
+                  <p className="font-bold uppercase">Loading available time slots...</p>
+                </div>
+              </div>
+            ) : availableSlots === null ? (
+              <div className="border-3 border-black p-8 bg-red-50 text-center">
+                <p className="font-bold text-red-600 uppercase">Error loading slots</p>
+                <p className="text-sm mt-2">Please try again later</p>
               </div>
             ) : (
               <TimeSlotPicker

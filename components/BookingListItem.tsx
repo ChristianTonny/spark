@@ -1,10 +1,12 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { Id } from "@/convex/_generated/dataModel";
+import { useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
 import { Button } from "./ui/button";
 import { BookingStatusBadge } from "./BookingStatusBadge";
-import { Calendar, Clock, User, MessageCircle } from "lucide-react";
+import { Calendar, Clock, User, MessageCircle, CheckCircle } from "lucide-react";
 
 type BookingStatus =
   | "pending"
@@ -48,6 +50,9 @@ export function BookingListItem({
   userType,
   onOpenChat,
 }: BookingListItemProps) {
+  const [isCompleting, setIsCompleting] = useState(false);
+  const completeSession = useMutation(api.careerChats.completeSession);
+
   const formatDate = (timestamp: number) => {
     return new Date(timestamp).toLocaleString("en-RW", {
       timeZone: "Africa/Kigali",
@@ -60,7 +65,28 @@ export function BookingListItem({
   };
 
   const otherPerson = userType === "student" ? booking.mentor : booking.student;
-  const canChat = booking.status === "confirmed" || booking.status === "completed";
+  const canChat = booking.status === "confirmed" || booking.status === "scheduled" || booking.status === "completed";
+  
+  // Check if session can be marked as complete (for any confirmed/scheduled session)
+  const canComplete = 
+    userType === "student" && 
+    (booking.status === "confirmed" || booking.status === "scheduled");
+
+  const handleCompleteSession = async () => {
+    if (!confirm("Mark this session as complete? This will move it to your past sessions.")) {
+      return;
+    }
+    
+    setIsCompleting(true);
+    try {
+      await completeSession({ chatId: booking._id });
+    } catch (error: any) {
+      console.error("Failed to complete session:", error);
+      alert(error?.message || "Failed to complete session. Please try again.");
+    } finally {
+      setIsCompleting(false);
+    }
+  };
 
   return (
     <div className="border-3 border-black bg-white shadow-brutal p-4">
@@ -123,20 +149,34 @@ export function BookingListItem({
       </div>
 
       {/* Actions */}
-      {canChat && onOpenChat && (
-        <div className="mt-4 pt-4 border-t-2 border-black">
-          <Button
-            onClick={() => onOpenChat(booking._id)}
-            className="w-full relative"
-          >
-            <MessageCircle className="w-4 h-4 mr-2" />
-            Message
-            {booking.unreadCount && booking.unreadCount > 0 && (
-              <span className="ml-2 bg-red-500 text-white px-2 py-0.5 text-xs rounded-full border-2 border-black">
-                {booking.unreadCount}
-              </span>
-            )}
-          </Button>
+      {(canChat || canComplete) && (
+        <div className="mt-4 pt-4 border-t-2 border-black flex gap-2">
+          {canChat && onOpenChat && (
+            <Button
+              onClick={() => onOpenChat(booking._id)}
+              className="flex-1 relative"
+            >
+              <MessageCircle className="w-4 h-4 mr-2" />
+              Message
+              {booking.unreadCount && booking.unreadCount > 0 && (
+                <span className="ml-2 bg-red-500 text-white px-2 py-0.5 text-xs rounded-full border-2 border-black">
+                  {booking.unreadCount}
+                </span>
+              )}
+            </Button>
+          )}
+          
+          {canComplete && (
+            <Button
+              onClick={handleCompleteSession}
+              disabled={isCompleting}
+              variant="outline"
+              className="flex-1 bg-brutal-green text-black hover:bg-brutal-green/90 border-3 border-black"
+            >
+              <CheckCircle className="w-4 h-4 mr-2" />
+              {isCompleting ? "Completing..." : "Mark Complete"}
+            </Button>
+          )}
         </div>
       )}
     </div>

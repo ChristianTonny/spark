@@ -343,4 +343,52 @@ export default defineSchema({
     totalBookings: v.number(),
     studentsReached: v.number(),
   }).index("by_user", ["userId"]),
+
+  // Notifications
+  notifications: defineTable({
+    userId: v.id("users"), // Recipient of notification
+    type: v.union(
+      v.literal("booking"),
+      v.literal("message"),
+      v.literal("review"),
+      v.literal("system")
+    ),
+    title: v.string(),
+    message: v.string(),
+    read: v.boolean(),
+    createdAt: v.number(),
+
+    // Optional links to related entities
+    relatedChatId: v.optional(v.id("careerChats")),
+    relatedUserId: v.optional(v.id("users")), // e.g., who sent the message
+
+    // Optional metadata for additional context
+    metadata: v.optional(v.any()),
+  })
+    .index("by_user", ["userId"])
+    .index("by_user_and_read", ["userId", "read"])
+    .index("by_user_and_created", ["userId", "createdAt"]),
+
+  // User Settings
+  userSettings: defineTable({
+    userId: v.id("users"),
+
+    // Notification preferences
+    emailNotifications: v.boolean(),
+    pushNotifications: v.boolean(),
+    marketingEmails: v.boolean(),
+    bookingReminders: v.boolean(),
+    messageNotifications: v.boolean(),
+
+    // Privacy settings
+    profileVisibility: v.union(
+      v.literal("public"),
+      v.literal("private")
+    ),
+    showOnlineStatus: v.boolean(),
+
+    // Timestamps
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  }).index("by_user", ["userId"]),
 });
