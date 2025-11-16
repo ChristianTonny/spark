@@ -10,7 +10,7 @@ async function getCurrentUserId(ctx: any) {
 
   const user = await ctx.db
     .query("users")
-    .withIndex("by_token", (q) => q.eq("tokenIdentifier", identity.tokenIdentifier))
+    .withIndex("by_token", (q: any) => q.eq("tokenIdentifier", identity.tokenIdentifier))
     .first();
 
   return user?._id;
@@ -116,7 +116,7 @@ export const getUpcomingSessions = query({
       .collect();
 
     // Filter for future sessions
-    const upcomingSessions = chats.filter(chat => chat.scheduledAt > now);
+    const upcomingSessions = chats.filter(chat => chat.scheduledAt && chat.scheduledAt > now);
 
     // Enrich with details
     const enrichedSessions = await Promise.all(
@@ -148,7 +148,7 @@ export const getUpcomingSessions = query({
       })
     );
 
-    return enrichedSessions.sort((a, b) => a.scheduledAt - b.scheduledAt);
+    return enrichedSessions.sort((a, b) => (a.scheduledAt || 0) - (b.scheduledAt || 0));
   },
 });
 
@@ -169,8 +169,13 @@ export const createBookingRequest = mutation({
       throw new Error("Not authenticated");
     }
 
-    const user = await ctx.db.get(userId);
-    if (!user || user.role !== "student") {
+    const userDoc = await ctx.db.get(userId);
+    if (!userDoc) {
+      throw new Error("User not found");
+    }
+    // Type guard: ensure we have a users table document
+    const user = userDoc as any;
+    if (user.role !== "student") {
       throw new Error("Only students can create booking requests");
     }
 
@@ -411,7 +416,7 @@ export const getStudentBookings = query({
       bookingsQuery = ctx.db
         .query("careerChats")
         .withIndex("by_student_and_status", (q) =>
-          q.eq("studentId", userId).eq("status", args.status)
+          q.eq("studentId", userId).eq("status", args.status!)
         );
     }
 
@@ -506,7 +511,7 @@ export const getMentorBookings = query({
       bookingsQuery = ctx.db
         .query("careerChats")
         .withIndex("by_professional_and_status", (q) =>
-          q.eq("professionalId", professional._id).eq("status", args.status)
+          q.eq("professionalId", professional._id).eq("status", args.status!)
         );
     }
 
@@ -771,7 +776,7 @@ export const rateMentor = mutation({
     }
 
     // Ensure session can be rated (confirmed, scheduled, or completed)
-    const allowableStatuses = ["completed", "confirmed", "scheduled"] as const;
+    const allowableStatuses: string[] = ["completed", "confirmed", "scheduled"];
     if (!allowableStatuses.includes(chat.status)) {
       throw new Error("Can only rate confirmed or completed sessions");
     }
@@ -1048,7 +1053,7 @@ export const updateRating = mutation({
     }
 
     // Ensure session can be rated
-    const allowableStatuses = ["completed", "confirmed", "scheduled"] as const;
+    const allowableStatuses: string[] = ["completed", "confirmed", "scheduled"];
     if (!allowableStatuses.includes(chat.status)) {
       throw new Error("Can only update ratings for confirmed or completed sessions");
     }

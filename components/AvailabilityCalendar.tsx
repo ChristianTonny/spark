@@ -139,7 +139,7 @@ export function AvailabilityCalendar({
       <div className="bg-yellow-100 border-3 border-black p-4">
         <p className="font-bold mb-2">How to use:</p>
         <ul className="list-disc list-inside space-y-1 text-sm">
-          <li>Click time slots to mark when you're available</li>
+          <li>Click time slots to mark when you&apos;re available</li>
           <li>Each slot is 1 hour long</li>
           <li>Click again to remove a slot</li>
           <li>Students will only see available future times</li>

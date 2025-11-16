@@ -147,36 +147,37 @@ export function BookingModal({
       />
 
       {/* Modal */}
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div className="bg-white border-3 border-black w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-brutal">
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4">
+        <div className="bg-white border-3 border-black w-full max-w-2xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto shadow-brutal">
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b-3 border-black">
-            <div>
-              <h2 className="font-black text-2xl uppercase">Book a Session</h2>
-              <p className="text-sm text-gray-600 mt-1">with {mentorName}</p>
+          <div className="flex items-center justify-between p-4 sm:p-6 border-b-3 border-black">
+            <div className="flex-1 min-w-0 pr-2">
+              <h2 className="font-black text-xl sm:text-2xl uppercase">Book a Session</h2>
+              <p className="text-xs sm:text-sm text-gray-600 mt-1 truncate">with {mentorName}</p>
             </div>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-gray-100 border-2 border-black transition-colors"
+              className="p-2 sm:p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-gray-100 border-2 border-black transition-colors flex-shrink-0"
+              aria-label="Close modal"
             >
-              <X className="w-6 h-6" />
+              <X className="w-5 h-5 sm:w-6 sm:h-6" />
             </button>
           </div>
 
           {/* Content */}
-          <div className="p-6 space-y-6">
+          <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
             {/* Time Slot Picker */}
             {availableSlots === undefined ? (
-              <div className="border-3 border-black p-8 bg-white text-center">
-                <div className="flex flex-col items-center gap-4">
+              <div className="border-3 border-black p-6 sm:p-8 bg-white text-center">
+                <div className="flex flex-col items-center gap-3 sm:gap-4">
                   <div className="animate-spin w-8 h-8 border-3 border-black border-t-transparent rounded-full"></div>
-                  <p className="font-bold uppercase">Loading available time slots...</p>
+                  <p className="font-bold uppercase text-sm sm:text-base">Loading available time slots...</p>
                 </div>
               </div>
             ) : availableSlots === null ? (
-              <div className="border-3 border-black p-8 bg-red-50 text-center">
-                <p className="font-bold text-red-600 uppercase">Error loading slots</p>
-                <p className="text-sm mt-2">Please try again later</p>
+              <div className="border-3 border-black p-6 sm:p-8 bg-red-50 text-center">
+                <p className="font-bold text-red-600 uppercase text-sm sm:text-base">Error loading slots</p>
+                <p className="text-xs sm:text-sm mt-2">Please try again later</p>
               </div>
             ) : (
               <TimeSlotPicker
@@ -189,13 +190,13 @@ export function BookingModal({
             {/* Career Topic (Optional) */}
             {careers.length > 0 && (
               <div>
-                <label className="block font-bold mb-2 uppercase text-sm">
+                <label className="block font-bold mb-2 uppercase text-xs sm:text-sm">
                   Career Topic (Optional)
                 </label>
                 <select
                   value={selectedCareerId}
                   onChange={(e) => setSelectedCareerId(e.target.value)}
-                  className="w-full p-3 border-3 border-black bg-white font-bold"
+                  className="w-full p-3 sm:p-3.5 border-3 border-black bg-white font-bold text-sm sm:text-base min-h-[48px]"
                 >
                   <option value="">General Discussion</option>
                   {careers.map((career) => (
@@ -209,14 +210,14 @@ export function BookingModal({
 
             {/* Message (Optional) */}
             <div>
-              <label className="block font-bold mb-2 uppercase text-sm">
+              <label className="block font-bold mb-2 uppercase text-xs sm:text-sm">
                 Message to Mentor (Optional)
               </label>
               <textarea
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 placeholder="Let the mentor know what you'd like to discuss..."
-                className="w-full p-3 border-3 border-black min-h-[100px] resize-none"
+                className="w-full p-3 sm:p-3.5 border-3 border-black min-h-[100px] sm:min-h-[120px] resize-none text-sm sm:text-base"
                 maxLength={500}
               />
               <p className="text-xs text-gray-500 mt-1">
@@ -225,18 +226,18 @@ export function BookingModal({
             </div>
 
             {/* Session Duration Info */}
-            <div className="bg-yellow-50 border-2 border-black p-4">
-              <p className="font-bold text-sm mb-1">Session Duration:</p>
-              <p className="text-sm">60 minutes</p>
+            <div className="bg-yellow-50 border-2 border-black p-3 sm:p-4">
+              <p className="font-bold text-xs sm:text-sm mb-1">Session Duration:</p>
+              <p className="text-xs sm:text-sm">60 minutes</p>
             </div>
           </div>
 
           {/* Footer */}
-          <div className="flex gap-3 p-6 border-t-3 border-black">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 p-4 sm:p-6 border-t-3 border-black">
             <Button
               onClick={handleSubmit}
               disabled={!selectedSlot || isSubmitting}
-              className="flex-1"
+              className="flex-1 min-h-[48px] text-sm sm:text-base"
             >
               {isSubmitting ? "Sending Request..." : "Send Booking Request"}
             </Button>
@@ -244,6 +245,7 @@ export function BookingModal({
               onClick={onClose}
               variant="outline"
               disabled={isSubmitting}
+              className="sm:flex-initial min-h-[48px] text-sm sm:text-base"
             >
               Cancel
             </Button>

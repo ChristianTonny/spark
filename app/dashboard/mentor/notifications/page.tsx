@@ -101,28 +101,28 @@ export default function MentorNotificationsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="container mx-auto px-4 max-w-4xl">
+    <div className="min-h-screen bg-gray-50 py-6 sm:py-8">
+      <div className="container mx-auto px-3 sm:px-4 max-w-4xl">
         {/* Header */}
-        <div className="mb-8">
+        <div className="mb-6 sm:mb-8">
           <button
             onClick={() => router.push('/dashboard/mentor')}
-            className="flex items-center gap-2 text-lg font-bold text-gray-700 hover:text-black mb-4"
+            className="flex items-center gap-2 text-sm sm:text-base font-bold text-gray-700 hover:text-black mb-3 sm:mb-4 min-h-[44px]"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
             Back to Dashboard
           </button>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
             <div>
-              <h1 className="text-4xl md:text-5xl font-black mb-2 uppercase">Notifications</h1>
-              <p className="text-lg font-bold text-gray-700">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-black mb-1 sm:mb-2 uppercase">Notifications</h1>
+              <p className="text-sm sm:text-base md:text-lg font-bold text-gray-700">
                 {unreadCount !== undefined && unreadCount > 0
                   ? `${unreadCount} unread notification${unreadCount !== 1 ? 's' : ''}`
                   : 'All caught up!'}
               </p>
             </div>
             {unreadCount !== undefined && unreadCount > 0 && (
-              <Button variant="outline" onClick={handleMarkAllRead}>
+              <Button variant="outline" onClick={handleMarkAllRead} className="min-h-[44px] text-sm sm:text-base">
                 Mark All Read
               </Button>
             )}
@@ -136,7 +136,7 @@ export default function MentorNotificationsPage() {
               <Bell className="w-16 h-16 mx-auto mb-4 text-gray-400" />
               <h2 className="text-2xl font-black mb-2">No Notifications</h2>
               <p className="text-gray-600 font-bold">
-                You're all caught up! We'll notify you when something happens.
+                You&apos;re all caught up! We&apos;ll notify you when something happens.
               </p>
             </div>
           ) : (
@@ -190,18 +190,18 @@ export default function MentorNotificationsPage() {
 
         {/* Info Card */}
         {notifications && notifications.length > 0 && (
-          <div className="mt-8 bg-brutal-blue text-white border-3 border-black shadow-brutal-lg p-6">
-            <h3 className="text-xl font-black mb-2 flex items-center gap-2">
-              <Bell className="w-5 h-5" />
+          <div className="mt-6 sm:mt-8 bg-brutal-blue text-white border-3 border-black shadow-brutal-lg p-4 sm:p-6">
+            <h3 className="text-lg sm:text-xl font-black mb-2 flex items-center gap-2">
+              <Bell className="w-4 h-4 sm:w-5 sm:h-5" />
               Notification Settings
             </h3>
-            <p className="font-bold mb-4">
+            <p className="text-sm sm:text-base font-bold mb-3 sm:mb-4">
               Manage how you receive notifications in your settings page.
             </p>
             <Button
               variant="outline"
               onClick={() => router.push('/dashboard/mentor/settings')}
-              className="bg-white text-black hover:bg-gray-100"
+              className="bg-white text-black hover:bg-gray-100 min-h-[44px] text-sm sm:text-base"
             >
               Go to Settings
             </Button>

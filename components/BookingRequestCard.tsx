@@ -136,7 +136,7 @@ export function BookingRequestCard({ booking }: BookingRequestCardProps) {
           {booking.studentMessage && (
             <div className="bg-yellow-50 border-2 border-black p-3">
               <p className="font-bold text-sm mb-1">Message from Student:</p>
-              <p className="text-sm italic">"{booking.studentMessage}"</p>
+              <p className="text-sm italic">&quot;{booking.studentMessage}&quot;</p>
             </div>
           )}
         </div>

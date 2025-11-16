@@ -261,7 +261,7 @@ export default function MentorProfilePage({
                             {session.feedback && (
                               <div>
                                 <span className="font-bold text-sm text-gray-600">Your Feedback:</span>
-                                <p className="mt-1 text-gray-700 font-bold italic">"{session.feedback}"</p>
+                                <p className="mt-1 text-gray-700 font-bold italic">&quot;{session.feedback}&quot;</p>
                               </div>
                             )}
                           </div>

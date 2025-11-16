@@ -98,11 +98,11 @@ export default function CareersPage() {
 
   return (
     <div className="min-h-screen py-4 sm:py-8">
-      <div className="container mx-auto px-4 max-w-7xl">
+      <div className="container mx-auto px-3 sm:px-4 max-w-7xl">
         {/* Header */}
         <div className="mb-6 sm:mb-8">
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black mb-3 sm:mb-4">Explore Careers</h1>
-          <p className="text-base sm:text-lg md:text-xl text-gray-700">
+          <p className="text-sm sm:text-base md:text-lg text-gray-700">
             Browse {allCareers?.length || 0}+ career paths and find your future
           </p>
         </div>
@@ -218,7 +218,7 @@ export default function CareersPage() {
               >
                 <div className="bg-white border-3 border-brutal-border shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all overflow-hidden h-full flex flex-col">
                   {/* Image */}
-                  <div className="relative h-40 sm:h-48 overflow-hidden border-b-3 border-brutal-border">
+                  <div className="relative h-44 sm:h-48 md:h-52 overflow-hidden border-b-3 border-brutal-border">
                     <img
                       src={career.videoThumbnail}
                       alt={career.title}
@@ -229,32 +229,32 @@ export default function CareersPage() {
                         {career.category}
                       </span>
                     </div>
-                    
+
                     {/* Comparison Checkbox */}
                     <button
                       onClick={(e) => handleToggleSelection(e, career._id)}
-                      className={`absolute bottom-2 sm:bottom-3 left-2 sm:left-3 p-2 min-h-[40px] min-w-[40px] border-2 border-brutal-border shadow-brutal-sm hover:bg-brutal-blue hover:text-white transition-colors ${
+                      className={`absolute bottom-2 sm:bottom-3 left-2 sm:left-3 p-2 sm:p-2.5 min-h-[44px] min-w-[44px] border-2 border-brutal-border shadow-brutal-sm hover:bg-brutal-blue hover:text-white active:scale-95 transition-all ${
                         selectedForComparison.has(career._id) ? 'bg-brutal-blue text-white' : 'bg-white'
                       }`}
                       aria-label={selectedForComparison.has(career._id) ? 'Remove from comparison' : 'Add to comparison'}
                       title={selectedForComparison.has(career._id) ? 'Remove from comparison' : 'Add to comparison'}
                     >
                       {selectedForComparison.has(career._id) ? (
-                        <Check className="w-5 h-5" />
+                        <Check className="w-4 h-4 sm:w-5 sm:h-5" />
                       ) : (
-                        <GitCompare className="w-5 h-5" />
+                        <GitCompare className="w-4 h-4 sm:w-5 sm:h-5" />
                       )}
                     </button>
-                    
+
                     <button
                       onClick={(e) => handleBookmark(e, career._id, career.title)}
-                      className={`absolute top-2 sm:top-3 left-2 sm:left-3 p-2 min-h-[40px] min-w-[40px] border-2 border-brutal-border shadow-brutal-sm hover:bg-brutal-yellow transition-colors ${
+                      className={`absolute top-2 sm:top-3 left-2 sm:left-3 p-2 sm:p-2.5 min-h-[44px] min-w-[44px] border-2 border-brutal-border shadow-brutal-sm hover:bg-brutal-yellow active:scale-95 transition-all ${
                         bookmarkedIds?.includes(career._id) ? 'bg-brutal-yellow' : 'bg-white'
                       }`}
                       aria-label={bookmarkedIds?.includes(career._id) ? 'Remove bookmark' : 'Add bookmark'}
                       title={bookmarkedIds?.includes(career._id) ? 'Remove bookmark' : 'Add bookmark'}
                     >
-                      <Bookmark className={`w-5 h-5 ${bookmarkedIds?.includes(career._id) ? 'fill-current' : ''}`} />
+                      <Bookmark className={`w-4 h-4 sm:w-5 sm:h-5 ${bookmarkedIds?.includes(career._id) ? 'fill-current' : ''}`} />
                     </button>
                   </div>
 
@@ -318,15 +318,15 @@ export default function CareersPage() {
 
         {/* CTA Section */}
         {allCareers && allCareers.length > 0 && (
-          <div className="mt-16 text-center">
-            <div className="inline-block p-8 bg-brutal-blue text-white border-3 border-brutal-border shadow-brutal-xl">
-              <h3 className="text-3xl font-black mb-4">Not sure where to start?</h3>
-              <p className="text-lg mb-6 opacity-90">
+          <div className="mt-12 sm:mt-16 text-center">
+            <div className="inline-block p-6 sm:p-8 bg-brutal-blue text-white border-3 border-brutal-border shadow-brutal-xl">
+              <h3 className="text-2xl sm:text-3xl font-black mb-3 sm:mb-4">Not sure where to start?</h3>
+              <p className="text-base sm:text-lg mb-4 sm:mb-6 opacity-90">
                 Take our assessment to find careers that match your interests
               </p>
               <Link
                 href="/assessments"
-                className="inline-block px-8 py-4 bg-white text-brutal-blue font-bold uppercase border-3 border-brutal-border shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all"
+                className="inline-block px-6 sm:px-8 py-3 sm:py-4 min-h-[48px] bg-white text-brutal-blue font-bold uppercase border-3 border-brutal-border shadow-brutal hover:shadow-brutal-lg active:shadow-none transition-all text-sm sm:text-base"
               >
                 Take Assessment
               </Link>
@@ -340,14 +340,15 @@ export default function CareersPage() {
 
       {/* Floating Compare Button */}
       {selectedForComparison.size > 0 && (
-        <div className="fixed bottom-6 right-6 z-50">
+        <div className="fixed bottom-4 sm:bottom-6 right-4 sm:right-6 left-4 sm:left-auto z-50">
           <button
             onClick={handleCompare}
-            className="px-6 py-4 bg-brutal-blue text-white font-bold uppercase border-3 border-black shadow-brutal-lg hover:shadow-brutal-xl hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all flex items-center gap-3"
+            className="w-full sm:w-auto px-4 sm:px-6 py-3 sm:py-4 min-h-[52px] bg-brutal-blue text-white font-bold uppercase border-3 border-black shadow-brutal-lg hover:shadow-brutal-xl active:shadow-brutal transition-all flex items-center justify-center gap-2 sm:gap-3 text-sm sm:text-base"
           >
-            <GitCompare className="w-5 h-5" />
-            Compare Selected ({selectedForComparison.size})
-            <ArrowRight className="w-5 h-5" />
+            <GitCompare className="w-4 h-4 sm:w-5 sm:h-5" />
+            <span className="hidden sm:inline">Compare Selected ({selectedForComparison.size})</span>
+            <span className="sm:hidden">Compare ({selectedForComparison.size})</span>
+            <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
         </div>
       )}

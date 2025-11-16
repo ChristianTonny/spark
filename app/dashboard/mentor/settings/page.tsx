@@ -107,28 +107,28 @@ export default function MentorSettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="container mx-auto px-4 max-w-4xl">
+    <div className="min-h-screen bg-gray-50 py-6 sm:py-8">
+      <div className="container mx-auto px-3 sm:px-4 max-w-4xl">
         {/* Header */}
-        <div className="mb-8">
+        <div className="mb-6 sm:mb-8">
           <button
             onClick={() => router.push('/dashboard/mentor')}
-            className="flex items-center gap-2 text-lg font-bold text-gray-700 hover:text-black mb-4"
+            className="flex items-center gap-2 text-sm sm:text-base font-bold text-gray-700 hover:text-black mb-3 sm:mb-4 min-h-[44px]"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
             Back to Dashboard
           </button>
-          <h1 className="text-4xl md:text-5xl font-black mb-2 uppercase">Settings</h1>
-          <p className="text-lg font-bold text-gray-700">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-black mb-2 uppercase">Settings</h1>
+          <p className="text-base sm:text-lg font-bold text-gray-700">
             Manage your account preferences
           </p>
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           {/* Notification Settings */}
-          <div className="bg-white border-3 border-black shadow-brutal-lg p-6">
-            <h2 className="text-2xl font-black mb-4 uppercase flex items-center gap-2">
-              <Bell className="w-6 h-6" />
+          <div className="bg-white border-3 border-black shadow-brutal-lg p-4 sm:p-6">
+            <h2 className="text-lg sm:text-xl md:text-2xl font-black mb-3 sm:mb-4 uppercase flex items-center gap-2">
+              <Bell className="w-5 h-5 sm:w-6 sm:h-6" />
               Notifications
             </h2>
             <div className="space-y-4">
@@ -230,9 +230,9 @@ export default function MentorSettingsPage() {
           </div>
 
           {/* Privacy Settings */}
-          <div className="bg-white border-3 border-black shadow-brutal-lg p-6">
-            <h2 className="text-2xl font-black mb-4 uppercase flex items-center gap-2">
-              <Shield className="w-6 h-6" />
+          <div className="bg-white border-3 border-black shadow-brutal-lg p-4 sm:p-6">
+            <h2 className="text-lg sm:text-xl md:text-2xl font-black mb-3 sm:mb-4 uppercase flex items-center gap-2">
+              <Shield className="w-5 h-5 sm:w-6 sm:h-6" />
               Privacy
             </h2>
             <div className="space-y-4">
@@ -241,10 +241,10 @@ export default function MentorSettingsPage() {
                 <p className="text-sm text-gray-600 font-bold mb-3">
                   Control who can see your mentor profile
                 </p>
-                <div className="flex gap-3">
+                <div className="flex gap-2 sm:gap-3">
                   <button
                     onClick={() => setSettings({ ...settings, profileVisibility: 'public' })}
-                    className={`flex-1 px-4 py-3 border-3 border-black font-bold uppercase text-sm transition-all ${
+                    className={`flex-1 px-3 sm:px-4 py-3 min-h-[48px] border-3 border-black font-bold uppercase text-xs sm:text-sm transition-all ${
                       settings.profileVisibility === 'public'
                         ? 'bg-brutal-blue text-white shadow-brutal'
                         : 'bg-white hover:shadow-brutal'
@@ -255,7 +255,7 @@ export default function MentorSettingsPage() {
                   </button>
                   <button
                     onClick={() => setSettings({ ...settings, profileVisibility: 'private' })}
-                    className={`flex-1 px-4 py-3 border-3 border-black font-bold uppercase text-sm transition-all ${
+                    className={`flex-1 px-3 sm:px-4 py-3 min-h-[48px] border-3 border-black font-bold uppercase text-xs sm:text-sm transition-all ${
                       settings.profileVisibility === 'private'
                         ? 'bg-brutal-blue text-white shadow-brutal'
                         : 'bg-white hover:shadow-brutal'
@@ -272,7 +272,7 @@ export default function MentorSettingsPage() {
                   <div>
                     <h3 className="font-black">Show Online Status</h3>
                     <p className="text-sm text-gray-600 font-bold">
-                      Let students see when you're online
+                      Let students see when you&apos;re online
                     </p>
                   </div>
                   <button
@@ -293,9 +293,9 @@ export default function MentorSettingsPage() {
           </div>
 
           {/* Account Information */}
-          <div className="bg-white border-3 border-black shadow-brutal-lg p-6">
-            <h2 className="text-2xl font-black mb-4 uppercase flex items-center gap-2">
-              <Mail className="w-6 h-6" />
+          <div className="bg-white border-3 border-black shadow-brutal-lg p-4 sm:p-6">
+            <h2 className="text-lg sm:text-xl md:text-2xl font-black mb-3 sm:mb-4 uppercase flex items-center gap-2">
+              <Mail className="w-5 h-5 sm:w-6 sm:h-6" />
               Account
             </h2>
             <div className="space-y-4">
@@ -321,8 +321,8 @@ export default function MentorSettingsPage() {
           </div>
 
           {/* Danger Zone */}
-          <div className="bg-red-50 border-3 border-red-500 shadow-brutal-lg p-6">
-            <h2 className="text-2xl font-black mb-4 uppercase text-red-600">Danger Zone</h2>
+          <div className="bg-red-50 border-3 border-red-500 shadow-brutal-lg p-4 sm:p-6">
+            <h2 className="text-lg sm:text-xl md:text-2xl font-black mb-3 sm:mb-4 uppercase text-red-600">Danger Zone</h2>
             <div className="space-y-4">
               <div>
                 <h3 className="font-black mb-2">Reset All Settings</h3>
@@ -352,11 +352,11 @@ export default function MentorSettingsPage() {
           </div>
 
           {/* Save Button */}
-          <div className="flex gap-4">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
             <Button
               onClick={handleSaveSettings}
               size="lg"
-              className="flex-1"
+              className="flex-1 min-h-[48px] text-sm sm:text-base"
             >
               Save Settings
             </Button>
@@ -364,6 +364,7 @@ export default function MentorSettingsPage() {
               variant="outline"
               size="lg"
               onClick={() => router.push('/dashboard/mentor')}
+              className="min-h-[48px] text-sm sm:text-base"
             >
               Cancel
             </Button>

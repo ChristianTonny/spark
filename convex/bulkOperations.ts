@@ -113,6 +113,10 @@ export const importStudents = mutation({
           school: student.school.trim(),
           district: "", // Can be added to CSV if needed
           interests: [], // Will be filled in by student later
+          careersExplored: 0,
+          chatsCompleted: 0,
+          chatsUpcoming: 0,
+          assessmentsTaken: 0,
         });
 
         result.success++;

@@ -10,7 +10,7 @@ async function getCurrentUserId(ctx: any) {
 
   const user = await ctx.db
     .query("users")
-    .withIndex("by_token", (q) => q.eq("tokenIdentifier", identity.tokenIdentifier))
+    .withIndex("by_token", (q: any) => q.eq("tokenIdentifier", identity.tokenIdentifier))
     .first();
 
   return user?._id;
