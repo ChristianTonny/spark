@@ -38,6 +38,12 @@ export default defineSchema({
     school: v.optional(v.string()),
     district: v.optional(v.string()),
     interests: v.optional(v.array(v.string())),
+    // Additional profile fields
+    bio: v.optional(v.string()),
+    location: v.optional(v.string()),
+    dateOfBirth: v.optional(v.string()),
+    careerGoals: v.optional(v.string()),
+    // Stats
     careersExplored: v.number(),
     chatsCompleted: v.number(),
     chatsUpcoming: v.number(),

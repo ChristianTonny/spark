@@ -4,33 +4,56 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, User, Mail, School, GraduationCap, MapPin, Calendar, Save, Camera } from 'lucide-react';
 import Link from 'next/link';
+import { useQuery, useMutation } from 'convex/react';
+import { api } from '../../../../convex/_generated/api';
+import { useConvexAuth } from '@/lib/hooks/useConvexAuth';
+import { Spinner } from '@/components/loading-skeleton';
 
 export default function StudentProfilePage() {
   const router = useRouter();
+  const { user: currentUser, isLoading: authLoading } = useConvexAuth();
   const [isSaving, setIsSaving] = useState(false);
-  
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+
+  // Fetch current user data and student profile
+  const studentProfile = useQuery(api.studentProfiles.getCurrent);
+  const updateUserProfile = useMutation(api.users.updateProfile);
+  const upsertStudentProfile = useMutation(api.studentProfiles.upsert);
+
   // Profile state
   const [profile, setProfile] = useState({
-    firstName: 'Alex',
-    lastName: 'Johnson',
-    email: 'alex.johnson@email.com',
-    school: 'Lincoln High School',
-    grade: '11th Grade',
-    location: 'Seattle, WA',
-    dateOfBirth: '2007-03-15',
-    bio: 'Passionate about technology and design. Interested in careers that combine creativity with problem-solving.',
-    interests: ['Technology', 'Design', 'Science', 'Art'],
-    careerGoals: 'I want to become a UX Designer and create products that help people.',
-    phone: '(555) 123-4567',
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    school: '',
+    grade: '9th Grade',
+    location: '',
+    dateOfBirth: '',
+    bio: '',
+    interests: [] as string[],
+    careerGoals: '',
   });
 
-  // Load profile from localStorage on mount
+  // Load user and profile data into form state
   useEffect(() => {
-    const savedProfile = localStorage.getItem('studentProfile');
-    if (savedProfile) {
-      setProfile(JSON.parse(savedProfile));
+    if (currentUser && studentProfile !== undefined) {
+      setProfile({
+        firstName: currentUser.firstName || '',
+        lastName: currentUser.lastName || '',
+        email: currentUser.email || '',
+        phone: currentUser.phone || '',
+        school: studentProfile?.school || '',
+        grade: studentProfile?.gradeLevel || '9th Grade',
+        location: studentProfile?.location || '',
+        dateOfBirth: studentProfile?.dateOfBirth || '',
+        bio: studentProfile?.bio || '',
+        interests: studentProfile?.interests || [],
+        careerGoals: studentProfile?.careerGoals || '',
+      });
     }
-  }, []);
+  }, [currentUser, studentProfile]);
 
   const handleInputChange = (field: string, value: string) => {
     setProfile(prev => ({ ...prev, [field]: value }));
@@ -45,16 +68,42 @@ export default function StudentProfilePage() {
     }));
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     setIsSaving(true);
-    
-    // Save to localStorage
-    localStorage.setItem('studentProfile', JSON.stringify(profile));
-    
-    setTimeout(() => {
+    setError(null);
+    setSuccess(false);
+
+    try {
+      // Update user profile (firstName, lastName, phone)
+      await updateUserProfile({
+        firstName: profile.firstName,
+        lastName: profile.lastName,
+        phone: profile.phone || undefined,
+      });
+
+      // Update student profile (school, grade, bio, interests, etc.)
+      await upsertStudentProfile({
+        gradeLevel: profile.grade,
+        school: profile.school || undefined,
+        interests: profile.interests.length > 0 ? profile.interests : undefined,
+        bio: profile.bio || undefined,
+        location: profile.location || undefined,
+        dateOfBirth: profile.dateOfBirth || undefined,
+        careerGoals: profile.careerGoals || undefined,
+      });
+
+      setSuccess(true);
+
+      // Show success for 3 seconds
+      setTimeout(() => {
+        setSuccess(false);
+      }, 3000);
+    } catch (err) {
+      console.error('Failed to save profile:', err);
+      setError(err instanceof Error ? err.message : 'Failed to save profile. Please try again.');
+    } finally {
       setIsSaving(false);
-      alert('Profile saved successfully!');
-    }, 1000);
+    }
   };
 
   const availableInterests = [
@@ -62,6 +111,27 @@ export default function StudentProfilePage() {
     'Writing', 'Mathematics', 'Business', 'Healthcare', 'Engineering',
     'Education', 'Environment', 'Social Work', 'Law', 'Finance'
   ];
+
+  if (authLoading || (currentUser && studentProfile === undefined)) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <Spinner size="lg" />
+          <p className="mt-4 text-xl font-bold">Loading your profile...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!currentUser) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-xl font-bold">Please sign in to edit your profile</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 py-4 sm:py-8">
@@ -79,6 +149,20 @@ export default function StudentProfilePage() {
           <p className="text-base sm:text-lg md:text-xl text-gray-700">Update your personal information and preferences</p>
         </div>
 
+        {/* Success Message */}
+        {success && (
+          <div className="bg-green-100 border-3 border-green-500 p-4 mb-6">
+            <p className="font-bold text-green-900">✓ Profile saved successfully!</p>
+          </div>
+        )}
+
+        {/* Error Message */}
+        {error && (
+          <div className="bg-red-100 border-3 border-red-500 p-4 mb-6">
+            <p className="font-bold text-red-900">✗ {error}</p>
+          </div>
+        )}
+
         {/* Profile Picture Section */}
         <div className="bg-white border-3 border-brutal-border shadow-brutal-lg p-4 sm:p-6 md:p-8 mb-6">
           <h2 className="text-xl sm:text-2xl font-black uppercase mb-4 sm:mb-6 flex items-center gap-2">
@@ -88,21 +172,15 @@ export default function StudentProfilePage() {
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
             <div className="w-24 h-24 sm:w-32 sm:h-32 bg-brutal-blue border-3 border-brutal-border shadow-brutal flex items-center justify-center flex-shrink-0">
               <img
-                src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${profile.firstName}${profile.lastName}`}
+                src={currentUser.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${profile.firstName}${profile.lastName}`}
                 alt="Profile"
                 className="w-full h-full"
               />
             </div>
             <div className="text-center sm:text-left">
               <p className="text-xs sm:text-sm text-gray-600 font-bold mb-3">
-                Your avatar is automatically generated from your name
+                Your avatar is automatically generated from your Clerk account
               </p>
-              <button
-                className="px-4 py-2 min-h-[44px] bg-white border-2 border-brutal-border shadow-brutal-sm hover:shadow-brutal transition-all font-bold text-xs sm:text-sm uppercase"
-                onClick={() => alert('Avatar customization coming soon!')}
-              >
-                Change Avatar Style
-              </button>
             </div>
           </div>
         </div>
@@ -141,7 +219,7 @@ export default function StudentProfilePage() {
               />
             </div>
 
-            {/* Email */}
+            {/* Email (read-only) */}
             <div>
               <label className="block font-black text-xs sm:text-sm uppercase mb-2 flex items-center gap-2">
                 <Mail className="w-4 h-4" />
@@ -150,9 +228,11 @@ export default function StudentProfilePage() {
               <input
                 type="email"
                 value={profile.email}
-                onChange={(e) => handleInputChange('email', e.target.value)}
-                className="w-full px-3 sm:px-4 py-2 sm:py-3 min-h-[44px] border-2 border-brutal-border shadow-brutal-sm focus:shadow-brutal focus:outline-none transition-all font-bold text-sm sm:text-base"
+                disabled
+                className="w-full px-3 sm:px-4 py-2 sm:py-3 min-h-[44px] border-2 border-brutal-border shadow-brutal-sm bg-gray-100 font-bold text-sm sm:text-base cursor-not-allowed"
+                title="Email cannot be changed here. Update in Clerk account settings."
               />
+              <p className="text-xs text-gray-500 mt-1 font-bold">Email managed by your account</p>
             </div>
 
             {/* Phone */}
@@ -164,6 +244,7 @@ export default function StudentProfilePage() {
                 type="tel"
                 value={profile.phone}
                 onChange={(e) => handleInputChange('phone', e.target.value)}
+                placeholder="(250) 123-4567"
                 className="w-full px-3 sm:px-4 py-2 sm:py-3 min-h-[44px] border-2 border-brutal-border shadow-brutal-sm focus:shadow-brutal focus:outline-none transition-all font-bold text-sm sm:text-base"
               />
             </div>
@@ -192,7 +273,7 @@ export default function StudentProfilePage() {
                 type="text"
                 value={profile.location}
                 onChange={(e) => handleInputChange('location', e.target.value)}
-                placeholder="City, State"
+                placeholder="City, Province"
                 className="w-full px-3 sm:px-4 py-2 sm:py-3 min-h-[44px] border-2 border-brutal-border shadow-brutal-sm focus:shadow-brutal focus:outline-none transition-all font-bold text-sm sm:text-base"
               />
             </div>
@@ -217,6 +298,7 @@ export default function StudentProfilePage() {
                 type="text"
                 value={profile.school}
                 onChange={(e) => handleInputChange('school', e.target.value)}
+                placeholder="Enter your school name"
                 className="w-full px-3 sm:px-4 py-2 sm:py-3 min-h-[44px] border-2 border-brutal-border shadow-brutal-sm focus:shadow-brutal focus:outline-none transition-all font-bold text-sm sm:text-base"
               />
             </div>
@@ -235,6 +317,9 @@ export default function StudentProfilePage() {
                 <option value="10th Grade">10th Grade</option>
                 <option value="11th Grade">11th Grade</option>
                 <option value="12th Grade">12th Grade</option>
+                <option value="Senior 4">Senior 4</option>
+                <option value="Senior 5">Senior 5</option>
+                <option value="Senior 6">Senior 6</option>
               </select>
             </div>
           </div>
@@ -242,7 +327,8 @@ export default function StudentProfilePage() {
 
         {/* Bio */}
         <div className="bg-white border-3 border-brutal-border shadow-brutal-lg p-4 sm:p-6 md:p-8 mb-6">
-          <h2 className="text-xl sm:text-2xl font-black uppercase mb-4 sm:mb-6">About Me</h2>          <div className="mb-6">
+          <h2 className="text-xl sm:text-2xl font-black uppercase mb-4 sm:mb-6">About Me</h2>
+          <div className="mb-6">
             <label className="block font-black text-xs sm:text-sm uppercase mb-2">
               Bio
             </label>
@@ -251,6 +337,7 @@ export default function StudentProfilePage() {
               onChange={(e) => handleInputChange('bio', e.target.value)}
               rows={4}
               placeholder="Tell us about yourself..."
+              maxLength={500}
               className="w-full px-3 sm:px-4 py-2 sm:py-3 border-2 border-brutal-border shadow-brutal-sm focus:shadow-brutal focus:outline-none transition-all font-bold resize-none text-sm sm:text-base"
             />
             <p className="text-xs text-gray-500 mt-2 font-bold">

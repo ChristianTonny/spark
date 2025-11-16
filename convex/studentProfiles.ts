@@ -41,6 +41,10 @@ export const upsert = mutation({
     school: v.optional(v.string()),
     district: v.optional(v.string()),
     interests: v.optional(v.array(v.string())),
+    bio: v.optional(v.string()),
+    location: v.optional(v.string()),
+    dateOfBirth: v.optional(v.string()),
+    careerGoals: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const user = await getCurrentUserOrThrow(ctx);
@@ -62,6 +66,10 @@ export const upsert = mutation({
         school: args.school,
         district: args.district,
         interests: args.interests,
+        bio: args.bio,
+        location: args.location,
+        dateOfBirth: args.dateOfBirth,
+        careerGoals: args.careerGoals,
       });
       return { profileId: existing._id, created: false };
     } else {
@@ -72,6 +80,10 @@ export const upsert = mutation({
         school: args.school,
         district: args.district,
         interests: args.interests,
+        bio: args.bio,
+        location: args.location,
+        dateOfBirth: args.dateOfBirth,
+        careerGoals: args.careerGoals,
         careersExplored: 0,
         chatsCompleted: 0,
         chatsUpcoming: 0,

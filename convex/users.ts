@@ -178,6 +178,30 @@ export const updateRole = mutation({
 });
 
 /**
+ * Update user profile info (name, phone)
+ */
+export const updateProfile = mutation({
+  args: {
+    firstName: v.optional(v.string()),
+    lastName: v.optional(v.string()),
+    phone: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const user = await getCurrentUserOrThrow(ctx);
+
+    // Build update object with only provided fields
+    const updates: any = {};
+    if (args.firstName !== undefined) updates.firstName = args.firstName;
+    if (args.lastName !== undefined) updates.lastName = args.lastName;
+    if (args.phone !== undefined) updates.phone = args.phone;
+
+    await ctx.db.patch(user._id, updates);
+
+    return { success: true };
+  },
+});
+
+/**
  * Get user by ID
  */
 export const getById = query({
