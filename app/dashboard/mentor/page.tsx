@@ -231,6 +231,12 @@ export default function MentorDashboardPage() {
               <h3 className="text-xl font-black uppercase mb-4">Quick Actions</h3>
               <div className="space-y-3">
                 <Link
+                  href="/dashboard/mentor/bookings"
+                  className="block w-full px-4 py-3 bg-brutal-green text-white font-bold uppercase text-sm border-2 border-brutal-border shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all text-center"
+                >
+                  Manage Bookings
+                </Link>
+                <Link
                   href="/dashboard/mentor/availability"
                   className="block w-full px-4 py-3 bg-brutal-blue text-white font-bold uppercase text-sm border-2 border-brutal-border shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all text-center"
                 >
@@ -244,7 +250,7 @@ export default function MentorDashboardPage() {
                 </Link>
                 <Link
                   href="/mentors"
-                  className="block w-full px-4 py-3 bg-brutal-green font-bold uppercase text-sm border-2 border-brutal-border shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all text-center"
+                  className="block w-full px-4 py-3 bg-gray-700 text-white font-bold uppercase text-sm border-2 border-brutal-border shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all text-center"
                 >
                   View Public Profile
                 </Link>

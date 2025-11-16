@@ -7,9 +7,14 @@ import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { MentorCardSkeleton } from '@/components/loading-skeleton';
 import { EmptyState } from '@/components/error-state';
+import { BookingModal } from '@/components/BookingModal';
+import { Id } from "@/convex/_generated/dataModel";
 
 export default function MentorsPage() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedMentorId, setSelectedMentorId] = useState<Id<"users"> | null>(null);
+  const [selectedMentorName, setSelectedMentorName] = useState('');
+  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
 
   // Fetch professionals from Convex
   const allProfessionals = useQuery(api.professionals.search, {
@@ -107,11 +112,9 @@ export default function MentorsPage() {
                     {/* CTA Button */}
                     <button
                       onClick={() => {
-                        if (mentor.calendlyUrl) {
-                          window.open(mentor.calendlyUrl, '_blank', 'noopener,noreferrer');
-                        } else {
-                          alert(`Booking with ${mentor.firstName} ${mentor.lastName} - Calendly link not available yet.`);
-                        }
+                        setSelectedMentorId(mentor.userId);
+                        setSelectedMentorName(`${mentor.firstName} ${mentor.lastName}`);
+                        setIsBookingModalOpen(true);
                       }}
                       className="w-full px-4 py-3 bg-primary text-white font-bold uppercase text-sm border-3 border-black shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all flex items-center justify-center gap-2"
                     >
@@ -181,6 +184,20 @@ export default function MentorsPage() {
           </Link>
         </div>
       </div>
+
+      {/* Booking Modal */}
+      {selectedMentorId && (
+        <BookingModal
+          isOpen={isBookingModalOpen}
+          onClose={() => {
+            setIsBookingModalOpen(false);
+            setSelectedMentorId(null);
+            setSelectedMentorName('');
+          }}
+          mentorId={selectedMentorId}
+          mentorName={selectedMentorName}
+        />
+      )}
     </div>
   );
 }
