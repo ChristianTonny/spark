@@ -131,8 +131,11 @@ export default function EducatorDashboard() {
                 </button>
                 <button 
                   onClick={() => {
-                    const csvContent = `Name,Email,Grade,School,Assessments,Saved Careers\n${filteredStudents.map(s => 
-                      `"${s.firstName} ${s.lastName}","${s.email}","${s.gradeLevel}","${s.school}",${s.assessmentsCompleted},${s.careersExplored}`
+                    // Helper to escape CSV values (double internal quotes and wrap in quotes)
+                    const escapeCSV = (val: string) => `"${val.replace(/"/g, '""')}"`;
+
+                    const csvContent = `Name,Email,Grade,School,Assessments,Saved Careers\n${filteredStudents.map(s =>
+                      `${escapeCSV(`${s.firstName} ${s.lastName}`)},${escapeCSV(s.email)},${escapeCSV(s.gradeLevel)},${escapeCSV(s.school)},${s.assessmentsCompleted},${s.careersExplored}`
                     ).join('\n')}`;
                     const blob = new Blob([csvContent], { type: 'text/csv' });
                     const url = window.URL.createObjectURL(blob);

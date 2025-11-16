@@ -37,38 +37,46 @@ export const getAllStudents = query({
       return !isDemoEmail && !isDemoName;
     });
 
-    // Enrich with profile data and assessment count
-    const enrichedStudents = await Promise.all(
-      realStudents.map(async (user) => {
-        const profile = await ctx.db
-          .query("studentProfiles")
-          .withIndex("by_user", (q) => q.eq("userId", user._id))
-          .unique();
+    // Fix N+1 query problem: Load all data upfront instead of per-student
+    const allProfiles = await ctx.db.query("studentProfiles").collect();
+    const allAssessmentResults = await ctx.db.query("assessmentResults").collect();
+    const allSavedCareers = await ctx.db.query("savedCareers").collect();
 
-        const assessmentResults = await ctx.db
-          .query("assessmentResults")
-          .withIndex("by_student", (q) => q.eq("studentId", user._id.toString()))
-          .collect();
+    // Create lookup maps for O(1) access
+    const profilesByUser = new Map();
+    allProfiles.forEach(p => profilesByUser.set(p.userId.toString(), p));
 
-        const savedCareers = await ctx.db
-          .query("savedCareers")
-          .withIndex("by_student", (q) => q.eq("studentId", user._id.toString()))
-          .collect();
+    const assessmentCountByStudent = new Map();
+    allAssessmentResults.forEach(a => {
+      const count = assessmentCountByStudent.get(a.studentId) || 0;
+      assessmentCountByStudent.set(a.studentId, count + 1);
+    });
 
-        return {
-          _id: user._id,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          email: user.email,
-          avatar: user.avatar,
-          gradeLevel: profile?.gradeLevel || "Not set",
-          school: profile?.school || "Not set",
-          assessmentsCompleted: assessmentResults.length,
-          careersExplored: savedCareers.length,
-          lastActive: user.createdAt, // We don't track last active yet
-        };
-      })
-    );
+    const savedCareerCountByStudent = new Map();
+    allSavedCareers.forEach(s => {
+      const count = savedCareerCountByStudent.get(s.studentId) || 0;
+      savedCareerCountByStudent.set(s.studentId, count + 1);
+    });
+
+    // Enrich students with data from lookup maps (no queries in loop)
+    const enrichedStudents = realStudents.map((user) => {
+      const profile = profilesByUser.get(user._id.toString());
+      const assessmentsCompleted = assessmentCountByStudent.get(user._id.toString()) || 0;
+      const careersExplored = savedCareerCountByStudent.get(user._id.toString()) || 0;
+
+      return {
+        _id: user._id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        avatar: user.avatar,
+        gradeLevel: profile?.gradeLevel || "Not set",
+        school: profile?.school || "Not set",
+        assessmentsCompleted,
+        careersExplored,
+        lastActive: user.createdAt, // We don't track last active yet
+      };
+    });
 
     return enrichedStudents;
   },
