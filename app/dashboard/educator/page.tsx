@@ -201,11 +201,17 @@ export default function EducatorDashboard() {
                     >
                       <div className="flex items-center gap-2">
                         <div className="w-8 h-8 border-2 border-black shadow-brutal-sm overflow-hidden">
-                          <img
-                            src={student.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${student.firstName} ${student.lastName}&backgroundColor=ff6b6b`}
-                            alt={`${student.firstName} ${student.lastName}`}
-                            className="w-full h-full object-cover"
-                          />
+                          {student.avatar ? (
+                            <img
+                              src={student.avatar}
+                              alt={`${student.firstName} ${student.lastName}`}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-red-500 text-white font-black text-xs">
+                              {student.firstName[0]}{student.lastName[0]}
+                            </div>
+                          )}
                         </div>
                         <span className="font-bold text-sm">
                           {student.firstName} {student.lastName}
@@ -328,11 +334,21 @@ export default function EducatorDashboard() {
                             <div className="flex items-center gap-3">
                               <div className="relative">
                                 <div className="w-10 h-10 border-2 border-black shadow-brutal-sm overflow-hidden flex-shrink-0">
-                                  <img
-                                    src={student.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${student.firstName} ${student.lastName}&backgroundColor=ffb627`}
-                                    alt={`${student.firstName} ${student.lastName}`}
-                                    className="w-full h-full object-cover"
-                                  />
+                                  {student.avatar ? (
+                                    <img
+                                      src={student.avatar}
+                                      alt={`${student.firstName} ${student.lastName}`}
+                                      className="w-full h-full object-cover"
+                                    />
+                                  ) : (
+                                    <div className={`w-full h-full flex items-center justify-center text-white font-black text-sm ${
+                                      activityStatus.color === 'bg-green-500' ? 'bg-brutal-green' :
+                                      activityStatus.color === 'bg-yellow-500' ? 'bg-brutal-yellow' :
+                                      'bg-brutal-orange'
+                                    }`}>
+                                      {student.firstName[0]}{student.lastName[0]}
+                                    </div>
+                                  )}
                                 </div>
                                 {/* Activity Indicator */}
                                 <div

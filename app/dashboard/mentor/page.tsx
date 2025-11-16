@@ -112,6 +112,33 @@ export default function MentorDashboardPage() {
           </div>
         </div>
 
+        {/* Navigation Tabs */}
+        <div className="mb-6 sm:mb-8 border-b-3 border-brutal-border bg-white">
+          <div className="flex gap-2 sm:gap-0 overflow-x-auto">
+            <Link
+              href="/dashboard/mentor"
+              className="px-4 sm:px-6 py-3 font-black uppercase text-sm sm:text-base min-h-[44px] bg-brutal-blue text-white border-3 border-brutal-border shadow-brutal flex items-center gap-2 whitespace-nowrap"
+            >
+              <TrendingUp className="w-4 h-4" />
+              Dashboard
+            </Link>
+            <Link
+              href="/dashboard/mentor/sessions"
+              className="px-4 sm:px-6 py-3 font-black uppercase text-sm sm:text-base min-h-[44px] bg-white text-gray-700 border-3 border-transparent hover:border-brutal-border transition-all flex items-center gap-2 whitespace-nowrap"
+            >
+              <Calendar className="w-4 h-4" />
+              Sessions
+            </Link>
+            <Link
+              href="/dashboard/mentor/availability"
+              className="px-4 sm:px-6 py-3 font-black uppercase text-sm sm:text-base min-h-[44px] bg-white text-gray-700 border-3 border-transparent hover:border-brutal-border transition-all flex items-center gap-2 whitespace-nowrap"
+            >
+              <Clock className="w-4 h-4" />
+              Availability
+            </Link>
+          </div>
+        </div>
+
         {/* Profile Overview Card */}
         <div className="mb-6 sm:mb-8 bg-gradient-to-r from-brutal-orange to-brutal-pink border-3 border-brutal-border shadow-brutal-lg p-4 sm:p-6 md:p-8">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">

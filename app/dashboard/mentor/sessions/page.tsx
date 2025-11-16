@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import {
   Calendar, Clock, User, Video, ArrowLeft,
   CheckCircle, XCircle, AlertCircle, ExternalLink,
-  ChevronDown, ChevronUp, Mail, Star
+  ChevronDown, ChevronUp, Mail, Star, TrendingUp
 } from 'lucide-react';
 import { useQuery } from 'convex/react';
 import { api } from '../../../../convex/_generated/api';
@@ -305,17 +305,37 @@ export default function MentorSessionsPage() {
       <div className="container mx-auto px-4 max-w-6xl">
         {/* Header */}
         <div className="mb-6 sm:mb-8">
-          <Link
-            href="/dashboard/mentor"
-            className="inline-flex items-center gap-2 text-brutal-blue hover:underline mb-4 font-bold min-h-[44px]"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            Back to Dashboard
-          </Link>
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-black mb-2">My Sessions</h1>
           <p className="text-base sm:text-lg text-gray-700">
             Manage your mentorship sessions with students
           </p>
+        </div>
+
+        {/* Navigation Tabs */}
+        <div className="mb-6 border-b-3 border-brutal-border bg-white">
+          <div className="flex gap-2 sm:gap-0 overflow-x-auto">
+            <Link
+              href="/dashboard/mentor"
+              className="px-4 sm:px-6 py-3 font-black uppercase text-sm sm:text-base min-h-[44px] bg-white text-gray-700 border-3 border-transparent hover:border-brutal-border transition-all flex items-center gap-2 whitespace-nowrap"
+            >
+              <TrendingUp className="w-4 h-4" />
+              Dashboard
+            </Link>
+            <Link
+              href="/dashboard/mentor/sessions"
+              className="px-4 sm:px-6 py-3 font-black uppercase text-sm sm:text-base min-h-[44px] bg-brutal-blue text-white border-3 border-brutal-border shadow-brutal flex items-center gap-2 whitespace-nowrap"
+            >
+              <Calendar className="w-4 h-4" />
+              Sessions
+            </Link>
+            <Link
+              href="/dashboard/mentor/availability"
+              className="px-4 sm:px-6 py-3 font-black uppercase text-sm sm:text-base min-h-[44px] bg-white text-gray-700 border-3 border-transparent hover:border-brutal-border transition-all flex items-center gap-2 whitespace-nowrap"
+            >
+              <Clock className="w-4 h-4" />
+              Availability
+            </Link>
+          </div>
         </div>
 
         {/* Tab Navigation */}

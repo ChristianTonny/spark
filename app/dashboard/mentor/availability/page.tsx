@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Clock, Plus, Trash2, Save, Calendar } from 'lucide-react';
+import { ArrowLeft, Clock, Plus, Trash2, Save, Calendar, TrendingUp } from 'lucide-react';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../../../convex/_generated/api';
 import { useRoleGuard } from '../../../../lib/hooks/useRoleGuard';
@@ -111,17 +111,37 @@ export default function AvailabilityPage() {
       <div className="container mx-auto px-4 max-w-4xl">
         {/* Header */}
         <div className="mb-6 sm:mb-8">
-          <Link
-            href="/dashboard/mentor"
-            className="inline-flex items-center gap-2 text-brutal-blue hover:underline mb-4 font-bold min-h-[44px]"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            Back to Dashboard
-          </Link>
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-black mb-2">Set Your Availability</h1>
           <p className="text-base sm:text-lg text-gray-700">
             Choose when you're available for mentorship sessions. Students will be able to book sessions during these times.
           </p>
+        </div>
+
+        {/* Navigation Tabs */}
+        <div className="mb-6 border-b-3 border-brutal-border bg-white">
+          <div className="flex gap-2 sm:gap-0 overflow-x-auto">
+            <Link
+              href="/dashboard/mentor"
+              className="px-4 sm:px-6 py-3 font-black uppercase text-sm sm:text-base min-h-[44px] bg-white text-gray-700 border-3 border-transparent hover:border-brutal-border transition-all flex items-center gap-2 whitespace-nowrap"
+            >
+              <TrendingUp className="w-4 h-4" />
+              Dashboard
+            </Link>
+            <Link
+              href="/dashboard/mentor/sessions"
+              className="px-4 sm:px-6 py-3 font-black uppercase text-sm sm:text-base min-h-[44px] bg-white text-gray-700 border-3 border-transparent hover:border-brutal-border transition-all flex items-center gap-2 whitespace-nowrap"
+            >
+              <Calendar className="w-4 h-4" />
+              Sessions
+            </Link>
+            <Link
+              href="/dashboard/mentor/availability"
+              className="px-4 sm:px-6 py-3 font-black uppercase text-sm sm:text-base min-h-[44px] bg-brutal-blue text-white border-3 border-brutal-border shadow-brutal flex items-center gap-2 whitespace-nowrap"
+            >
+              <Clock className="w-4 h-4" />
+              Availability
+            </Link>
+          </div>
         </div>
 
         {/* Loading State */}
