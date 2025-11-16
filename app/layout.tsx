@@ -4,6 +4,7 @@ import "./globals.css";
 import Navigation from "@/components/navigation";
 import { ConvexClientProvider } from "./ConvexClientProvider";
 import { UserSyncProvider } from "./UserSyncProvider";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -35,8 +36,10 @@ export default function RootLayout({
       <body className={inter.className}>
         <ConvexClientProvider>
           <UserSyncProvider>
-            <Navigation />
-            {children}
+            <ErrorBoundary>
+              <Navigation />
+              {children}
+            </ErrorBoundary>
           </UserSyncProvider>
         </ConvexClientProvider>
       </body>
