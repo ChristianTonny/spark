@@ -2,15 +2,18 @@ import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { getCurrentUserOrThrow } from "./users";
 
-// Get all professionals
+// Get all professionals (only approved for public viewing)
 export const list = query({
   args: {},
   handler: async (ctx) => {
     const professionals = await ctx.db.query("professionals").collect();
 
+    // Filter to only approved professionals (isApproved must be explicitly true)
+    const approvedProfessionals = professionals.filter((p) => p.isApproved === true);
+
     // Enrich with user data
     const enriched = await Promise.all(
-      professionals.map(async (prof) => {
+      approvedProfessionals.map(async (prof) => {
         const user = await ctx.db.get(prof.userId);
         return { ...prof, ...user };
       })
@@ -20,13 +23,16 @@ export const list = query({
   },
 });
 
-// Search professionals
+// Search professionals (only approved for public viewing)
 export const search = query({
   args: {
     searchQuery: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     let professionals = await ctx.db.query("professionals").collect();
+
+    // Filter to only approved professionals
+    professionals = professionals.filter((p) => p.isApproved === true);
 
     // Filter by search query
     if (args.searchQuery && args.searchQuery !== '') {
@@ -50,15 +56,15 @@ export const search = query({
   },
 });
 
-// Get professionals by career IDs
+// Get professionals by career IDs (only approved for public viewing)
 export const getByCareerIds = query({
   args: { careerIds: v.array(v.string()) },
   handler: async (ctx, args) => {
     const professionals = await ctx.db.query("professionals").collect();
 
-    // Filter professionals who can discuss these careers
+    // Filter professionals who can discuss these careers AND are approved
     const filtered = professionals.filter((p) =>
-      p.careerIds.some((id) => args.careerIds.includes(id))
+      p.isApproved === true && p.careerIds.some((id) => args.careerIds.includes(id))
     );
 
     // Enrich with user data
@@ -130,7 +136,7 @@ export const create = mutation({
       throw new Error("Professional profile already exists");
     }
 
-    // Create professional profile
+    // Create professional profile (not approved by default)
     const professionalId = await ctx.db.insert("professionals", {
       userId: user._id,
       company: args.company,
@@ -146,6 +152,7 @@ export const create = mutation({
       totalEarnings: 0,
       earningsThisMonth: 0,
       earningsLastMonth: 0,
+      isApproved: false, // Requires admin approval
     });
 
     return professionalId;
@@ -226,7 +233,7 @@ export const recalculateMentorStats = mutation({
 
 /**
  * Get detailed mentor profile by user ID
- * Used for individual mentor profile pages
+ * Used for individual mentor profile pages (only approved mentors)
  */
 export const getMentorProfile = query({
   args: {
@@ -240,6 +247,11 @@ export const getMentorProfile = query({
       .first();
 
     if (!professional) {
+      return null;
+    }
+
+    // Only return approved mentor profiles for public viewing
+    if (!professional.isApproved) {
       return null;
     }
 

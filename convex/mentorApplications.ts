@@ -19,6 +19,16 @@ export const submit = mutation({
     focusAreas: v.array(v.string()),
   },
   handler: async (ctx, args) => {
+    // Check if email already applied
+    const existing = await ctx.db
+      .query("mentorApplications")
+      .withIndex("by_email", (q) => q.eq("email", args.email))
+      .first();
+
+    if (existing) {
+      throw new Error("An application with this email already exists. Please contact support if you need to update your application.");
+    }
+
     const applicationId = await ctx.db.insert("mentorApplications", {
       ...args,
       status: "pending",
@@ -26,6 +36,29 @@ export const submit = mutation({
     });
 
     return { applicationId };
+  },
+});
+
+// Check application status (by email, no auth required)
+export const checkStatus = query({
+  args: {
+    email: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const application = await ctx.db
+      .query("mentorApplications")
+      .withIndex("by_email", (q) => q.eq("email", args.email))
+      .first();
+
+    if (!application) {
+      return null;
+    }
+
+    return {
+      status: application.status,
+      submittedAt: application.submittedAt,
+      reviewedAt: application.reviewedAt,
+    };
   },
 });
 

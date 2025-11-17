@@ -21,6 +21,14 @@ export default function Navigation() {
   const getNavLinks = () => {
     const commonLinks = [];
 
+    // Admins see admin dashboard
+    if (userRole === 'admin') {
+      commonLinks.push(
+        { href: '/admin', label: 'Admin Dashboard', icon: LayoutDashboard }
+      );
+      return commonLinks;
+    }
+
     // Students see career exploration pages + dashboard + bookings
     if (userRole === 'student') {
       commonLinks.push(

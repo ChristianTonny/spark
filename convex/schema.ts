@@ -21,7 +21,8 @@ export default defineSchema({
       v.literal("mentor"),
       v.literal("educator"),
       v.literal("company"),
-      v.literal("partner")
+      v.literal("partner"),
+      v.literal("admin")
     ),
 
     createdAt: v.number(),
@@ -127,7 +128,15 @@ export default defineSchema({
     totalEarnings: v.number(),
     earningsThisMonth: v.number(),
     earningsLastMonth: v.number(),
-  }).index("by_user", ["userId"]),
+
+    // Approval system
+    isApproved: v.optional(v.boolean()),          // Admin approval status (default: false)
+    approvedAt: v.optional(v.number()),           // When approved
+    approvedBy: v.optional(v.id("users")),        // Which admin approved
+    applicationId: v.optional(v.id("mentorApplications")), // Link to application
+  })
+    .index("by_user", ["userId"])
+    .index("by_approved", ["isApproved"]),
 
   // Mentor applications (before they become professionals)
   mentorApplications: defineTable({

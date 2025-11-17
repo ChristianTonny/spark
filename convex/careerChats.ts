@@ -1539,3 +1539,19 @@ export const getStudentSessionsWithMentor = query({
     })).sort((a, b) => (b.scheduledAt || 0) - (a.scheduledAt || 0));
   },
 });
+
+/**
+ * Get all career chats (admin only)
+ * Used for admin dashboard
+ */
+export const listAll = query({
+  args: {},
+  handler: async (ctx) => {
+    const chats = await ctx.db
+      .query("careerChats")
+      .order("desc")
+      .collect();
+
+    return chats;
+  },
+});

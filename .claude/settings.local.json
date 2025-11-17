@@ -16,7 +16,9 @@
       "Bash(vercel --version)",
       "Bash(npm install:*)",
       "Bash(cat:*)",
-      "Bash(wsl echo $USERPROFILE)"
+      "Bash(wsl echo $USERPROFILE)",
+      "Bash(npx convex deploy)",
+      "Bash(npx convex run:*)"
     ],
     "deny": [],
     "ask": []

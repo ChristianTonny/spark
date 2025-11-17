@@ -75,7 +75,8 @@ export const store = mutation({
       v.literal("mentor"),
       v.literal("educator"),
       v.literal("company"),
-      v.literal("partner")
+      v.literal("partner"),
+      v.literal("admin")
     )),
   },
   handler: async (ctx, args) => {
@@ -84,22 +85,31 @@ export const store = mutation({
       throw new Error("Unauthenticated");
     }
 
-    // Check if user already exists
-    const existingUser = await ctx.db
+    // Check if user already exists by tokenIdentifier
+    let existingUser = await ctx.db
       .query("users")
       .withIndex("by_token", (q) => q.eq("tokenIdentifier", identity.tokenIdentifier))
       .first();
 
+    // If not found by token, check by email (for users created manually like admins)
+    if (!existingUser) {
+      existingUser = await ctx.db
+        .query("users")
+        .withIndex("by_email", (q) => q.eq("email", args.email))
+        .first();
+    }
+
     if (existingUser) {
-      // Update existing user
+      // Update existing user, preserving their role (important for admins!)
       await ctx.db.patch(existingUser._id, {
+        tokenIdentifier: identity.tokenIdentifier, // Link Clerk to existing user
         clerkId: args.clerkId,
         email: args.email,
         firstName: args.firstName,
         lastName: args.lastName,
         avatar: args.avatar,
         phone: args.phone,
-        // Only update role if provided and different
+        // IMPORTANT: Don't overwrite role if not provided (preserves admin role)
         ...(args.role && { role: args.role }),
       });
       return existingUser._id;
@@ -144,7 +154,8 @@ export const updateRole = mutation({
       v.literal("mentor"),
       v.literal("educator"),
       v.literal("company"),
-      v.literal("partner")
+      v.literal("partner"),
+      v.literal("admin")
     ),
   },
   handler: async (ctx, args) => {

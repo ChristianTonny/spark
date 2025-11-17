@@ -4,11 +4,22 @@ import Link from 'next/link';
 import { ArrowRight, Sparkles, Users, Video, Target } from 'lucide-react';
 import { useQuery } from "convex/react";
 import { api } from "../convex/_generated/api";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function LandingPage() {
+  const router = useRouter();
   const featuredCareers = useQuery(api.careers.getFeatured);
   const categories = useQuery(api.careers.getCategories);
   const careerCount = useQuery(api.careers.count);
+  const isAdmin = useQuery(api.admin.isAdmin);
+
+  // Redirect admins to admin dashboard
+  useEffect(() => {
+    if (isAdmin === true) {
+      router.push("/admin");
+    }
+  }, [isAdmin, router]);
 
   // Loading state
   if (featuredCareers === undefined || categories === undefined || careerCount === undefined) {

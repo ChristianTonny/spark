@@ -441,3 +441,16 @@ export const getCategories = query({
     return categories.sort();
   },
 });
+
+// Get all articles (admin only)
+export const listAll = query({
+  args: {},
+  handler: async (ctx) => {
+    const articles = await ctx.db
+      .query("articles")
+      .order("desc")
+      .collect();
+
+    return articles;
+  },
+});
