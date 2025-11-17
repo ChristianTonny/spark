@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
@@ -12,6 +13,9 @@ import { Calendar, Clock, CheckCircle, User } from "lucide-react";
 type TabType = "pending" | "confirmed" | "past";
 
 export default function StudentBookingsPage() {
+  const searchParams = useSearchParams();
+  const openChatParam = searchParams.get('openChat');
+  
   const [activeTab, setActiveTab] = useState<TabType>("pending");
   const [selectedChatId, setSelectedChatId] = useState<Id<"careerChats"> | null>(null);
   const [chatInfo, setChatInfo] = useState<{
@@ -29,6 +33,29 @@ export default function StudentBookingsPage() {
   const completedBookings = useQuery(api.careerChats.getStudentBookings, {
     status: "completed",
   });
+
+  // Auto-open chat from URL parameter (from notification click)
+  useEffect(() => {
+    if (openChatParam && (confirmedBookings || completedBookings)) {
+      const chatId = openChatParam as Id<"careerChats">;
+      
+      // Look for the booking in confirmed or completed bookings
+      const allBookings = [...(confirmedBookings || []), ...(completedBookings || [])];
+      const booking = allBookings.find(b => b._id === chatId);
+      
+      if (booking) {
+        // Switch to the appropriate tab
+        if (booking.status === 'completed') {
+          setActiveTab('past');
+        } else if (booking.status === 'confirmed') {
+          setActiveTab('confirmed');
+        }
+        
+        // Open the chat
+        handleOpenChat(chatId, booking);
+      }
+    }
+  }, [openChatParam, confirmedBookings, completedBookings]);
 
   const handleOpenChat = (
     chatId: Id<"careerChats">,

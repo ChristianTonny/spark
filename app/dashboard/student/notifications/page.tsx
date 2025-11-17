@@ -82,8 +82,8 @@ export default function StudentNotificationsPage() {
 
     // Navigate to appropriate page based on type
     if (notification.type === 'message' && notification.relatedChatId) {
-      // For messages, navigate to bookings page where chat is accessible
-      router.push('/dashboard/student/bookings');
+      // For messages, navigate to bookings page with chat ID to auto-open
+      router.push(`/dashboard/student/bookings?openChat=${notification.relatedChatId}`);
     } else if (notification.type === 'booking') {
       router.push('/dashboard/student/bookings');
     } else {

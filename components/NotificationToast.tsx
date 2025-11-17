@@ -68,11 +68,12 @@ export function NotificationToast({ notification, onClose, onMarkAsRead, userRol
     }
 
     // Navigate based on notification type
-    if (notification.type === 'message') {
-      // Navigate to bookings page where chat is accessible
+    if (notification.type === 'message' && notification.relatedChatId) {
+      // Navigate to bookings/dashboard with chat ID to auto-open
       if (userRole === 'student') {
-        router.push(`/dashboard/student/bookings`);
+        router.push(`/dashboard/student/bookings?openChat=${notification.relatedChatId}`);
       } else {
+        // For mentors, just go to dashboard - they'll see it in recent bookings
         router.push(`/dashboard/mentor`);
       }
     } else if (notification.type === 'booking') {

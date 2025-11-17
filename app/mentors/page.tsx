@@ -147,7 +147,7 @@ export default function MentorsPage() {
                     {/* Status and Rating */}
                     <div className="flex items-center justify-between pt-3 border-t-2 border-gray-200">
                       <div className="flex items-center gap-1">
-                        <Star className="w-4 h-4 fill-accent text-accent" />
+                        <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
                         <span className="font-black text-sm">{mentor.rating.toFixed(1)}</span>
                       </div>
 
@@ -264,7 +264,7 @@ export default function MentorsPage() {
                     {/* Stats */}
                     <div className="flex items-center gap-4 mb-4 pb-4 border-b-2 border-gray-200">
                       <div className="flex items-center gap-1">
-                        <Star className="w-5 h-5 fill-accent text-accent" />
+                        <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
                         <span className="font-black text-lg">{mentor.rating}</span>
                       </div>
                       <div className="flex items-center gap-1">
