@@ -8,6 +8,7 @@
  * @module
  */
 
+import type * as articles from "../articles.js";
 import type * as assessments from "../assessments.js";
 import type * as availabilitySlots from "../availabilitySlots.js";
 import type * as bulkOperations from "../bulkOperations.js";
@@ -44,6 +45,7 @@ import type {
  * ```
  */
 declare const fullApi: ApiFromModules<{
+  articles: typeof articles;
   assessments: typeof assessments;
   availabilitySlots: typeof availabilitySlots;
   bulkOperations: typeof bulkOperations;

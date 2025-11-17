@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Menu, X, Compass, BookOpen, Users, LayoutDashboard, Calendar, Clock, DollarSign, Bell } from 'lucide-react';
+import { Menu, X, Compass, BookOpen, Users, LayoutDashboard, Calendar, Clock, DollarSign, Bell, Newspaper } from 'lucide-react';
 import { useState } from 'react';
 import { SignedIn, SignedOut, UserButton, useUser } from '@clerk/nextjs';
 import { useQuery } from 'convex/react';
@@ -25,6 +25,7 @@ export default function Navigation() {
     if (userRole === 'student') {
       commonLinks.push(
         { href: '/careers', label: 'Careers', icon: Compass },
+        { href: '/blog', label: 'Resources', icon: Newspaper },
         { href: '/assessments', label: 'Assessments', icon: BookOpen },
         { href: '/mentors', label: 'Mentors', icon: Users },
         { href: '/dashboard/student/bookings', label: 'My Bookings', icon: Calendar },
@@ -37,6 +38,7 @@ export default function Navigation() {
       commonLinks.push(
         { href: '/dashboard/mentor', label: 'Dashboard', icon: LayoutDashboard },
         { href: '/dashboard/mentor/bookings', label: 'Bookings', icon: Calendar },
+        { href: '/dashboard/mentor/articles', label: 'My Articles', icon: Newspaper },
         { href: '/dashboard/mentor/availability', label: 'Availability', icon: Clock },
         { href: '/dashboard/mentor/earnings', label: 'Earnings', icon: DollarSign }
       );
@@ -67,19 +69,47 @@ export default function Navigation() {
 
           {/* Desktop Navigation */}
           <div className="hidden xl:flex items-center gap-2">
-            {navLinks.map((link) => {
-              const Icon = link.icon;
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className="flex items-center gap-2 px-3 py-2 font-bold uppercase text-xs border-2 border-transparent hover:border-brutal-border hover:shadow-brutal-sm transition-all"
-                >
-                  <Icon className="w-4 h-4" />
-                  {link.label}
-                </Link>
-              );
-            })}
+            {/* Public links - always visible */}
+            <SignedOut>
+              <Link
+                href="/careers"
+                className="flex items-center gap-2 px-3 py-2 font-bold uppercase text-xs border-2 border-transparent hover:border-brutal-border hover:shadow-brutal-sm transition-all"
+              >
+                <Compass className="w-4 h-4" />
+                Careers
+              </Link>
+              <Link
+                href="/blog"
+                className="flex items-center gap-2 px-3 py-2 font-bold uppercase text-xs border-2 border-transparent hover:border-brutal-border hover:shadow-brutal-sm transition-all"
+              >
+                <Newspaper className="w-4 h-4" />
+                Resources
+              </Link>
+              <Link
+                href="/mentors"
+                className="flex items-center gap-2 px-3 py-2 font-bold uppercase text-xs border-2 border-transparent hover:border-brutal-border hover:shadow-brutal-sm transition-all"
+              >
+                <Users className="w-4 h-4" />
+                Mentors
+              </Link>
+            </SignedOut>
+
+            {/* Signed-in user links */}
+            <SignedIn>
+              {navLinks.map((link) => {
+                const Icon = link.icon;
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className="flex items-center gap-2 px-3 py-2 font-bold uppercase text-xs border-2 border-transparent hover:border-brutal-border hover:shadow-brutal-sm transition-all"
+                  >
+                    <Icon className="w-4 h-4" />
+                    {link.label}
+                  </Link>
+                );
+              })}
+            </SignedIn>
 
             <div className="ml-4 flex items-center gap-2">
               {/* Signed In - Show Notification Bell and User Button */}
@@ -144,20 +174,51 @@ export default function Navigation() {
       {mobileMenuOpen && (
         <div className="xl:hidden border-t-3 border-brutal-border bg-white animate-in fade-in slide-in-from-top-5 duration-200">
           <div className="container mx-auto px-4 py-6 space-y-3">
-            {navLinks.map((link) => {
-              const Icon = link.icon;
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-3 px-4 py-4 min-h-[52px] font-bold uppercase text-sm border-2 border-brutal-border shadow-brutal-sm active:shadow-none transition-all bg-white"
-                >
-                  <Icon className="w-5 h-5 flex-shrink-0" />
-                  <span>{link.label}</span>
-                </Link>
-              );
-            })}
+            {/* Public links for signed-out users */}
+            <SignedOut>
+              <Link
+                href="/careers"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center gap-3 px-4 py-4 min-h-[52px] font-bold uppercase text-sm border-2 border-brutal-border shadow-brutal-sm active:shadow-none transition-all bg-white"
+              >
+                <Compass className="w-5 h-5 flex-shrink-0" />
+                <span>Careers</span>
+              </Link>
+              <Link
+                href="/blog"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center gap-3 px-4 py-4 min-h-[52px] font-bold uppercase text-sm border-2 border-brutal-border shadow-brutal-sm active:shadow-none transition-all bg-white"
+              >
+                <Newspaper className="w-5 h-5 flex-shrink-0" />
+                <span>Resources</span>
+              </Link>
+              <Link
+                href="/mentors"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center gap-3 px-4 py-4 min-h-[52px] font-bold uppercase text-sm border-2 border-brutal-border shadow-brutal-sm active:shadow-none transition-all bg-white"
+              >
+                <Users className="w-5 h-5 flex-shrink-0" />
+                <span>Mentors</span>
+              </Link>
+            </SignedOut>
+
+            {/* Signed-in user links */}
+            <SignedIn>
+              {navLinks.map((link) => {
+                const Icon = link.icon;
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center gap-3 px-4 py-4 min-h-[52px] font-bold uppercase text-sm border-2 border-brutal-border shadow-brutal-sm active:shadow-none transition-all bg-white"
+                  >
+                    <Icon className="w-5 h-5 flex-shrink-0" />
+                    <span>{link.label}</span>
+                  </Link>
+                );
+              })}
+            </SignedIn>
 
             <div className="pt-4 space-y-3 border-t-3 border-brutal-border mt-4">
               {/* Signed In - Show Notification Link and User Button */}

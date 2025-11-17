@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
   User, Calendar, MessageCircle, Star, TrendingUp, Clock,
-  Users, ArrowRight, CheckCircle, Settings, Bell, DollarSign, Award
+  Users, ArrowRight, CheckCircle, Settings, Bell, DollarSign, Award, Newspaper
 } from 'lucide-react';
 import { useQuery } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
@@ -16,6 +16,7 @@ export default function MentorDashboardPage() {
   const router = useRouter();
   const { user, isLoading: authLoading } = useConvexAuth();
   const professional = useQuery(api.professionals.getCurrentProfessional);
+  const myArticles = useQuery(api.articles.getMyArticles);
 
   // Protect this page - only mentors can access
   useRoleGuard(['mentor']);
@@ -235,6 +236,13 @@ export default function MentorDashboardPage() {
                   className="block w-full px-4 py-3 bg-brutal-green text-black font-bold uppercase text-sm border-2 border-brutal-border shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all text-center"
                 >
                   Manage Bookings
+                </Link>
+                <Link
+                  href="/dashboard/mentor/articles"
+                  className="block w-full px-4 py-3 bg-brutal-purple text-white font-bold uppercase text-sm border-2 border-brutal-border shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all text-center flex items-center justify-center gap-2"
+                >
+                  <Newspaper className="w-4 h-4" />
+                  My Articles {myArticles && `(${myArticles.length})`}
                 </Link>
                 <Link
                   href="/dashboard/mentor/availability"

@@ -391,4 +391,57 @@ export default defineSchema({
     createdAt: v.number(),
     updatedAt: v.number(),
   }).index("by_user", ["userId"]),
+
+  // Articles/Blog posts by mentors
+  articles: defineTable({
+    // Author info
+    authorId: v.id("users"), // Mentor who wrote it
+    authorName: v.string(), // Cached for performance
+    authorImage: v.optional(v.string()),
+    authorTitle: v.optional(v.string()), // e.g., "Senior Software Engineer at Google"
+
+    // Content
+    title: v.string(),
+    slug: v.string(), // URL-friendly version (auto-generated)
+    coverImage: v.optional(v.string()), // Hero/thumbnail image
+    excerpt: v.string(), // Short summary (150-200 chars)
+    content: v.string(), // Full article content (rich text/HTML)
+
+    // Organization
+    category: v.string(), // "Career Advice", "Tech", "Interview Tips", etc.
+    tags: v.array(v.string()), // ["resume", "interview", "internship"]
+
+    // Publishing
+    status: v.union(
+      v.literal("draft"),
+      v.literal("published")
+    ),
+    publishedAt: v.optional(v.number()), // When it went live
+
+    // Engagement metrics
+    viewCount: v.number(), // Page views
+    readTime: v.number(), // Estimated read time in minutes
+
+    // Timestamps
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_author", ["authorId"])
+    .index("by_status", ["status"])
+    .index("by_category", ["category"])
+    .index("by_published_date", ["publishedAt"])
+    .index("by_slug", ["slug"])
+    .searchIndex("search_title", {
+      searchField: "title",
+    }),
+
+  // Article bookmarks (students saving articles for later)
+  articleBookmarks: defineTable({
+    userId: v.id("users"),
+    articleId: v.id("articles"),
+    createdAt: v.number(),
+  })
+    .index("by_user", ["userId"])
+    .index("by_article", ["articleId"])
+    .index("by_user_and_article", ["userId", "articleId"]),
 });
