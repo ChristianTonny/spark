@@ -24,6 +24,7 @@ import { CareerDetailSkeleton } from "@/components/loading-skeleton";
 import { NotFoundError } from "@/components/error-state";
 import Link from "next/link";
 import { useConvexAuth } from "@/lib/hooks/useConvexAuth";
+import { SalaryCalculator } from "@/components/SalaryCalculator";
 
 export default function CareerDetailPage() {
   const params = useParams();
@@ -300,6 +301,15 @@ export default function CareerDetailPage() {
             </Card>
           </div>
         )}
+
+        {/* Salary Calculator */}
+        <div className="mb-8 sm:mb-10 md:mb-12">
+          <SalaryCalculator
+            minSalary={career.salaryMin}
+            maxSalary={career.salaryMax}
+            careerTitle={career.title}
+          />
+        </div>
 
         {/* Career Path */}
         {career.careerPath.length > 0 && (

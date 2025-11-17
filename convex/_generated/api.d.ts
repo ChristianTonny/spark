@@ -13,6 +13,7 @@ import type * as availabilitySlots from "../availabilitySlots.js";
 import type * as bulkOperations from "../bulkOperations.js";
 import type * as careerChats from "../careerChats.js";
 import type * as careers from "../careers.js";
+import type * as earnings from "../earnings.js";
 import type * as educators from "../educators.js";
 import type * as mentorApplications from "../mentorApplications.js";
 import type * as messages from "../messages.js";
@@ -47,6 +48,7 @@ declare const fullApi: ApiFromModules<{
   bulkOperations: typeof bulkOperations;
   careerChats: typeof careerChats;
   careers: typeof careers;
+  earnings: typeof earnings;
   educators: typeof educators;
   mentorApplications: typeof mentorApplications;
   messages: typeof messages;

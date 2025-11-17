@@ -23,6 +23,7 @@ export default function MentorsPage() {
     mentorName: string;
     scheduledAt?: number;
   } | null>(null);
+  
 
   const { user } = useConvexAuth();
 
@@ -51,9 +52,11 @@ export default function MentorsPage() {
 
   const isLoading = allProfessionals === undefined;
 
-  // Sort mentors to show current user first, then similar careers
+  // Sort mentors
   const sortedProfessionals = useMemo(() => {
     if (!allProfessionals) return [];
+
+    let filtered = [...allProfessionals];
 
     // If user is a mentor viewing their own profile
     if (currentProfessional && user?.role === 'mentor') {
@@ -61,8 +64,8 @@ export default function MentorsPage() {
       const currentCareerIds = currentProfessional.careerIds || [];
 
       // Separate current user from others
-      const currentUser = allProfessionals.find(p => p.userId === currentUserId);
-      const otherMentors = allProfessionals.filter(p => p.userId !== currentUserId);
+      const currentUser = filtered.find(p => p.userId === currentUserId);
+      const otherMentors = filtered.filter(p => p.userId !== currentUserId);
 
       // Sort others by career similarity
       const sortedOthers = otherMentors.sort((a, b) => {
@@ -75,7 +78,7 @@ export default function MentorsPage() {
       return currentUser ? [currentUser, ...sortedOthers] : sortedOthers;
     }
 
-    return allProfessionals;
+    return filtered;
   }, [allProfessionals, currentProfessional, user]);
 
   return (
@@ -89,9 +92,8 @@ export default function MentorsPage() {
           </p>
         </div>
 
-        {/* Search and Filters */}
-        <div className="mb-6 sm:mb-8 space-y-4">
-          {/* Search Bar */}
+        {/* Search Bar */}
+        <div className="mb-6 sm:mb-8">
           <div className="relative">
             <Search className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-5 h-5 sm:w-6 sm:h-6 text-gray-500" />
             <input
@@ -102,7 +104,6 @@ export default function MentorsPage() {
               className="w-full pl-11 sm:pl-14 pr-3 sm:pr-4 py-3 sm:py-4 text-base sm:text-lg font-bold border-3 border-black shadow-brutal focus:shadow-brutal-lg focus:outline-none transition-all"
             />
           </div>
-
         </div>
 
         {/* Your Mentors Section (for students who have booked mentors) */}
