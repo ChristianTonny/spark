@@ -199,13 +199,10 @@ export default function ArticleDetailPage({ params }: { params: { slug: string }
 
           {/* Article Content */}
           <div className="prose prose-lg max-w-none mb-12">
-            <div className="text-gray-800 leading-relaxed whitespace-pre-wrap font-medium text-lg">
-              {article.content.split("\n\n").map((paragraph, index) => (
-                <p key={index} className="mb-6">
-                  {paragraph}
-                </p>
-              ))}
-            </div>
+            <div
+              className="text-gray-800 leading-relaxed ProseMirror"
+              dangerouslySetInnerHTML={{ __html: article.content }}
+            />
           </div>
 
           {/* Tags */}

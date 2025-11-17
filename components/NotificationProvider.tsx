@@ -47,6 +47,15 @@ export function NotificationProvider({ children }: NotificationProviderProps) {
     }
   }, [currentUser]);
 
+  const showToast = (notification: any) => {
+    // Don't show if already in toasts
+    if (toasts.some(t => t._id === notification._id)) {
+      return;
+    }
+
+    setToasts(prev => [...prev, notification]);
+  };
+
   // Listen for new notifications
   useEffect(() => {
     if (!notifications || notifications.length === 0) {
@@ -68,16 +77,8 @@ export function NotificationProvider({ children }: NotificationProviderProps) {
     if (latestNotification._id !== lastNotificationId) {
       setLastNotificationId(latestNotification._id);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [notifications, lastNotificationId]);
-
-  const showToast = (notification: any) => {
-    // Don't show if already in toasts
-    if (toasts.some(t => t._id === notification._id)) {
-      return;
-    }
-
-    setToasts(prev => [...prev, notification]);
-  };
 
   const handleCloseToast = (notificationId: Id<'notifications'>) => {
     setToasts(prev => prev.filter(t => t._id !== notificationId));

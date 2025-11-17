@@ -186,7 +186,7 @@ export const getStudentDetail = query({
     const savedCareerDetails = await Promise.all(
       savedCareers.map(async (save) => {
         const career = await ctx.db.get(save.careerId as any);
-        if (career && 'title' in career && 'category' in career) {
+        if (career && 'title' in career && 'category' in career && 'shortDescription' in career) {
           return {
             _id: career._id,
             title: career.title,

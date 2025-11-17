@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
@@ -12,7 +12,7 @@ import { Calendar, Clock, CheckCircle, User } from "lucide-react";
 
 type TabType = "pending" | "confirmed" | "past";
 
-export default function StudentBookingsPage() {
+function StudentBookingsContent() {
   const searchParams = useSearchParams();
   const openChatParam = searchParams.get('openChat');
   
@@ -329,5 +329,22 @@ export default function StudentBookingsPage() {
         bookingInfo={chatInfo || undefined}
       />
     </div>
+  );
+}
+
+export default function StudentBookingsPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-brutal-bg p-8">
+        <div className="max-w-6xl mx-auto">
+          <h1 className="text-4xl font-black mb-8 text-brutal-text border-4 border-black p-4 bg-white shadow-brutal">
+            MY BOOKINGS
+          </h1>
+          <div className="text-center text-brutal-text">Loading...</div>
+        </div>
+      </div>
+    }>
+      <StudentBookingsContent />
+    </Suspense>
   );
 }

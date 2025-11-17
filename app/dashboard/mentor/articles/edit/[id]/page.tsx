@@ -6,6 +6,7 @@ import { api } from "@/convex/_generated/api";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Save, Send } from "lucide-react";
 import { Id } from "@/convex/_generated/dataModel";
+import ArticleEditor from "@/components/ArticleEditor";
 
 const CATEGORIES = [
   "Career Advice",
@@ -244,19 +245,22 @@ export default function EditArticlePage({ params }: { params: { id: string } }) 
             <label className="block text-sm font-bold uppercase mb-2">
               Article Content *
             </label>
-            <div className="text-xs text-gray-500 mb-2">
-              💡 Tip: Use basic formatting - paragraphs will be automatically styled
-            </div>
-            <textarea
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              placeholder="Write your article here..."
-              rows={20}
-              className="w-full px-4 py-3 border-3 border-black font-medium focus:outline-none focus:shadow-brutal transition-all resize-y font-mono text-sm"
-            />
-            <div className="text-xs text-gray-500 mt-1">
-              {content.split(/\s+/).filter((w) => w.length > 0).length} words
-            </div>
+            {isLoaded ? (
+              <ArticleEditor
+                key={articleId}
+                content={content}
+                onChange={setContent}
+                placeholder="Start writing your article... Use the toolbar above or type markdown shortcuts like **bold**, *italic*, # heading, - list, > quote"
+              />
+            ) : (
+              <div className="border-3 border-black p-12 text-center bg-gray-50">
+                <div className="animate-pulse">
+                  <div className="h-4 bg-gray-300 rounded w-3/4 mb-3 mx-auto"></div>
+                  <div className="h-4 bg-gray-300 rounded w-1/2 mb-3 mx-auto"></div>
+                  <div className="h-4 bg-gray-300 rounded w-2/3 mx-auto"></div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Tags */}

@@ -13,6 +13,8 @@ interface NotificationToastProps {
     message: string;
     read: boolean;
     userId: Id<'users'>;
+    relatedChatId?: Id<'careerChats'>;
+    relatedUserId?: Id<'users'>;
     metadata?: {
       mentorId?: Id<'professionals'>;
       studentId?: Id<'users'>;
@@ -34,6 +36,13 @@ export function NotificationToast({ notification, onClose, onMarkAsRead, userRol
   const [isExiting, setIsExiting] = useState(false);
   const [progress, setProgress] = useState(100);
 
+  const handleClose = () => {
+    setIsExiting(true);
+    setTimeout(() => {
+      onClose();
+    }, 300);
+  };
+
   // Auto-dismiss after 8 seconds
   useEffect(() => {
     const duration = 8000;
@@ -52,14 +61,8 @@ export function NotificationToast({ notification, onClose, onMarkAsRead, userRol
     }, interval);
 
     return () => clearInterval(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const handleClose = () => {
-    setIsExiting(true);
-    setTimeout(() => {
-      onClose();
-    }, 300);
-  };
 
   const handleClick = () => {
     // Mark as read

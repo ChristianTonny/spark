@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import "../styles/tiptap.css";
 import Navigation from "@/components/navigation";
 import { ConvexClientProvider } from "./ConvexClientProvider";
 import { UserSyncProvider } from "./UserSyncProvider";

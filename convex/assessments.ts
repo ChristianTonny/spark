@@ -44,7 +44,7 @@ export const getResults = query({
             const career = await ctx.db.get(match.careerId as any);
             return {
               ...match,
-              career: career && 'title' in career && 'category' in career
+              career: career && 'title' in career && 'category' in career && 'shortDescription' in career
                 ? {
                     _id: career._id,
                     title: career.title,

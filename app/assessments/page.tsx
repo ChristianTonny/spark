@@ -29,7 +29,7 @@ export default function AssessmentsPage() {
   };
   return (
     <div className="min-h-screen bg-background py-6 sm:py-8 md:py-12 px-4">
-      <div className="container mx-auto max-w-4xl">
+      <div className="container mx-auto max-w-6xl">
         {/* Header */}
         <div className="text-center mb-8 sm:mb-12">
           <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-primary border-3 border-black shadow-brutal mb-4 sm:mb-6">
@@ -71,7 +71,7 @@ export default function AssessmentsPage() {
             <div className="p-4 sm:p-6 bg-background border-3 border-black">
               <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
                 <div className="p-2 bg-secondary border-2 border-black">
-                  <Clock className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                  <Clock className="w-5 h-5 sm:w-6 sm:h-6 text-orange-500" />
                 </div>
                 <h3 className="text-base sm:text-lg md:text-xl font-black uppercase">10 Minutes</h3>
               </div>
