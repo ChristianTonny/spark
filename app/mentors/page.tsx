@@ -378,7 +378,7 @@ export default function MentorsPage() {
                   </p>
                 </div>
                 <div>
-                  <div className="w-12 h-12 bg-secondary border-3 border-black flex items-center justify-center mb-3">
+                  <div className="w-12 h-12 bg-brutal-orange border-3 border-black flex items-center justify-center mb-3">
                     <span className="text-2xl font-black text-white">2</span>
                   </div>
                   <h3 className="text-xl font-black mb-2">Prepare Questions</h3>

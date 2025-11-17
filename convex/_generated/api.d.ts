@@ -27,6 +27,7 @@ import type * as studentProfiles from "../studentProfiles.js";
 import type * as testHelpers from "../testHelpers.js";
 import type * as userSettings from "../userSettings.js";
 import type * as users from "../users.js";
+import type * as utils_sanitize from "../utils/sanitize.js";
 
 import type {
   ApiFromModules,
@@ -62,6 +63,7 @@ declare const fullApi: ApiFromModules<{
   testHelpers: typeof testHelpers;
   userSettings: typeof userSettings;
   users: typeof users;
+  "utils/sanitize": typeof utils_sanitize;
 }>;
 declare const fullApiWithMounts: typeof fullApi;
 

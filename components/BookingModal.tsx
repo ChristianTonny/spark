@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { TimeSlotPicker } from "./TimeSlotPicker";
 import { Button } from "./ui/button";
 import { X } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface BookingModalProps {
   isOpen: boolean;
@@ -30,6 +31,8 @@ export function BookingModal({
   mentorName,
   careers = [],
 }: BookingModalProps) {
+  const { toast } = useToast();
+  const modalRef = useRef<HTMLDivElement>(null);
   const [selectedSlot, setSelectedSlot] = useState<TimeSlot | null>(null);
   const [selectedCareerId, setSelectedCareerId] = useState<string>("");
   const [message, setMessage] = useState("");
@@ -59,23 +62,6 @@ export function BookingModal({
     queryParams ?? "skip"
   );
 
-  // Debug logging
-  useEffect(() => {
-    if (!isOpen) return;
-
-    console.log("BookingModal opened for mentor:", mentorId);
-    console.log("Query parameters:", queryParams);
-    console.log("Available slots result:", availableSlots);
-
-    if (availableSlots === undefined) {
-      console.log("Query is still loading...");
-    } else if (availableSlots === null) {
-      console.log("Query returned null (error state)");
-    } else if (Array.isArray(availableSlots)) {
-      console.log("Query succeeded! Found slots:", availableSlots.length);
-    }
-  }, [isOpen, mentorId, queryParams, availableSlots]);
-
   const createBookingRequest = useMutation(api.careerChats.createBookingRequest);
 
   // Reset form when modal opens/closes
@@ -87,28 +73,44 @@ export function BookingModal({
     }
   }, [isOpen]);
 
-  // Close on escape key
+  // Focus management and accessibility
   useEffect(() => {
+    if (!isOpen) return;
+
+    const previouslyFocusedElement = document.activeElement as HTMLElement;
+
+    // Set focus to modal
+    if (modalRef.current) {
+      const firstFocusable = modalRef.current.querySelector(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      ) as HTMLElement;
+      firstFocusable?.focus();
+    }
+
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         onClose();
       }
     };
 
-    if (isOpen) {
-      document.addEventListener("keydown", handleEscape);
-      document.body.style.overflow = "hidden";
-    }
+    document.addEventListener("keydown", handleEscape);
+    document.body.style.overflow = "hidden";
 
     return () => {
       document.removeEventListener("keydown", handleEscape);
       document.body.style.overflow = "unset";
+      // Return focus to previously focused element
+      previouslyFocusedElement?.focus();
     };
   }, [isOpen, onClose]);
 
   const handleSubmit = async () => {
     if (!selectedSlot) {
-      alert("Please select a time slot");
+      toast({
+        title: "Time Slot Required",
+        description: "Please select a time slot for your session.",
+        variant: "destructive",
+      });
       return;
     }
 
@@ -122,15 +124,21 @@ export function BookingModal({
         studentMessage: message || undefined,
       });
 
-      alert("Booking request sent! The mentor will review and respond soon.");
+      toast({
+        title: "Booking Request Sent!",
+        description: "The mentor will review and respond soon.",
+        variant: "success",
+      });
       onClose();
     } catch (error) {
-      console.error("Error creating booking request:", error);
-      alert(
-        error instanceof Error
-          ? error.message
-          : "Failed to create booking request. Please try again."
-      );
+      toast({
+        title: "Booking Failed",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Failed to create booking request. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -147,18 +155,26 @@ export function BookingModal({
       />
 
       {/* Modal */}
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4">
-        <div className="bg-white border-3 border-black w-full max-w-2xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto shadow-brutal">
+      <div
+        className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="booking-modal-title"
+      >
+        <div
+          ref={modalRef}
+          className="bg-white border-3 border-black w-full max-w-2xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto shadow-brutal"
+        >
           {/* Header */}
           <div className="flex items-center justify-between p-4 sm:p-6 border-b-3 border-black">
             <div className="flex-1 min-w-0 pr-2">
-              <h2 className="font-black text-xl sm:text-2xl uppercase">Book a Session</h2>
+              <h2 id="booking-modal-title" className="font-black text-xl sm:text-2xl uppercase">Book a Session</h2>
               <p className="text-xs sm:text-sm text-gray-600 mt-1 truncate">with {mentorName}</p>
             </div>
             <button
               onClick={onClose}
               className="p-2 sm:p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-gray-100 border-2 border-black transition-colors flex-shrink-0"
-              aria-label="Close modal"
+              aria-label="Close booking modal"
             >
               <X className="w-5 h-5 sm:w-6 sm:h-6" />
             </button>
@@ -234,21 +250,20 @@ export function BookingModal({
 
           {/* Footer */}
           <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 p-4 sm:p-6 border-t-3 border-black">
-            <Button
+            <button
               onClick={handleSubmit}
               disabled={!selectedSlot || isSubmitting}
-              className="flex-1 min-h-[48px] text-sm sm:text-base"
+              className="flex-1 min-h-[48px] px-6 py-3 bg-brutal-blue text-white font-bold uppercase text-sm sm:text-base border-3 border-black shadow-brutal hover:shadow-brutal-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
               {isSubmitting ? "Sending Request..." : "Send Booking Request"}
-            </Button>
-            <Button
+            </button>
+            <button
               onClick={onClose}
-              variant="outline"
               disabled={isSubmitting}
-              className="sm:flex-initial min-h-[48px] text-sm sm:text-base"
+              className="sm:flex-initial min-h-[48px] px-6 py-3 bg-white text-black font-bold uppercase text-sm sm:text-base border-3 border-black shadow-brutal hover:shadow-brutal-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
               Cancel
-            </Button>
+            </button>
           </div>
         </div>
       </div>

@@ -492,7 +492,7 @@ export default function MentorApplyPage() {
 
             <div className="flex gap-4">
               <div className="flex-shrink-0">
-                <div className="w-12 h-12 bg-brutal-green border-3 border-brutal-border flex items-center justify-center font-black text-white">
+                <div className="w-12 h-12 bg-brutal-green border-3 border-brutal-border flex items-center justify-center font-black text-black">
                   3
                 </div>
               </div>

@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import { Id } from "@/convex/_generated/dataModel";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { Button } from "./ui/button";
 import { BookingStatusBadge } from "./BookingStatusBadge";
 import { Calendar, Clock, User, MessageCircle, CheckCircle } from "lucide-react";
 
@@ -152,30 +151,29 @@ export function BookingListItem({
       {(canChat || canComplete) && (
         <div className="mt-4 pt-4 border-t-2 border-black flex gap-2">
           {canChat && onOpenChat && (
-            <Button
+            <button
               onClick={() => onOpenChat(booking._id)}
-              className="flex-1 relative"
+              className="flex-1 relative px-4 py-2 bg-brutal-blue text-white border-3 border-black shadow-brutal hover:shadow-brutal-lg transition-all font-bold uppercase text-sm flex items-center justify-center gap-2"
             >
-              <MessageCircle className="w-4 h-4 mr-2" />
-              Message
-              {booking.unreadCount && booking.unreadCount > 0 && (
-                <span className="ml-2 bg-red-500 text-white px-2 py-0.5 text-xs rounded-full border-2 border-black">
+              <MessageCircle className="w-4 h-4" />
+              <span>Message</span>
+              {booking.unreadCount !== undefined && booking.unreadCount > 0 && (
+                <span className="bg-red-500 text-white px-2 py-0.5 text-xs rounded-full border-2 border-black">
                   {booking.unreadCount}
                 </span>
               )}
-            </Button>
+            </button>
           )}
           
           {canComplete && (
-            <Button
+            <button
               onClick={handleCompleteSession}
               disabled={isCompleting}
-              variant="outline"
-              className="flex-1 bg-brutal-green text-black hover:bg-brutal-green/90 border-3 border-black"
+              className="flex-1 px-4 py-2 bg-brutal-green text-black hover:bg-brutal-green/90 border-3 border-black shadow-brutal hover:shadow-brutal-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all font-bold uppercase text-sm flex items-center justify-center"
             >
               <CheckCircle className="w-4 h-4 mr-2" />
               {isCompleting ? "Completing..." : "Mark Complete"}
-            </Button>
+            </button>
           )}
         </div>
       )}

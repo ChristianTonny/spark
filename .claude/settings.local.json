@@ -13,7 +13,8 @@
       "Bash(npx convex dev:*)",
       "Bash(Select-String -Path \"convex\\seed.ts\" -Pattern \"chatsCompleted|rating:\")",
       "Bash(Select-Object -First 20)",
-      "Bash(vercel --version)"
+      "Bash(vercel --version)",
+      "Bash(npm install:*)"
     ],
     "deny": [],
     "ask": []

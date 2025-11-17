@@ -75,7 +75,7 @@ export default function MentorEarningsPage() {
           <button
             onClick={handleDownloadCSV}
             disabled={downloadingCSV}
-            className="px-6 py-3 bg-brutal-green text-white font-bold uppercase border-3 border-black shadow-brutal hover:shadow-brutal-lg transition-all flex items-center gap-2"
+            className="px-6 py-3 bg-brutal-green text-black font-bold uppercase border-3 border-black shadow-brutal hover:shadow-brutal-lg transition-all flex items-center gap-2"
           >
             <Download className="w-5 h-5" />
             {downloadingCSV ? "Downloading..." : "Export CSV"}
@@ -85,7 +85,7 @@ export default function MentorEarningsPage() {
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           {/* Total Earnings */}
-          <div className="bg-brutal-green text-white border-3 border-black shadow-brutal-lg p-6">
+          <div className="bg-brutal-green text-black border-3 border-black shadow-brutal-lg p-6">
             <div className="flex items-center justify-between mb-2">
               <DollarSign className="w-8 h-8" />
               <span className="text-4xl font-black">

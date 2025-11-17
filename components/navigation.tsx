@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Menu, X, Compass, BookOpen, Users, LayoutDashboard, Calendar, Clock, DollarSign } from 'lucide-react';
+import { Menu, X, Compass, BookOpen, Users, LayoutDashboard, Calendar, Clock, DollarSign, Bell } from 'lucide-react';
 import { useState } from 'react';
 import { SignedIn, SignedOut, UserButton, useUser } from '@clerk/nextjs';
 import { useQuery } from 'convex/react';
@@ -12,6 +12,7 @@ export default function Navigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { user: clerkUser } = useUser();
   const convexUser = useQuery(api.users.current);
+  const unreadCount = useQuery(api.notifications.getUnreadCount);
 
   // Get user's role from Convex (source of truth)
   const userRole = convexUser?.role || (clerkUser?.publicMetadata?.role as string) || 'student';
@@ -81,8 +82,20 @@ export default function Navigation() {
             })}
 
             <div className="ml-4 flex items-center gap-2">
-              {/* Signed In - Show User Button */}
+              {/* Signed In - Show Notification Bell and User Button */}
               <SignedIn>
+                <Link
+                  href={`/dashboard/${userRole}/notifications`}
+                  className="relative p-2 border-2 border-brutal-border hover:shadow-brutal-sm transition-all bg-white"
+                  aria-label={`Notifications${unreadCount ? ` (${unreadCount} unread)` : ''}`}
+                >
+                  <Bell className="w-5 h-5" />
+                  {unreadCount && unreadCount > 0 ? (
+                    <span className="absolute -top-1 -right-1 bg-brutal-orange text-white text-xs font-black rounded-full w-5 h-5 flex items-center justify-center border-2 border-black">
+                      {unreadCount > 9 ? '9+' : unreadCount}
+                    </span>
+                  ) : null}
+                </Link>
                 <UserButton
                   appearance={{
                     elements: {
@@ -147,8 +160,23 @@ export default function Navigation() {
             })}
 
             <div className="pt-4 space-y-3 border-t-3 border-brutal-border mt-4">
-              {/* Signed In - Show User Button */}
+              {/* Signed In - Show Notification Link and User Button */}
               <SignedIn>
+                <Link
+                  href={`/dashboard/${userRole}/notifications`}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center justify-between px-4 py-4 min-h-[52px] font-bold uppercase text-sm border-2 border-brutal-border shadow-brutal-sm active:shadow-none transition-all bg-white"
+                >
+                  <div className="flex items-center gap-3">
+                    <Bell className="w-5 h-5 flex-shrink-0" />
+                    <span>Notifications</span>
+                  </div>
+                  {unreadCount && unreadCount > 0 ? (
+                    <span className="bg-brutal-orange text-white text-xs font-black rounded-full w-6 h-6 flex items-center justify-center border-2 border-black">
+                      {unreadCount > 9 ? '9+' : unreadCount}
+                    </span>
+                  ) : null}
+                </Link>
                 <div className="flex items-center justify-center py-4">
                   <UserButton
                     appearance={{

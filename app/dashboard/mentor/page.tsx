@@ -160,7 +160,7 @@ export default function MentorDashboardPage() {
           </div>
 
           {/* Years Experience */}
-          <div className="bg-brutal-pink border-3 border-brutal-border shadow-brutal-lg p-4 sm:p-6">
+          <div className="bg-brutal-pink text-white border-3 border-brutal-border shadow-brutal-lg p-4 sm:p-6">
             <div className="flex items-center justify-between mb-2">
               <Award className="w-6 h-6 sm:w-8 sm:h-8" />
               <span className="text-2xl sm:text-3xl font-black">{professional.yearsExperience}</span>
@@ -232,7 +232,7 @@ export default function MentorDashboardPage() {
               <div className="space-y-3">
                 <Link
                   href="/dashboard/mentor/bookings"
-                  className="block w-full px-4 py-3 bg-brutal-green text-white font-bold uppercase text-sm border-2 border-brutal-border shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all text-center"
+                  className="block w-full px-4 py-3 bg-brutal-green text-black font-bold uppercase text-sm border-2 border-brutal-border shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all text-center"
                 >
                   Manage Bookings
                 </Link>

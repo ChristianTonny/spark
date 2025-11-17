@@ -196,7 +196,7 @@ export default function StudentDetailPage() {
                                     </p>
                                   </div>
                                 </div>
-                                <span className="px-3 py-1 bg-brutal-green text-white text-sm font-black border-2 border-black">
+                                <span className="px-3 py-1 bg-brutal-green text-black text-sm font-black border-2 border-black">
                                   {Math.round(match.matchPercentage)}%
                                 </span>
                               </div>

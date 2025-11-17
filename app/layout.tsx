@@ -4,6 +4,8 @@ import "./globals.css";
 import Navigation from "@/components/navigation";
 import { ConvexClientProvider } from "./ConvexClientProvider";
 import { UserSyncProvider } from "./UserSyncProvider";
+import { NotificationProvider } from "@/components/NotificationProvider";
+import { Toaster } from "@/components/ui/toaster";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -35,8 +37,11 @@ export default function RootLayout({
       <body className={inter.className}>
         <ConvexClientProvider>
           <UserSyncProvider>
-            <Navigation />
-            {children}
+            <NotificationProvider>
+              <Navigation />
+              {children}
+              <Toaster />
+            </NotificationProvider>
           </UserSyncProvider>
         </ConvexClientProvider>
       </body>

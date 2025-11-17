@@ -274,7 +274,7 @@ export default function MentorProfilePage({
                         {(isConfirmedOrScheduled || session.status === 'completed') && (
                           <button
                             onClick={() => handleOpenChat(session.chatId)}
-                            className="px-4 py-2 bg-brutal-blue text-black font-bold uppercase text-sm border-3 border-black shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all flex items-center gap-2"
+                            className="px-4 py-2 bg-brutal-blue text-white font-bold uppercase text-sm border-3 border-black shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all flex items-center gap-2"
                           >
                             <MessageCircle className="w-4 h-4" />
                             Message
@@ -304,7 +304,7 @@ export default function MentorProfilePage({
                             </button>
                             <button
                               onClick={() => handleDeleteRating(session.chatId)}
-                              className="px-4 py-2 bg-red-500 text-black font-bold uppercase text-sm border-3 border-black shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all flex items-center gap-2"
+                              className="px-4 py-2 bg-red-500 text-white font-bold uppercase text-sm border-3 border-black shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all flex items-center gap-2"
                             >
                               <Trash2 className="w-4 h-4" />
                               Delete Rating
@@ -328,7 +328,7 @@ export default function MentorProfilePage({
         )}
 
         {/* Header Section */}
-        <div className="bg-gradient-to-r from-brutal-blue to-brutal-purple border-3 border-black shadow-brutal-lg p-8 mb-8">
+        <div className="bg-brutal-blue border-3 border-black shadow-brutal-lg p-8 mb-8">
           <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
             {/* Avatar */}
             <div className="w-32 h-32 border-3 border-black shadow-brutal flex-shrink-0 overflow-hidden bg-white">

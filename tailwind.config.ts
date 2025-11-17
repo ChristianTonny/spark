@@ -57,6 +57,7 @@ const config: Config = {
         'brutal-yellow': '#F7FD04',
         'brutal-green': '#06FFA5',
         'brutal-pink': '#FF006E',
+        'brutal-purple': '#7209B7',
         'brutal-bg': '#FFFEF2',
         'brutal-text': '#1A1A1A',
         'brutal-border': '#000000',

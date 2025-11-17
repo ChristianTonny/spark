@@ -1,8 +1,10 @@
-import { mutation, query } from "./_generated/server";
+import { mutation, query, QueryCtx, MutationCtx } from "./_generated/server";
 import { v } from "convex/values";
+import { validateString, validateRating, validateUrl } from "./utils/sanitize";
+import { Id } from "./_generated/dataModel";
 
 // Helper to get current user ID
-async function getCurrentUserId(ctx: any) {
+async function getCurrentUserId(ctx: QueryCtx | MutationCtx): Promise<Id<"users"> | null> {
   const identity = await ctx.auth.getUserIdentity();
   if (!identity) {
     return null;
@@ -10,10 +12,10 @@ async function getCurrentUserId(ctx: any) {
 
   const user = await ctx.db
     .query("users")
-    .withIndex("by_token", (q: any) => q.eq("tokenIdentifier", identity.tokenIdentifier))
+    .withIndex("by_token", (q) => q.eq("tokenIdentifier", identity.tokenIdentifier))
     .first();
 
-  return user?._id;
+  return user?._id ?? null;
 }
 
 /**
@@ -45,43 +47,56 @@ export const getStudentSessions = query({
       .order("desc")
       .take(5);
 
-    // Enrich with professional and career details
-    const enrichedChats = await Promise.all(
-      chats.map(async (chat) => {
-        const professional = await ctx.db.get(chat.professionalId);
-        
-        // Get professional's user details
-        let professionalUser = null;
-        if (professional) {
-          professionalUser = await ctx.db.get(professional.userId);
-        }
-        
-        // Note: careerId is stored as string, not ID reference
-        // We'll need to find the career by matching
-        const allCareers = await ctx.db.query("careers").collect();
-        const career = allCareers.find(c => c._id === chat.careerId);
+    // Batch queries to avoid N+1 problem
+    // 1. Fetch all careers once
+    const allCareers = await ctx.db.query("careers").collect();
 
-        return {
-          _id: chat._id,
-          scheduledAt: chat.scheduledAt,
-          duration: chat.duration,
-          status: chat.status,
-          rating: chat.rating,
-          feedback: chat.feedback,
-          completedAt: chat.completedAt,
-          professional: professional && professionalUser ? {
-            name: `${professionalUser.firstName} ${professionalUser.lastName}`,
-            title: professional.jobTitle,
-            company: professional.company,
-          } : null,
-          career: career ? {
-            _id: career._id,
-            title: career.title,
-            category: career.category,
-          } : null,
-        };
-      })
+    // 2. Batch fetch all professionals
+    const professionalIds = [...new Set(chats.map(c => c.professionalId))];
+    const professionals = await Promise.all(
+      professionalIds.map(id => ctx.db.get(id))
     );
+    const professionalMap = new Map(
+      professionals.filter(p => p !== null).map(p => [p!._id, p!])
+    );
+
+    // 3. Batch fetch all professional users
+    const userIds = professionals
+      .filter(p => p !== null)
+      .map(p => p!.userId);
+    const users = await Promise.all(
+      userIds.map(id => ctx.db.get(id))
+    );
+    const userMap = new Map(
+      users.filter(u => u !== null).map(u => [u!._id, u!])
+    );
+
+    // 4. Map without additional queries
+    const enrichedChats = chats.map((chat) => {
+      const professional = professionalMap.get(chat.professionalId);
+      const professionalUser = professional ? userMap.get(professional.userId) : null;
+      const career = allCareers.find(c => c._id === chat.careerId);
+
+      return {
+        _id: chat._id,
+        scheduledAt: chat.scheduledAt,
+        duration: chat.duration,
+        status: chat.status,
+        rating: chat.rating,
+        feedback: chat.feedback,
+        completedAt: chat.completedAt,
+        professional: professional && professionalUser ? {
+          name: `${professionalUser.firstName} ${professionalUser.lastName}`,
+          title: professional.jobTitle,
+          company: professional.company,
+        } : null,
+        career: career ? {
+          _id: career._id,
+          title: career.title,
+          category: career.category,
+        } : null,
+      };
+    });
 
     return enrichedChats;
   },
@@ -118,35 +133,46 @@ export const getUpcomingSessions = query({
     // Filter for future sessions
     const upcomingSessions = chats.filter(chat => chat.scheduledAt && chat.scheduledAt > now);
 
-    // Enrich with details
-    const enrichedSessions = await Promise.all(
-      upcomingSessions.map(async (chat) => {
-        const professional = await ctx.db.get(chat.professionalId);
-        
-        // Get professional's user details
-        let professionalUser = null;
-        if (professional) {
-          professionalUser = await ctx.db.get(professional.userId);
-        }
-        
-        const allCareers = await ctx.db.query("careers").collect();
-        const career = allCareers.find(c => c._id === chat.careerId);
+    // Batch queries to avoid N+1 problem
+    const allCareers = await ctx.db.query("careers").collect();
 
-        return {
-          _id: chat._id,
-          scheduledAt: chat.scheduledAt,
-          duration: chat.duration,
-          meetingUrl: chat.meetingUrl,
-          professional: professional && professionalUser ? {
-            name: `${professionalUser.firstName} ${professionalUser.lastName}`,
-            title: professional.jobTitle,
-          } : null,
-          career: career ? {
-            title: career.title,
-          } : null,
-        };
-      })
+    const professionalIds = [...new Set(upcomingSessions.map(c => c.professionalId))];
+    const professionals = await Promise.all(
+      professionalIds.map(id => ctx.db.get(id))
     );
+    const professionalMap = new Map(
+      professionals.filter(p => p !== null).map(p => [p!._id, p!])
+    );
+
+    const userIds = professionals
+      .filter(p => p !== null)
+      .map(p => p!.userId);
+    const users = await Promise.all(
+      userIds.map(id => ctx.db.get(id))
+    );
+    const userMap = new Map(
+      users.filter(u => u !== null).map(u => [u!._id, u!])
+    );
+
+    const enrichedSessions = upcomingSessions.map((chat) => {
+      const professional = professionalMap.get(chat.professionalId);
+      const professionalUser = professional ? userMap.get(professional.userId) : null;
+      const career = allCareers.find(c => c._id === chat.careerId);
+
+      return {
+        _id: chat._id,
+        scheduledAt: chat.scheduledAt,
+        duration: chat.duration,
+        meetingUrl: chat.meetingUrl,
+        professional: professional && professionalUser ? {
+          name: `${professionalUser.firstName} ${professionalUser.lastName}`,
+          title: professional.jobTitle,
+        } : null,
+        career: career ? {
+          title: career.title,
+        } : null,
+      };
+    });
 
     return enrichedSessions.sort((a, b) => (a.scheduledAt || 0) - (b.scheduledAt || 0));
   },
@@ -169,13 +195,26 @@ export const createBookingRequest = mutation({
       throw new Error("Not authenticated");
     }
 
+    // Validate and sanitize inputs
+    const sanitizedMessage = validateString(args.studentMessage, 500, "Message");
+
+    // Validate scheduled time is in the future
+    if (args.scheduledAt < Date.now()) {
+      throw new Error("Cannot book a session in the past");
+    }
+
+    // Validate duration
+    if (args.duration < 15 || args.duration > 240) {
+      throw new Error("Duration must be between 15 and 240 minutes");
+    }
+
     const userDoc = await ctx.db.get(userId);
     if (!userDoc) {
       throw new Error("User not found");
     }
-    // Type guard: ensure we have a users table document
-    const user = userDoc as any;
-    if (user.role !== "student") {
+
+    // Verify user is a student
+    if (userDoc.role !== "student") {
       throw new Error("Only students can create booking requests");
     }
 
@@ -211,7 +250,31 @@ export const createBookingRequest = mutation({
       duration: args.duration,
       status: "pending",
       requestedAt: Date.now(),
-      studentMessage: args.studentMessage,
+      studentMessage: sanitizedMessage,
+    });
+
+    // Create notification for mentor about new booking request
+    const mentorUserId = professional.userId;
+    const studentUser = await ctx.db.get(userId);
+    const studentName = studentUser ? `${studentUser.firstName} ${studentUser.lastName}` : "A student";
+    const studentImage = studentUser?.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${studentName}`;
+
+    await ctx.db.insert("notifications", {
+      userId: mentorUserId,
+      type: "booking",
+      title: "New Booking Request",
+      message: `${studentName} has requested a session with you on ${new Date(args.scheduledAt).toLocaleDateString()}`,
+      read: false,
+      createdAt: Date.now(),
+      relatedChatId: chatId,
+      relatedUserId: userId,
+      metadata: {
+        bookingId: chatId,
+        studentId: userId,
+        senderName: studentName,
+        senderImage: studentImage,
+        senderRole: 'student',
+      },
     });
 
     return { chatId };
@@ -231,6 +294,9 @@ export const approveBooking = mutation({
     if (!userId) {
       throw new Error("Not authenticated");
     }
+
+    // Validate meeting URL if provided
+    const validatedMeetingUrl = args.meetingUrl ? validateUrl(args.meetingUrl) : undefined;
 
     const chat = await ctx.db.get(args.chatId);
     if (!chat) {
@@ -260,7 +326,7 @@ export const approveBooking = mutation({
     await ctx.db.patch(args.chatId, {
       status: "confirmed",
       confirmedAt: Date.now(),
-      meetingUrl: args.meetingUrl,
+      meetingUrl: validatedMeetingUrl,
     });
 
     // Create system message in chat
@@ -277,6 +343,30 @@ export const approveBooking = mutation({
       type: "system",
       readBy: [],
       sentAt: Date.now(),
+    });
+
+    // Create notification for student about booking confirmation
+    const studentUserId = chat.studentId as Id<"users">;
+    const mentorUser = await ctx.db.get(userId);
+    const mentorName = mentorUser ? `${mentorUser.firstName} ${mentorUser.lastName}` : "Your mentor";
+    const mentorImage = mentorUser?.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${mentorName}`;
+
+    await ctx.db.insert("notifications", {
+      userId: studentUserId,
+      type: "booking",
+      title: "Booking Confirmed!",
+      message: `${mentorName} has confirmed your session for ${new Date(chat.scheduledAt!).toLocaleDateString()}`,
+      read: false,
+      createdAt: Date.now(),
+      relatedChatId: args.chatId,
+      relatedUserId: userId,
+      metadata: {
+        bookingId: args.chatId,
+        mentorId: professional._id,
+        senderName: mentorName,
+        senderImage: mentorImage,
+        senderRole: 'mentor',
+      },
     });
 
     return { success: true };
@@ -296,6 +386,9 @@ export const rejectBooking = mutation({
     if (!userId) {
       throw new Error("Not authenticated");
     }
+
+    // Sanitize reason
+    const sanitizedReason = validateString(args.reason, 500, "Rejection reason");
 
     const chat = await ctx.db.get(args.chatId);
     if (!chat) {
@@ -324,7 +417,31 @@ export const rejectBooking = mutation({
     // Update booking to rejected
     await ctx.db.patch(args.chatId, {
       status: "rejected",
-      cancellationReason: args.reason,
+      cancellationReason: sanitizedReason,
+    });
+
+    // Create notification for student about booking rejection
+    const studentUserId = chat.studentId as Id<"users">;
+    const mentorUser = await ctx.db.get(userId);
+    const mentorName = mentorUser ? `${mentorUser.firstName} ${mentorUser.lastName}` : "Your mentor";
+    const mentorImage = mentorUser?.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${mentorName}`;
+
+    await ctx.db.insert("notifications", {
+      userId: studentUserId,
+      type: "booking",
+      title: "Booking Request Declined",
+      message: `${mentorName} has declined your booking request${sanitizedReason ? `: ${sanitizedReason}` : ""}`,
+      read: false,
+      createdAt: Date.now(),
+      relatedChatId: args.chatId,
+      relatedUserId: userId,
+      metadata: {
+        bookingId: args.chatId,
+        mentorId: professional._id,
+        senderName: mentorName,
+        senderImage: mentorImage,
+        senderRole: 'mentor',
+      },
     });
 
     return { success: true };
@@ -344,6 +461,9 @@ export const cancelBooking = mutation({
     if (!userId) {
       throw new Error("Not authenticated");
     }
+
+    // Sanitize cancellation reason
+    const sanitizedReason = validateString(args.reason, 500, "Cancellation reason");
 
     const chat = await ctx.db.get(args.chatId);
     if (!chat) {
@@ -368,7 +488,7 @@ export const cancelBooking = mutation({
     // Update booking to cancelled
     await ctx.db.patch(args.chatId, {
       status: "cancelled",
-      cancellationReason: args.reason,
+      cancellationReason: sanitizedReason,
     });
 
     // Create system message in chat if chat exists
@@ -376,12 +496,37 @@ export const cancelBooking = mutation({
       await ctx.db.insert("messages", {
         chatId: args.chatId,
         senderId: userId,
-        content: `Booking cancelled. ${args.reason || ""}`,
+        content: `Booking cancelled. ${sanitizedReason || ""}`,
         type: "system",
         readBy: [],
         sentAt: Date.now(),
       });
     }
+
+    // Notify the other party about cancellation
+    const currentUser = await ctx.db.get(userId);
+    const currentUserName = currentUser ? `${currentUser.firstName} ${currentUser.lastName}` : "User";
+
+    // Determine who to notify
+    let recipientUserId: Id<"users">;
+    if (chat.studentId === userId) {
+      // Student cancelled, notify mentor
+      recipientUserId = professional!.userId;
+    } else {
+      // Mentor cancelled, notify student
+      recipientUserId = chat.studentId as Id<"users">;
+    }
+
+    await ctx.db.insert("notifications", {
+      userId: recipientUserId,
+      type: "booking",
+      title: "Booking Cancelled",
+      message: `${currentUserName} has cancelled the booking${sanitizedReason ? `: ${sanitizedReason}` : ""}`,
+      read: false,
+      createdAt: Date.now(),
+      relatedChatId: args.chatId,
+      relatedUserId: userId,
+    });
 
     return { success: true };
   },
@@ -422,51 +567,72 @@ export const getStudentBookings = query({
 
     const bookings = await bookingsQuery.order("desc").collect();
 
-    // Enrich with mentor details
-    const enrichedBookings = await Promise.all(
-      bookings.map(async (booking) => {
-        const professional = await ctx.db.get(booking.professionalId);
-        let professionalUser = null;
-        if (professional) {
-          professionalUser = await ctx.db.get(professional.userId);
-        }
+    // Batch queries to avoid N+1 problem
+    const allCareers = await ctx.db.query("careers").collect();
 
-        const allCareers = await ctx.db.query("careers").collect();
-        const career = booking.careerId
-          ? allCareers.find((c) => c._id === booking.careerId)
-          : null;
+    const professionalIds = [...new Set(bookings.map(b => b.professionalId))];
+    const professionals = await Promise.all(
+      professionalIds.map(id => ctx.db.get(id))
+    );
+    const professionalMap = new Map(
+      professionals.filter(p => p !== null).map(p => [p!._id, p!])
+    );
 
-        // Get unread message count
-        const messages = await ctx.db
+    const userIds = professionals
+      .filter(p => p !== null)
+      .map(p => p!.userId);
+    const users = await Promise.all(
+      userIds.map(id => ctx.db.get(id))
+    );
+    const userMap = new Map(
+      users.filter(u => u !== null).map(u => [u!._id, u!])
+    );
+
+    // Batch fetch messages for unread count
+    const allMessages = await Promise.all(
+      bookings.map(booking =>
+        ctx.db
           .query("messages")
           .withIndex("by_chat", (q) => q.eq("chatId", booking._id))
-          .collect();
-
-        const unreadCount = messages.filter(
-          (msg) => !msg.readBy.includes(userId)
-        ).length;
-
-        return {
-          ...booking,
-          mentor: professional && professionalUser
-            ? {
-                name: `${professionalUser.firstName} ${professionalUser.lastName}`,
-                avatar: professionalUser.avatar,
-                title: professional.jobTitle,
-                company: professional.company,
-              }
-            : null,
-          career: career
-            ? {
-                _id: career._id,
-                title: career.title,
-                category: career.category,
-              }
-            : null,
-          unreadCount,
-        };
-      })
+          .collect()
+      )
     );
+    const messagesMap = new Map(
+      bookings.map((booking, idx) => [booking._id, allMessages[idx]])
+    );
+
+    const enrichedBookings = bookings.map((booking) => {
+      const professional = professionalMap.get(booking.professionalId);
+      const professionalUser = professional ? userMap.get(professional.userId) : null;
+      const career = booking.careerId
+        ? allCareers.find((c) => c._id === booking.careerId)
+        : null;
+
+      const messages = messagesMap.get(booking._id) || [];
+      const unreadCount = messages.filter(
+        (msg) => !msg.readBy.includes(userId)
+      ).length;
+
+      return {
+        ...booking,
+        mentor: professional && professionalUser
+          ? {
+              name: `${professionalUser.firstName} ${professionalUser.lastName}`,
+              avatar: professionalUser.avatar,
+              title: professional.jobTitle,
+              company: professional.company,
+            }
+          : null,
+        career: career
+          ? {
+              _id: career._id,
+              title: career.title,
+              category: career.category,
+            }
+          : null,
+        unreadCount,
+      };
+    });
 
     return enrichedBookings;
   },
@@ -517,57 +683,82 @@ export const getMentorBookings = query({
 
     const bookings = await bookingsQuery.order("desc").collect();
 
-    // Enrich with student details
-    const enrichedBookings = await Promise.all(
-      bookings.map(async (booking) => {
-        const student = await ctx.db
-          .query("users")
-          .filter((q) => q.eq(q.field("_id"), booking.studentId))
-          .first();
+    // Batch queries to avoid N+1 problem
+    const allCareers = await ctx.db.query("careers").collect();
 
-        const studentProfile = student
-          ? await ctx.db
-              .query("studentProfiles")
-              .withIndex("by_user", (q) => q.eq("userId", student._id))
-              .first()
-          : null;
+    // Batch fetch students - studentId is stored as string (needs migration to Id<"users">)
+    const studentIds = [...new Set(bookings.map(b => b.studentId))];
+    const students = await Promise.all(
+      studentIds.map(id => ctx.db.get(id as Id<"users">))
+    );
+    // Map by string for compatibility with current schema
+    const studentMap = new Map(
+      students.filter(s => s !== null).map(s => [s!._id.toString(), s!])
+    );
 
-        const allCareers = await ctx.db.query("careers").collect();
-        const career = booking.careerId
-          ? allCareers.find((c) => c._id === booking.careerId)
-          : null;
+    // Batch fetch student profiles
+    const studentProfiles = await Promise.all(
+      students
+        .filter(s => s !== null)
+        .map(s =>
+          ctx.db
+            .query("studentProfiles")
+            .withIndex("by_user", (q) => q.eq("userId", s!._id))
+            .first()
+        )
+    );
+    // Map by string for compatibility with current schema
+    const profileMap = new Map(
+      students
+        .filter(s => s !== null)
+        .map((s, idx) => [s!._id.toString(), studentProfiles[idx]])
+    );
 
-        // Get unread message count
-        const messages = await ctx.db
+    // Batch fetch messages for unread count
+    const allMessages = await Promise.all(
+      bookings.map(booking =>
+        ctx.db
           .query("messages")
           .withIndex("by_chat", (q) => q.eq("chatId", booking._id))
-          .collect();
-
-        const unreadCount = messages.filter(
-          (msg) => !msg.readBy.includes(userId)
-        ).length;
-
-        return {
-          ...booking,
-          student: student
-            ? {
-                name: `${student.firstName} ${student.lastName}`,
-                avatar: student.avatar,
-                gradeLevel: studentProfile?.gradeLevel,
-                school: studentProfile?.school,
-              }
-            : null,
-          career: career
-            ? {
-                _id: career._id,
-                title: career.title,
-                category: career.category,
-              }
-            : null,
-          unreadCount,
-        };
-      })
+          .collect()
+      )
     );
+    const messagesMap = new Map(
+      bookings.map((booking, idx) => [booking._id, allMessages[idx]])
+    );
+
+    const enrichedBookings = bookings.map((booking) => {
+      const student = studentMap.get(booking.studentId);
+      const studentProfile = student ? profileMap.get(student._id.toString()) : null;
+      const career = booking.careerId
+        ? allCareers.find((c) => c._id === booking.careerId)
+        : null;
+
+      const messages = messagesMap.get(booking._id) || [];
+      const unreadCount = messages.filter(
+        (msg) => !msg.readBy.includes(userId)
+      ).length;
+
+      return {
+        ...booking,
+        student: student
+          ? {
+              name: `${student.firstName} ${student.lastName}`,
+              avatar: student.avatar,
+              gradeLevel: studentProfile?.gradeLevel,
+              school: studentProfile?.school,
+            }
+          : null,
+        career: career
+          ? {
+              _id: career._id,
+              title: career.title,
+              category: career.category,
+            }
+          : null,
+        unreadCount,
+      };
+    });
 
     return enrichedBookings;
   },
@@ -754,6 +945,10 @@ export const rateMentor = mutation({
       throw new Error("Not authenticated");
     }
 
+    // Validate and sanitize inputs
+    const validatedRating = validateRating(args.rating);
+    const sanitizedFeedback = validateString(args.feedback, 1000, "Feedback");
+
     // Get the chat
     const chat = await ctx.db.get(args.chatId);
     if (!chat) {
@@ -770,11 +965,6 @@ export const rateMentor = mutation({
       throw new Error("Not authorized to rate this session");
     }
 
-    // Validate rating
-    if (args.rating < 1 || args.rating > 5) {
-      throw new Error("Rating must be between 1 and 5");
-    }
-
     // Ensure session can be rated (confirmed, scheduled, or completed)
     const allowableStatuses: string[] = ["completed", "confirmed", "scheduled"];
     if (!allowableStatuses.includes(chat.status)) {
@@ -785,8 +975,8 @@ export const rateMentor = mutation({
 
     // Update chat with rating, feedback, and auto-complete if needed
     const chatUpdate: Record<string, any> = {
-      rating: args.rating,
-      feedback: args.feedback,
+      rating: validatedRating,
+      feedback: sanitizedFeedback,
     };
 
     if (chat.status !== "completed") {
@@ -1031,6 +1221,10 @@ export const updateRating = mutation({
       throw new Error("Not authenticated");
     }
 
+    // Validate and sanitize inputs
+    const validatedRating = validateRating(args.rating);
+    const sanitizedFeedback = validateString(args.feedback, 1000, "Feedback");
+
     // Get the chat
     const chat = await ctx.db.get(args.chatId);
     if (!chat) {
@@ -1047,11 +1241,6 @@ export const updateRating = mutation({
       throw new Error("Not authorized to update this rating");
     }
 
-    // Validate rating
-    if (args.rating < 1 || args.rating > 5) {
-      throw new Error("Rating must be between 1 and 5");
-    }
-
     // Ensure session can be rated
     const allowableStatuses: string[] = ["completed", "confirmed", "scheduled"];
     if (!allowableStatuses.includes(chat.status)) {
@@ -1062,8 +1251,8 @@ export const updateRating = mutation({
 
     // Update chat with new rating and feedback, auto-completing if needed
     const chatUpdate: Record<string, any> = {
-      rating: args.rating,
-      feedback: args.feedback,
+      rating: validatedRating,
+      feedback: sanitizedFeedback,
     };
 
     if (chat.status !== "completed") {

@@ -388,7 +388,7 @@ export default function StudentDashboard() {
                   </button>
                 </Link>
                 <Link href="/mentors">
-                  <button className="w-full px-4 py-3 min-h-[44px] bg-brutal-green text-white font-bold uppercase border-3 border-black shadow-brutal hover:shadow-brutal-lg transition-all text-left flex items-center gap-3 text-sm sm:text-base">
+                  <button className="w-full px-4 py-3 min-h-[44px] bg-brutal-green text-black font-bold uppercase border-3 border-black shadow-brutal hover:shadow-brutal-lg transition-all text-left flex items-center gap-3 text-sm sm:text-base">
                     <Calendar className="w-5 h-5" />
                     Book Mentor
                   </button>
@@ -466,7 +466,7 @@ export default function StudentDashboard() {
                       No upcoming sessions
                     </p>
                     <Link href="/mentors">
-                      <button className="px-4 py-2 bg-brutal-green text-white font-bold uppercase text-xs border-3 border-black shadow-brutal-sm hover:shadow-brutal transition-all">
+                      <button className="px-4 py-2 bg-brutal-green text-black font-bold uppercase text-xs border-3 border-black shadow-brutal-sm hover:shadow-brutal transition-all">
                         Book a Mentor
                       </button>
                     </Link>

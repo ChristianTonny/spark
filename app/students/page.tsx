@@ -134,7 +134,7 @@ export default function StudentsPage() {
 
             {/* Step 3 */}
             <div className="bg-white p-8 border-3 border-brutal-border shadow-brutal">
-              <div className="w-12 h-12 bg-brutal-green border-3 border-brutal-border flex items-center justify-center text-white font-black text-2xl mb-4">
+              <div className="w-12 h-12 bg-brutal-green border-3 border-brutal-border flex items-center justify-center text-black font-black text-2xl mb-4">
                 3
               </div>
               <Users className="w-12 h-12 text-brutal-green mb-4" />

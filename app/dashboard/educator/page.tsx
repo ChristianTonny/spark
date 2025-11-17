@@ -124,7 +124,7 @@ export default function EducatorDashboard() {
                 </Link>
                 <button 
                   onClick={() => setShowBulkUpload(true)}
-                  className="px-4 py-2 bg-brutal-green text-white font-bold uppercase border-3 border-black shadow-brutal hover:shadow-brutal-lg transition-all text-sm flex items-center gap-2"
+                  className="px-4 py-2 bg-brutal-green text-black font-bold uppercase border-3 border-black shadow-brutal hover:shadow-brutal-lg transition-all text-sm flex items-center gap-2"
                 >
                   <Upload className="w-4 h-4" />
                   Bulk Upload
@@ -217,7 +217,7 @@ export default function EducatorDashboard() {
                           <td className="px-6 py-4 text-center">
                             <span className={`inline-flex items-center px-2 py-1 text-xs font-black border-2 border-black ${
                               student.assessmentsCompleted > 0
-                                ? 'bg-brutal-green text-white'
+                                ? 'bg-brutal-green text-black'
                                 : 'bg-gray-100'
                             }`}>
                               {student.assessmentsCompleted}

@@ -198,7 +198,7 @@ Aline,Uwamahoro,aline.uwamahoro@school.rw,Senior 6,Green Hills Academy`;
                   <button
                     onClick={handleUpload}
                     disabled={isProcessing}
-                    className="w-full px-6 py-4 bg-brutal-green text-white border-3 border-black shadow-brutal hover:shadow-brutal-lg transition-all font-black uppercase text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full px-6 py-4 bg-brutal-green text-black border-3 border-black shadow-brutal hover:shadow-brutal-lg transition-all font-black uppercase text-lg disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isProcessing ? 'Importing Students...' : `Import ${students.length} Students`}
                   </button>

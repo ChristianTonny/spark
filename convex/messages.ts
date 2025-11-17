@@ -1,8 +1,10 @@
 import { v } from "convex/values";
-import { mutation, query } from "./_generated/server";
+import { mutation, query, QueryCtx, MutationCtx } from "./_generated/server";
+import { validateString } from "./utils/sanitize";
+import { Id } from "./_generated/dataModel";
 
 // Helper to get current user ID
-async function getCurrentUserId(ctx: any) {
+async function getCurrentUserId(ctx: QueryCtx | MutationCtx): Promise<Id<"users"> | null> {
   const identity = await ctx.auth.getUserIdentity();
   if (!identity) {
     return null;
@@ -10,10 +12,10 @@ async function getCurrentUserId(ctx: any) {
 
   const user = await ctx.db
     .query("users")
-    .withIndex("by_token", (q: any) => q.eq("tokenIdentifier", identity.tokenIdentifier))
+    .withIndex("by_token", (q) => q.eq("tokenIdentifier", identity.tokenIdentifier))
     .first();
 
-  return user?._id;
+  return user?._id ?? null;
 }
 
 /**
@@ -28,6 +30,12 @@ export const send = mutation({
     const userId = await getCurrentUserId(ctx);
     if (!userId) {
       throw new Error("Not authenticated");
+    }
+
+    // Validate and sanitize message content
+    const sanitizedContent = validateString(args.content, 2000, "Message");
+    if (!sanitizedContent || sanitizedContent.trim().length === 0) {
+      throw new Error("Message cannot be empty");
     }
 
     // Verify user is part of this chat
@@ -58,11 +66,63 @@ export const send = mutation({
     const messageId = await ctx.db.insert("messages", {
       chatId: args.chatId,
       senderId: userId,
-      content: args.content,
+      content: sanitizedContent,
       type: "text",
       readBy: [userId], // Sender has automatically read their own message
       sentAt: Date.now(),
     });
+
+    // Determine recipient and create notification
+    const sender = await ctx.db.get(userId);
+    const senderName = sender ? `${sender.firstName} ${sender.lastName}` : "Someone";
+    const senderImage = sender?.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${senderName}`;
+
+    let recipientUserId: Id<"users">;
+    let senderRole: 'student' | 'mentor';
+    
+    if (isStudent) {
+      // Student sent message, notify mentor
+      recipientUserId = professional!.userId;
+      senderRole = 'student';
+    } else {
+      // Mentor sent message, notify student
+      recipientUserId = chat.studentId as Id<"users">;
+      senderRole = 'mentor';
+    }
+
+    // Check if recipient's notification preferences allow message notifications
+    const recipientSettings = await ctx.db
+      .query("userSettings")
+      .withIndex("by_user", (q) => q.eq("userId", recipientUserId))
+      .first();
+
+    // Only create notification if user has message notifications enabled (default: true)
+    if (!recipientSettings || recipientSettings.messageNotifications) {
+      // Truncate message for notification preview
+      const messagePreview = sanitizedContent.length > 50
+        ? `${sanitizedContent.substring(0, 50)}...`
+        : sanitizedContent;
+
+      await ctx.db.insert("notifications", {
+        userId: recipientUserId,
+        type: "message",
+        title: `New message from ${senderName}`,
+        message: messagePreview,
+        read: false,
+        createdAt: Date.now(),
+        relatedChatId: args.chatId,
+        relatedUserId: userId,
+        metadata: {
+          chatId: args.chatId,
+          messageId: messageId,
+          mentorId: senderRole === 'mentor' ? professional!._id : undefined,
+          studentId: senderRole === 'student' ? userId : undefined,
+          senderName: senderName,
+          senderImage: senderImage,
+          senderRole: senderRole,
+        },
+      });
+    }
 
     return { messageId };
   },
@@ -106,27 +166,32 @@ export const list = query({
       .withIndex("by_chat_and_time", (q) => q.eq("chatId", args.chatId))
       .collect();
 
-    // Enrich messages with sender info
-    const enrichedMessages = await Promise.all(
-      messages.map(async (message) => {
-        const sender = await ctx.db
-          .query("users")
-          .filter((q) => q.eq(q.field("_id"), message.senderId))
-          .first();
-
-        return {
-          ...message,
-          sender: sender
-            ? {
-                id: sender._id,
-                name: `${sender.firstName} ${sender.lastName}`,
-                avatar: sender.avatar,
-              }
-            : null,
-          isOwn: message.senderId === userId,
-        };
-      })
+    // Batch fetch senders to avoid N+1 problem - senderId is stored as string (needs migration)
+    const senderIds = [...new Set(messages.map(m => m.senderId))];
+    const senders = await Promise.all(
+      senderIds.map(id => ctx.db.get(id as Id<"users">))
     );
+    // Map by string for compatibility with current schema
+    const senderMap = new Map(
+      senders.filter(s => s !== null).map(s => [s!._id.toString(), s!])
+    );
+
+    // Enrich messages with sender info (no async needed now)
+    const enrichedMessages = messages.map((message) => {
+      const sender = senderMap.get(message.senderId);
+
+      return {
+        ...message,
+        sender: sender
+          ? {
+              id: sender._id,
+              name: `${sender.firstName} ${sender.lastName}`,
+              avatar: sender.avatar,
+            }
+          : null,
+        isOwn: message.senderId === userId,
+      };
+    });
 
     return enrichedMessages;
   },

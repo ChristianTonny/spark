@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Bell, MessageCircle, Calendar, CheckCircle, Clock, Star, Trash2 } from 'lucide-react';
+import { ArrowLeft, Bell, MessageCircle, Calendar, Clock, Star, Trash2 } from 'lucide-react';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { useConvexAuth } from '@/lib/hooks/useConvexAuth';
@@ -25,12 +25,11 @@ const getNotificationStyle = (type: string) => {
   }
 };
 
-export default function MentorNotificationsPage() {
+export default function StudentNotificationsPage() {
   const router = useRouter();
   const { user, isLoading: authLoading } = useConvexAuth();
-  const professional = useQuery(api.professionals.getCurrentProfessional);
 
-  useRoleGuard(['mentor']);
+  useRoleGuard(['student']);
 
   // Get real notifications from database
   const notifications = useQuery(api.notifications.getNotifications);
@@ -81,11 +80,19 @@ export default function MentorNotificationsPage() {
       handleMarkAsRead(notification._id);
     }
 
-    // Navigate to appropriate page based on type - always go to dashboard for mentors
-    router.push('/dashboard/mentor');
+    // Navigate to appropriate page based on type
+    if (notification.type === 'message' && notification.relatedChatId) {
+      // For messages, navigate to bookings page where chat is accessible
+      router.push('/dashboard/student/bookings');
+    } else if (notification.type === 'booking') {
+      router.push('/dashboard/student/bookings');
+    } else {
+      // Fallback to dashboard
+      router.push('/dashboard/student');
+    }
   };
 
-  if (authLoading || professional === undefined || notifications === undefined) {
+  if (authLoading || notifications === undefined) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
@@ -97,26 +104,13 @@ export default function MentorNotificationsPage() {
     );
   }
 
-  if (!professional) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <h1 className="text-4xl font-black mb-4">Profile not found</h1>
-          <Button onClick={() => router.push('/dashboard/mentor')}>
-            Return to Dashboard
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-gray-50 py-6 sm:py-8">
       <div className="container mx-auto px-3 sm:px-4 max-w-4xl">
         {/* Header */}
         <div className="mb-6 sm:mb-8">
           <button
-            onClick={() => router.push('/dashboard/mentor')}
+            onClick={() => router.push('/dashboard/student')}
             className="flex items-center gap-2 text-sm sm:text-base font-bold text-gray-700 hover:text-black mb-3 sm:mb-4 min-h-[44px]"
           >
             <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -209,7 +203,7 @@ export default function MentorNotificationsPage() {
             </p>
             <Button
               variant="outline"
-              onClick={() => router.push('/dashboard/mentor/settings')}
+              onClick={() => router.push('/dashboard/student/settings')}
               className="bg-white text-black hover:bg-gray-100 min-h-[44px] text-sm sm:text-base"
             >
               Go to Settings
@@ -220,3 +214,4 @@ export default function MentorNotificationsPage() {
     </div>
   );
 }
+
