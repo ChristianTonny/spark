@@ -190,6 +190,45 @@ export default defineSchema({
 
     growthPotential: v.optional(v.number()),  // 1-5 stars
     timeToEntry: v.optional(v.string()),      // "6-12 months", "2-3 years", etc.
+
+    // Reality Quiz - Interactive career exploration
+    realityQuiz: v.optional(v.object({
+      title: v.string(),                      // e.g., "A Day as a Software Developer"
+      description: v.string(),                // Brief intro to the quiz
+      duration: v.number(),                   // Estimated minutes to complete
+      questions: v.array(v.object({
+        id: v.string(),                       // e.g., "q1"
+        scenario: v.string(),                 // The situation/question
+        options: v.array(v.object({
+          text: v.string(),                   // Option text
+          insight: v.string(),                // What this choice reveals
+          scores: v.object({                  // How this affects readiness scoring
+            technical: v.optional(v.number()),      // -10 to +10
+            pressure: v.optional(v.number()),       // -10 to +10
+            collaboration: v.optional(v.number()),  // -10 to +10
+            creativity: v.optional(v.number()),     // -10 to +10
+            independence: v.optional(v.number()),   // -10 to +10
+            workLifeBalance: v.optional(v.number()),// -10 to +10
+          }),
+        })),
+        correctAnswer: v.optional(v.number()), // Index of "best" answer (optional)
+        explanation: v.string(),              // Context after answering
+        realityNote: v.string(),             // "78% of developers face this monthly"
+      })),
+      scoringGuide: v.object({
+        technical: v.object({ min: v.number(), max: v.number(), weight: v.number() }),
+        pressure: v.object({ min: v.number(), max: v.number(), weight: v.number() }),
+        collaboration: v.object({ min: v.number(), max: v.number(), weight: v.number() }),
+        creativity: v.object({ min: v.number(), max: v.number(), weight: v.number() }),
+        independence: v.object({ min: v.number(), max: v.number(), weight: v.number() }),
+        workLifeBalance: v.object({ min: v.number(), max: v.number(), weight: v.number() }),
+      }),
+      results: v.object({
+        high: v.object({ min: v.number(), title: v.string(), message: v.string() }),      // 80-100%
+        medium: v.object({ min: v.number(), title: v.string(), message: v.string() }),    // 50-79%
+        low: v.object({ min: v.number(), title: v.string(), message: v.string() }),       // 0-49%
+      }),
+    })),
   })
     .index("by_category", ["category"])
     .index("by_title", ["title"]),
@@ -555,4 +594,25 @@ export default defineSchema({
     .index("by_user", ["userId"])
     .index("by_article", ["articleId"])
     .index("by_user_and_article", ["userId", "articleId"]),
+
+  // Reality Quiz Results - Student quiz attempts
+  quizResults: defineTable({
+    userId: v.id("users"),
+    careerId: v.id("careers"),
+    answers: v.any(),                       // { [questionId]: optionIndex }
+    scores: v.object({                      // Calculated scores
+      technical: v.number(),
+      pressure: v.number(),
+      collaboration: v.number(),
+      creativity: v.number(),
+      independence: v.number(),
+      workLifeBalance: v.number(),
+    }),
+    readinessPercentage: v.number(),        // Overall 0-100 score
+    resultTier: v.string(),                 // "high" | "medium" | "low"
+    completedAt: v.number(),
+  })
+    .index("by_user", ["userId"])
+    .index("by_career", ["careerId"])
+    .index("by_user_and_career", ["userId", "careerId"]),
 });

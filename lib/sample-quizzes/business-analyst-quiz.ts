@@ -1,0 +1,316 @@
+/**
+ * Sample Reality Quiz for Business Analyst Career
+ */
+
+export const businessAnalystQuiz = {
+  title: "A Day as a Business Analyst",
+  description: "Navigate stakeholder demands, data analysis, and requirement gathering. See if you can bridge business and technology.",
+  duration: 6,
+  questions: [
+    {
+      id: "q1",
+      scenario: "Stakeholders want conflicting features - Sales wants simplicity, Operations wants detailed tracking. Both say their need is urgent. What do you do?",
+      options: [
+        {
+          text: "Pick the most senior stakeholder's priority",
+          insight: "Hierarchy-based decisions miss the chance to find win-win solutions",
+          scores: {
+            collaboration: 3,
+            pressure: 5,
+            technical: 4,
+            creativity: 2,
+            independence: 6,
+            workLifeBalance: 6,
+          },
+        },
+        {
+          text: "Facilitate meeting between both groups to find compromise solution",
+          insight: "Classic BA skillset - you bring people together to solve problems collaboratively",
+          scores: {
+            collaboration: 10,
+            creativity: 9,
+            pressure: 8,
+            technical: 8,
+            independence: 6,
+            workLifeBalance: 4,
+          },
+        },
+        {
+          text: "Research data to determine which feature delivers more business value",
+          insight: "Data-driven prioritization shows analytical thinking - core BA competency",
+          scores: {
+            technical: 10,
+            creativity: 7,
+            independence: 9,
+            collaboration: 6,
+            pressure: 7,
+            workLifeBalance: 5,
+          },
+        },
+        {
+          text: "Feel stuck between competing demands",
+          insight: "Common BA challenge - role requires navigating politics and priorities constantly",
+          scores: {
+            pressure: -6,
+            collaboration: 3,
+            technical: 4,
+            creativity: 2,
+            independence: 3,
+            workLifeBalance: 3,
+          },
+        },
+      ],
+      explanation: "BAs constantly balance competing stakeholder needs. The best use facilitation and data to find solutions everyone can support.",
+      realityNote: "73% of BAs report managing conflicting stakeholder priorities as their primary challenge. Diplomacy is as important as technical skills.",
+    },
+    {
+      id: "q2",
+      scenario: "Developers say your requirements are unclear, but you spent weeks documenting them. How do you respond?",
+      options: [
+        {
+          text: "Defend the documentation - they need to read it more carefully",
+          insight: "Defensive stance misses learning opportunity and damages relationships",
+          scores: {
+            collaboration: -4,
+            independence: 6,
+            pressure: 4,
+            technical: 3,
+            creativity: 2,
+            workLifeBalance: 6,
+          },
+        },
+        {
+          text: "Ask specific questions about what's unclear and clarify collaboratively",
+          insight: "You take ownership of communication - hallmark of effective BAs",
+          scores: {
+            collaboration: 10,
+            technical: 9,
+            creativity: 7,
+            pressure: 8,
+            independence: 6,
+            workLifeBalance: 5,
+          },
+        },
+        {
+          text: "Create visual diagrams and use cases to supplement documentation",
+          insight: "Adapting communication method shows flexibility and user-centered thinking",
+          scores: {
+            creativity: 10,
+            technical: 9,
+            collaboration: 8,
+            pressure: 7,
+            independence: 7,
+            workLifeBalance: 4,
+          },
+        },
+        {
+          text: "Realize documentation alone isn't enough - need ongoing collaboration",
+          insight: "Important insight - BA work is ongoing dialogue, not just documents",
+          scores: {
+            collaboration: 9,
+            technical: 8,
+            creativity: 8,
+            pressure: 7,
+            independence: 6,
+            workLifeBalance: 5,
+          },
+        },
+      ],
+      explanation: "Requirements documentation is starting point, not endpoint. Great BAs communicate in multiple formats and stay engaged throughout development.",
+      realityNote: "Agile BAs spend 60% of time in conversations vs documentation. Written requirements support discussion but don't replace it.",
+    },
+    {
+      id: "q3",
+      scenario: "You discover the project stakeholders want will cost 3x initial estimate. What do you do?",
+      options: [
+        {
+          text: "Present findings immediately and let stakeholders decide",
+          insight: "Transparency is good but presenting options not just problems is better",
+          scores: {
+            collaboration: 7,
+            technical: 8,
+            pressure: 7,
+            independence: 7,
+            creativity: 5,
+            workLifeBalance: 6,
+          },
+        },
+        {
+          text: "Identify lower-cost alternatives that meet core business objectives",
+          insight: "Solution-oriented thinking - you understand it's not just about documenting problems",
+          scores: {
+            creativity: 10,
+            technical: 9,
+            collaboration: 8,
+            pressure: 8,
+            independence: 8,
+            workLifeBalance: 4,
+          },
+        },
+        {
+          text: "Worry about delivering bad news and being blamed",
+          insight: "Understandable but BAs must deliver uncomfortable truths early to save costs later",
+          scores: {
+            pressure: -6,
+            collaboration: 4,
+            technical: 5,
+            creativity: 3,
+            independence: 3,
+            workLifeBalance: 3,
+          },
+        },
+        {
+          text: "Work with dev team to phase features and reduce initial scope",
+          insight: "Collaborative approach to managing scope - shows strategic thinking",
+          scores: {
+            collaboration: 10,
+            creativity: 9,
+            technical: 8,
+            pressure: 8,
+            independence: 7,
+            workLifeBalance: 5,
+          },
+        },
+      ],
+      explanation: "BAs often uncover scope/cost mismatches. The best present problems alongside creative solutions that preserve business value.",
+      realityNote: "65% of BA projects experience significant scope growth. Early identification and creative alternatives prevent budget disasters.",
+    },
+    {
+      id: "q4",
+      scenario: "Business wants feature delivered in 1 month. Tech says 3 months minimum. You're in the middle. What do you do?",
+      options: [
+        {
+          text: "Tell business they have to wait - tech timeline is firm",
+          insight: "Siding with one group misses BA's value as bridge-builder",
+          scores: {
+            collaboration: 4,
+            technical: 6,
+            pressure: 5,
+            independence: 5,
+            creativity: 3,
+            workLifeBalance: 7,
+          },
+        },
+        {
+          text: "Pressure tech team to work faster to meet business deadline",
+          insight: "Unrealistic deadlines lead to technical debt and team burnout",
+          scores: {
+            collaboration: -3,
+            pressure: 6,
+            technical: 3,
+            creativity: 3,
+            independence: 4,
+            workLifeBalance: 4,
+          },
+        },
+        {
+          text: "Facilitate discussion to identify minimum viable feature for month 1",
+          insight: "You understand phased delivery and facilitate win-win outcomes - excellent BA skill",
+          scores: {
+            collaboration: 10,
+            creativity: 10,
+            technical: 9,
+            pressure: 9,
+            independence: 7,
+            workLifeBalance: 5,
+          },
+        },
+        {
+          text: "Research competitive solutions to inform feasibility discussion",
+          insight: "Data-driven approach to timeline discussions shows analytical maturity",
+          scores: {
+            technical: 9,
+            creativity: 8,
+            independence: 9,
+            collaboration: 7,
+            pressure: 7,
+            workLifeBalance: 5,
+          },
+        },
+      ],
+      explanation: "Timeline conflicts are constant. The best BAs don't take sides - they facilitate creative solutions that address core business needs realistically.",
+      realityNote: "BAs mediate timeline conflicts weekly. Success comes from creative scoping, not from picking sides.",
+    },
+    {
+      id: "q5",
+      scenario: "After 3 months of analysis, stakeholders change their mind about core requirements. How do you react?",
+      options: [
+        {
+          text: "Frustrated - this invalidates all my work",
+          insight: "Understandable but change is inherent in business - adaptability is crucial",
+          scores: {
+            pressure: -5,
+            creativity: -3,
+            collaboration: 3,
+            technical: 4,
+            independence: 4,
+            workLifeBalance: 2,
+          },
+        },
+        {
+          text: "Understand businesses evolve - adapt analysis to new direction",
+          insight: "Flexibility and growth mindset - you recognize change as normal not failure",
+          scores: {
+            creativity: 9,
+            collaboration: 9,
+            pressure: 9,
+            technical: 8,
+            independence: 7,
+            workLifeBalance: 5,
+          },
+        },
+        {
+          text: "Ask what changed in business environment to drive new requirements",
+          insight: "Curiosity about business context - shows strategic thinking beyond task execution",
+          scores: {
+            technical: 9,
+            collaboration: 10,
+            creativity: 8,
+            pressure: 8,
+            independence: 8,
+            workLifeBalance: 5,
+          },
+        },
+        {
+          text: "Document change formally and track scope/timeline impacts",
+          insight: "Professional approach to change management - protects project viability",
+          scores: {
+            technical: 10,
+            collaboration: 7,
+            pressure: 7,
+            independence: 8,
+            creativity: 6,
+            workLifeBalance: 6,
+          },
+        },
+      ],
+      explanation: "Requirements change is the norm, not exception. Great BAs embrace change while managing its impacts on timeline and scope.",
+      realityNote: "Studies show 60% of requirements change significantly during projects. BAs who resist change struggle; those who manage it thrive.",
+    },
+  ],
+  scoringGuide: {
+    technical: { min: -5, max: 60, weight: 0.20 },
+    pressure: { min: -25, max: 60, weight: 0.20 },
+    collaboration: { min: -15, max: 70, weight: 0.25 },
+    creativity: { min: -10, max: 65, weight: 0.20 },
+    independence: { min: 0, max: 55, weight: 0.10 },
+    workLifeBalance: { min: -5, max: 45, weight: 0.05 },
+  },
+  results: {
+    high: {
+      min: 70,
+      title: "Strong BA Potential",
+      message: "You demonstrate key BA competencies: collaboration, creative problem-solving, analytical thinking, and comfort with ambiguity. You understand the role bridges business and technology through facilitation not just documentation. This career aligns well with your strengths.",
+    },
+    medium: {
+      min: 50,
+      title: "BA Role Possible With Development",
+      message: "You have some BA aptitudes but may find constant stakeholder management, requirement volatility, or political navigation challenging. Consider starting as QA analyst or junior BA to develop these skills before taking on complex projects.",
+    },
+    low: {
+      min: 0,
+      title: "Consider Different Analytical Roles",
+      message: "Your responses suggest the BA role's heavy emphasis on facilitation and stakeholder management may not suit you. Consider data analyst, systems analyst, or technical writing roles that leverage analytical skills with less interpersonal complexity.",
+    },
+  },
+};

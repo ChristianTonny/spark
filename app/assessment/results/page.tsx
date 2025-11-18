@@ -24,6 +24,16 @@ function AssessmentResultsContent() {
   const bookmarkedIds = useQuery(api.savedCareers.getIds, user ? {} : "skip");
   const toggleBookmark = useMutation(api.savedCareers.toggle);
 
+  // Get mentors for top matched careers (top 3)
+  const topCareerIds = allResults && allResults.length > 0
+    ? allResults[0].careerMatches.slice(0, 3).map(m => m.careerId).filter(Boolean)
+    : [];
+
+  const relevantMentors = useQuery(
+    api.professionals.getByCareerIds,
+    topCareerIds.length > 0 ? { careerIds: topCareerIds } : "skip"
+  );
+
   // Handle bookmark toggle
   const handleBookmark = async (e: React.MouseEvent, careerId: string, careerTitle: string) => {
     e.preventDefault();
@@ -315,6 +325,99 @@ function AssessmentResultsContent() {
                 </div>
               ))}
             </div>
+          </div>
+        )}
+
+        {/* Relevant Mentors Section */}
+        {relevantMentors && relevantMentors.length > 0 && (
+          <div className="bg-white border-3 border-black shadow-brutal p-6 md:p-8 mb-8">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-2xl md:text-3xl font-black uppercase mb-2">Talk to Professionals</h2>
+                <p className="text-gray-700 font-medium">
+                  Connect with mentors who work in your top matched careers
+                </p>
+              </div>
+              <Link href="/mentors">
+                <button className="px-4 py-2 bg-white border-2 border-black shadow-brutal-sm hover:shadow-brutal transition-all font-bold text-sm hidden md:block">
+                  View All →
+                </button>
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+              {relevantMentors.slice(0, 3).map((mentor) => (
+                <div
+                  key={mentor._id}
+                  className="border-2 border-black p-4 hover:shadow-brutal transition-all"
+                >
+                  <div className="flex items-start gap-3 mb-3">
+                    <div className="w-12 h-12 border-2 border-black bg-brutal-yellow flex items-center justify-center flex-shrink-0">
+                      {mentor.avatar ? (
+                        <img
+                          src={mentor.avatar}
+                          alt={`${mentor.firstName} ${mentor.lastName}`}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <span className="font-black text-lg">
+                          {mentor.firstName?.charAt(0) || '?'}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-black text-base mb-1 truncate">
+                        {mentor.firstName} {mentor.lastName}
+                      </h3>
+                      <p className="text-xs font-bold text-gray-600 truncate">
+                        {mentor.jobTitle}
+                      </p>
+                      {mentor.company && (
+                        <p className="text-xs font-medium text-gray-500 truncate">
+                          at {mentor.company}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  {mentor.bio && (
+                    <p className="text-xs text-gray-700 mb-3 line-clamp-2">
+                      {mentor.bio}
+                    </p>
+                  )}
+
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="flex items-center gap-1">
+                      <Sparkles className="w-3 h-3 text-yellow-500" />
+                      <span className="text-xs font-bold">{mentor.rating || 5.0}</span>
+                    </div>
+                    <span className="text-xs text-gray-600">
+                      ({mentor.chatsCompleted || 0} chats)
+                    </span>
+                    {mentor.yearsExperience && (
+                      <>
+                        <span className="text-xs text-gray-400">•</span>
+                        <span className="text-xs font-medium text-gray-600">
+                          {mentor.yearsExperience}+ yrs
+                        </span>
+                      </>
+                    )}
+                  </div>
+
+                  <Link href={`/mentors/${mentor.userId}`}>
+                    <button className="w-full px-4 py-2 bg-brutal-orange text-white font-bold uppercase text-xs border-2 border-black shadow-brutal-sm hover:shadow-brutal transition-all">
+                      Book 15-min Chat
+                    </button>
+                  </Link>
+                </div>
+              ))}
+            </div>
+
+            <Link href="/mentors" className="block md:hidden mt-4">
+              <button className="w-full px-4 py-2 bg-white border-2 border-black shadow-brutal-sm hover:shadow-brutal transition-all font-bold text-sm">
+                View All Mentors →
+              </button>
+            </Link>
           </div>
         )}
 

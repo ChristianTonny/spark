@@ -25,6 +25,7 @@ import { NotFoundError } from "@/components/error-state";
 import Link from "next/link";
 import { useConvexAuth } from "@/lib/hooks/useConvexAuth";
 import { SalaryCalculator } from "@/components/SalaryCalculator";
+import { RealityQuiz } from "@/components/RealityQuiz";
 
 export default function CareerDetailPage() {
   const params = useParams();
@@ -172,6 +173,17 @@ export default function CareerDetailPage() {
             </Card>
           </div>
         </div>
+
+        {/* Reality Quiz - Try This Career (Featured at top) */}
+        {career.realityQuiz && (
+          <div className="mb-8 sm:mb-10 md:mb-12">
+            <RealityQuiz
+              quiz={career.realityQuiz}
+              careerId={career._id}
+              careerTitle={career.title}
+            />
+          </div>
+        )}
 
         {/* Video Section */}
         {career.videoUrl && (

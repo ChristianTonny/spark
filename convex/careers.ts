@@ -1,4 +1,4 @@
-import { query } from "./_generated/server";
+import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 
 // Get all careers
@@ -94,5 +94,38 @@ export const search = query({
     }
 
     return careers;
+  },
+});
+
+// Add or update reality quiz for a career
+export const addQuizToCareer = mutation({
+  args: {
+    careerTitle: v.string(),
+    quiz: v.any(),
+  },
+  handler: async (ctx, args) => {
+    const career = await ctx.db
+      .query("careers")
+      .filter((q) => q.eq(q.field("title"), args.careerTitle))
+      .first();
+
+    if (!career) {
+      throw new Error(`Career not found: ${args.careerTitle}`);
+    }
+
+    await ctx.db.patch(career._id, {
+      realityQuiz: args.quiz,
+    });
+
+    return { success: true, careerId: career._id };
+  },
+});
+
+// Get careers that have reality quizzes
+export const getWithQuizzes = query({
+  args: {},
+  handler: async (ctx) => {
+    const careers = await ctx.db.query("careers").collect();
+    return careers.filter(c => c.realityQuiz !== undefined);
   },
 });

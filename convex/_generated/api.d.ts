@@ -25,8 +25,10 @@ import type * as migrations_fixRelatedCareerIds from "../migrations/fixRelatedCa
 import type * as migrations from "../migrations.js";
 import type * as notifications from "../notifications.js";
 import type * as professionals from "../professionals.js";
+import type * as quizResults from "../quizResults.js";
 import type * as savedCareers from "../savedCareers.js";
 import type * as seed from "../seed.js";
+import type * as seedQuizzes from "../seedQuizzes.js";
 import type * as setupEducator from "../setupEducator.js";
 import type * as studentProfiles from "../studentProfiles.js";
 import type * as testHelpers from "../testHelpers.js";
@@ -67,8 +69,10 @@ declare const fullApi: ApiFromModules<{
   migrations: typeof migrations;
   notifications: typeof notifications;
   professionals: typeof professionals;
+  quizResults: typeof quizResults;
   savedCareers: typeof savedCareers;
   seed: typeof seed;
+  seedQuizzes: typeof seedQuizzes;
   setupEducator: typeof setupEducator;
   studentProfiles: typeof studentProfiles;
   testHelpers: typeof testHelpers;
