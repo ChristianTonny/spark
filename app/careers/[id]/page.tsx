@@ -545,7 +545,7 @@ export default function CareerDetailPage() {
                       </div>
                       <div className="pt-3 border-t-2 border-gray-200">
                         <p className="font-bold text-gray-700 mb-1">💡 Advice:</p>
-                        <p className="text-gray-700 italic">"{story.advice}"</p>
+                        <p className="text-gray-700 italic">&quot;{story.advice}&quot;</p>
                       </div>
                     </div>
                   </CardContent>
