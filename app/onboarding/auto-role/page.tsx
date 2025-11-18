@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useUser } from '@clerk/nextjs';
 import { useMutation, useQuery } from 'convex/react';
@@ -10,7 +10,7 @@ import { api } from '../../../convex/_generated/api';
  * Automatic role setter - Sets user role based on sign-up page selection
  * This page is hit immediately after Clerk sign-up completes
  */
-export default function AutoRolePage() {
+function AutoRoleContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, isLoaded } = useUser();
@@ -121,3 +121,19 @@ export default function AutoRolePage() {
   );
 }
 
+export default function AutoRolePage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-background flex items-center justify-center">
+          <div className="text-center">
+            <div className="w-16 h-16 border-4 border-black border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-xl font-bold">Loading...</p>
+          </div>
+        </div>
+      }
+    >
+      <AutoRoleContent />
+    </Suspense>
+  );
+}
