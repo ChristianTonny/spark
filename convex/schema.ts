@@ -109,6 +109,87 @@ export default defineSchema({
       time: v.string(),           // e.g., "9:00 AM" or "Morning"
       activity: v.string(),       // Description of what happens at this time
     }))),
+
+    // NEW: Comprehensive career information
+    realityCheck: v.optional(v.object({
+      myths: v.array(v.string()),           // Common misconceptions
+      realities: v.array(v.string()),       // What it's actually like
+      surprises: v.array(v.string()),       // What surprised professionals
+    })),
+
+    weekInLife: v.optional(v.object({
+      goodDay: v.array(v.object({ time: v.string(), activity: v.string() })),
+      hardDay: v.array(v.object({ time: v.string(), activity: v.string() })),
+    })),
+
+    careerCapital: v.optional(v.object({
+      transferableSkills: v.array(v.string()),
+      specificSkills: v.array(v.string()),
+      exitOpportunities: v.array(v.string()),
+    })),
+
+    breakingIn: v.optional(v.array(v.object({
+      pathName: v.string(),
+      percentage: v.number(),
+      timeline: v.string(),
+      cost: v.string(),
+      steps: v.array(v.string()),
+    }))),
+
+    prosAndCons: v.optional(v.object({
+      pros: v.array(v.string()),
+      cons: v.array(v.string()),
+      bestFor: v.array(v.string()),
+      notFor: v.array(v.string()),
+    })),
+
+    salaryProgression: v.optional(v.array(v.object({
+      level: v.string(),
+      years: v.string(),
+      range: v.string(),
+    }))),
+
+    skillRoadmap: v.optional(v.array(v.object({
+      stage: v.string(),        // "Beginner", "Intermediate", "Advanced"
+      duration: v.string(),
+      skills: v.array(v.string()),
+      projects: v.array(v.string()),
+      resources: v.array(v.string()),
+    }))),
+
+    successStories: v.optional(v.array(v.object({
+      name: v.string(),
+      age: v.number(),
+      previousRole: v.string(),
+      switchTrigger: v.string(),
+      timeline: v.string(),
+      hardestPart: v.string(),
+      biggestHelp: v.string(),
+      currentSalary: v.string(),
+      advice: v.string(),
+    }))),
+
+    warningFlags: v.optional(v.object({
+      redFlags: v.array(v.string()),
+      greenFlags: v.array(v.string()),
+    })),
+
+    resources: v.optional(v.array(v.object({
+      name: v.string(),
+      type: v.string(),          // "course", "book", "community", "tool"
+      rating: v.number(),        // 1-3 stars
+      description: v.string(),
+      url: v.optional(v.string()),
+    }))),
+
+    remoteWork: v.optional(v.object({
+      friendly: v.boolean(),
+      percentage: v.number(),    // % of jobs that are remote
+      notes: v.string(),
+    })),
+
+    growthPotential: v.optional(v.number()),  // 1-5 stars
+    timeToEntry: v.optional(v.string()),      // "6-12 months", "2-3 years", etc.
   })
     .index("by_category", ["category"])
     .index("by_title", ["title"]),

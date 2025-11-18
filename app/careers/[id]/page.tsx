@@ -302,6 +302,283 @@ export default function CareerDetailPage() {
           </div>
         )}
 
+        {/* Reality Check */}
+        {career.realityCheck && (
+          <div className="mb-8 sm:mb-10 md:mb-12">
+            <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">Reality Check</h2>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-6">
+              {/* Myths */}
+              <Card className="border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] bg-brutal-pink/10">
+                <CardContent className="p-4 sm:p-6">
+                  <h3 className="text-lg sm:text-xl font-bold mb-4 uppercase">❌ Common Myths</h3>
+                  <ul className="space-y-2 sm:space-y-3">
+                    {career.realityCheck.myths.map((myth, index) => (
+                      <li key={index} className="flex gap-2 text-sm sm:text-base text-gray-700">
+                        <span className="flex-shrink-0 mt-1">•</span>
+                        <span>{myth}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+
+              {/* Realities */}
+              <Card className="border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] bg-brutal-green/10">
+                <CardContent className="p-4 sm:p-6">
+                  <h3 className="text-lg sm:text-xl font-bold mb-4 uppercase">✅ The Reality</h3>
+                  <ul className="space-y-2 sm:space-y-3">
+                    {career.realityCheck.realities.map((reality, index) => (
+                      <li key={index} className="flex gap-2 text-sm sm:text-base text-gray-700">
+                        <span className="flex-shrink-0 mt-1">•</span>
+                        <span>{reality}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Surprises */}
+            <Card className="border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] bg-brutal-yellow/20">
+              <CardContent className="p-4 sm:p-6">
+                <h3 className="text-lg sm:text-xl font-bold mb-4 uppercase">💡 What Surprised Professionals Most</h3>
+                <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {career.realityCheck.surprises.map((surprise, index) => (
+                    <li key={index} className="flex gap-2 text-sm sm:text-base text-gray-700">
+                      <span className="flex-shrink-0 mt-1">•</span>
+                      <span>{surprise}</span>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* Week in the Life - Good Day vs Hard Day */}
+        {career.weekInLife && (
+          <div className="mb-8 sm:mb-10 md:mb-12">
+            <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">A Week in the Life</h2>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+              {/* Good Day */}
+              <Card className="border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] bg-green-50">
+                <CardContent className="p-4 sm:p-6">
+                  <h3 className="text-lg sm:text-xl font-bold mb-4 uppercase text-green-800">🌟 A Good Day</h3>
+                  <div className="space-y-3">
+                    {career.weekInLife.goodDay.map((item, index) => (
+                      <div key={index} className="flex gap-3 items-start">
+                        <div className="flex-shrink-0 w-16 px-2 py-1 bg-green-200 border-2 border-black text-xs sm:text-sm font-bold text-center">
+                          {item.time}
+                        </div>
+                        <p className="flex-1 text-sm sm:text-base text-gray-700 pt-1">{item.activity}</p>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Hard Day */}
+              <Card className="border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] bg-orange-50">
+                <CardContent className="p-4 sm:p-6">
+                  <h3 className="text-lg sm:text-xl font-bold mb-4 uppercase text-orange-800">😅 A Hard Day</h3>
+                  <div className="space-y-3">
+                    {career.weekInLife.hardDay.map((item, index) => (
+                      <div key={index} className="flex gap-3 items-start">
+                        <div className="flex-shrink-0 w-16 px-2 py-1 bg-orange-200 border-2 border-black text-xs sm:text-sm font-bold text-center">
+                          {item.time}
+                        </div>
+                        <p className="flex-1 text-sm sm:text-base text-gray-700 pt-1">{item.activity}</p>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        )}
+
+        {/* Breaking In - Paths to Entry */}
+        {career.breakingIn && career.breakingIn.length > 0 && (
+          <div className="mb-8 sm:mb-10 md:mb-12">
+            <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">How to Break In</h2>
+            <div className="space-y-4">
+              {career.breakingIn.map((path, index) => (
+                <Card key={index} className="border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                  <CardContent className="p-4 sm:p-6">
+                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4">
+                      <div>
+                        <h3 className="text-lg sm:text-xl font-bold">{path.pathName}</h3>
+                        <p className="text-sm text-gray-600">{path.percentage}% of people take this path</p>
+                      </div>
+                      <div className="flex flex-wrap gap-3 text-sm">
+                        <Badge variant="outline" className="border-2 border-black">
+                          <Clock className="h-3 w-3 mr-1" />
+                          {path.timeline}
+                        </Badge>
+                        <Badge variant="outline" className="border-2 border-black">
+                          <DollarSign className="h-3 w-3 mr-1" />
+                          {path.cost}
+                        </Badge>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <p className="text-sm font-bold uppercase text-gray-600 mb-2">Steps:</p>
+                      <ol className="space-y-2">
+                        {path.steps.map((step, stepIndex) => (
+                          <li key={stepIndex} className="flex gap-2 text-sm sm:text-base text-gray-700">
+                            <span className="flex-shrink-0 font-bold">{stepIndex + 1}.</span>
+                            <span>{step}</span>
+                          </li>
+                        ))}
+                      </ol>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Pros and Cons */}
+        {career.prosAndCons && (
+          <div className="mb-8 sm:mb-10 md:mb-12">
+            <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">Pros & Cons</h2>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+              {/* Pros */}
+              <Card className="border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] bg-green-50">
+                <CardContent className="p-4 sm:p-6">
+                  <h3 className="text-lg sm:text-xl font-bold mb-4 uppercase text-green-800">✅ Pros</h3>
+                  <ul className="space-y-2">
+                    {career.prosAndCons.pros.map((pro, index) => (
+                      <li key={index} className="flex gap-2 text-sm sm:text-base text-gray-700">
+                        <span className="flex-shrink-0 mt-1">•</span>
+                        <span>{pro}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+
+              {/* Cons */}
+              <Card className="border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] bg-orange-50">
+                <CardContent className="p-4 sm:p-6">
+                  <h3 className="text-lg sm:text-xl font-bold mb-4 uppercase text-orange-800">⚠️ Cons</h3>
+                  <ul className="space-y-2">
+                    {career.prosAndCons.cons.map((con, index) => (
+                      <li key={index} className="flex gap-2 text-sm sm:text-base text-gray-700">
+                        <span className="flex-shrink-0 mt-1">•</span>
+                        <span>{con}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Best For / Not For */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mt-4 sm:mt-6">
+              <Card className="border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                <CardContent className="p-4 sm:p-6">
+                  <h3 className="text-lg sm:text-xl font-bold mb-4 uppercase">👍 Best For You If...</h3>
+                  <ul className="space-y-2">
+                    {career.prosAndCons.bestFor.map((item, index) => (
+                      <li key={index} className="flex gap-2 text-sm sm:text-base text-gray-700">
+                        <span className="flex-shrink-0 mt-1">✓</span>
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+
+              <Card className="border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                <CardContent className="p-4 sm:p-6">
+                  <h3 className="text-lg sm:text-xl font-bold mb-4 uppercase">👎 Not For You If...</h3>
+                  <ul className="space-y-2">
+                    {career.prosAndCons.notFor.map((item, index) => (
+                      <li key={index} className="flex gap-2 text-sm sm:text-base text-gray-700">
+                        <span className="flex-shrink-0 mt-1">✗</span>
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        )}
+
+        {/* Success Stories */}
+        {career.successStories && career.successStories.length > 0 && (
+          <div className="mb-8 sm:mb-10 md:mb-12">
+            <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">Success Stories</h2>
+            <div className="space-y-4 sm:space-y-6">
+              {career.successStories.map((story, index) => (
+                <Card key={index} className="border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] bg-brutal-blue/5">
+                  <CardContent className="p-4 sm:p-6">
+                    <div className="flex items-start justify-between mb-4">
+                      <div>
+                        <h3 className="text-lg sm:text-xl font-bold">{story.name}, {story.age}</h3>
+                        <p className="text-sm text-gray-600">From: {story.previousRole}</p>
+                      </div>
+                      <Badge className="bg-brutal-green text-white border-2 border-black text-xs sm:text-sm">
+                        {story.currentSalary}
+                      </Badge>
+                    </div>
+
+                    <div className="space-y-3 text-sm sm:text-base">
+                      <div>
+                        <p className="font-bold text-gray-700">Why the switch?</p>
+                        <p className="text-gray-600">{story.switchTrigger}</p>
+                      </div>
+                      <div>
+                        <p className="font-bold text-gray-700">Timeline:</p>
+                        <p className="text-gray-600">{story.timeline}</p>
+                      </div>
+                      <div>
+                        <p className="font-bold text-gray-700">Hardest part:</p>
+                        <p className="text-gray-600">{story.hardestPart}</p>
+                      </div>
+                      <div>
+                        <p className="font-bold text-gray-700">What helped most:</p>
+                        <p className="text-gray-600">{story.biggestHelp}</p>
+                      </div>
+                      <div className="pt-3 border-t-2 border-gray-200">
+                        <p className="font-bold text-gray-700 mb-1">💡 Advice:</p>
+                        <p className="text-gray-700 italic">"{story.advice}"</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Salary Progression */}
+        {career.salaryProgression && career.salaryProgression.length > 0 && (
+          <div className="mb-8 sm:mb-10 md:mb-12">
+            <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">Salary Progression</h2>
+            <Card className="border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+              <CardContent className="p-4 sm:p-6">
+                <div className="space-y-4">
+                  {career.salaryProgression.map((level, index) => (
+                    <div key={index} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 p-4 bg-gray-50 border-2 border-black">
+                      <div className="flex-1">
+                        <h3 className="font-bold text-base sm:text-lg">{level.level}</h3>
+                        <p className="text-sm text-gray-600">Experience: {level.years}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-lg sm:text-xl font-black text-brutal-green">{level.range}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
         {/* Salary Calculator */}
         <div className="mb-8 sm:mb-10 md:mb-12">
           <SalaryCalculator
@@ -310,6 +587,176 @@ export default function CareerDetailPage() {
             careerTitle={career.title}
           />
         </div>
+
+        {/* Skill Roadmap */}
+        {career.skillRoadmap && career.skillRoadmap.length > 0 && (
+          <div className="mb-8 sm:mb-10 md:mb-12">
+            <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">Skill Development Roadmap</h2>
+            <div className="space-y-4">
+              {career.skillRoadmap.map((stage, index) => (
+                <Card key={index} className="border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                  <CardContent className="p-4 sm:p-6">
+                    <div className="flex items-start gap-3 mb-4">
+                      <div className="flex-shrink-0 w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center font-bold border-2 border-black">
+                        {index + 1}
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="text-lg sm:text-xl font-bold">{stage.stage}</h3>
+                        <p className="text-sm text-gray-600">{stage.duration}</p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div>
+                        <p className="font-bold text-sm uppercase text-gray-600 mb-2">Skills to Learn:</p>
+                        <ul className="space-y-1">
+                          {stage.skills.map((skill, skillIndex) => (
+                            <li key={skillIndex} className="text-sm text-gray-700">• {skill}</li>
+                          ))}
+                        </ul>
+                      </div>
+                      <div>
+                        <p className="font-bold text-sm uppercase text-gray-600 mb-2">Projects to Build:</p>
+                        <ul className="space-y-1">
+                          {stage.projects.map((project, projectIndex) => (
+                            <li key={projectIndex} className="text-sm text-gray-700">• {project}</li>
+                          ))}
+                        </ul>
+                      </div>
+                      <div>
+                        <p className="font-bold text-sm uppercase text-gray-600 mb-2">Resources:</p>
+                        <ul className="space-y-1">
+                          {stage.resources.map((resource, resourceIndex) => (
+                            <li key={resourceIndex} className="text-sm text-gray-700">• {resource}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Career Capital */}
+        {career.careerCapital && (
+          <div className="mb-8 sm:mb-10 md:mb-12">
+            <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">Career Capital</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Card className="border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                <CardContent className="p-4 sm:p-6">
+                  <h3 className="font-bold text-lg mb-3 uppercase">Transferable Skills</h3>
+                  <p className="text-xs text-gray-600 mb-3">Useful in any career</p>
+                  <ul className="space-y-2">
+                    {career.careerCapital.transferableSkills.map((skill, index) => (
+                      <li key={index} className="text-sm text-gray-700">• {skill}</li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+
+              <Card className="border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                <CardContent className="p-4 sm:p-6">
+                  <h3 className="font-bold text-lg mb-3 uppercase">Specific Skills</h3>
+                  <p className="text-xs text-gray-600 mb-3">Technical expertise</p>
+                  <ul className="space-y-2">
+                    {career.careerCapital.specificSkills.map((skill, index) => (
+                      <li key={index} className="text-sm text-gray-700">• {skill}</li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+
+              <Card className="border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                <CardContent className="p-4 sm:p-6">
+                  <h3 className="font-bold text-lg mb-3 uppercase">Exit Opportunities</h3>
+                  <p className="text-xs text-gray-600 mb-3">Where you can pivot to</p>
+                  <ul className="space-y-2">
+                    {career.careerCapital.exitOpportunities.map((opportunity, index) => (
+                      <li key={index} className="text-sm text-gray-700">• {opportunity}</li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        )}
+
+        {/* Resources */}
+        {career.resources && career.resources.length > 0 && (
+          <div className="mb-8 sm:mb-10 md:mb-12">
+            <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">Recommended Resources</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {career.resources.map((resource, index) => (
+                <Card key={index} className="border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                  <CardContent className="p-4 sm:p-6">
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex-1">
+                        <h3 className="font-bold text-base sm:text-lg">{resource.name}</h3>
+                        <Badge className="mt-1 text-xs" variant="outline">{resource.type}</Badge>
+                      </div>
+                      <div className="flex gap-1 ml-2">
+                        {Array.from({ length: resource.rating }).map((_, i) => (
+                          <Star key={i} className="h-4 w-4 text-yellow-500" fill="currentColor" />
+                        ))}
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-700 mb-3">{resource.description}</p>
+                    {resource.url && (
+                      <a
+                        href={resource.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-sm font-bold text-primary hover:underline"
+                      >
+                        Visit <ExternalLink className="h-3 w-3" />
+                      </a>
+                    )}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Warning Flags */}
+        {career.warningFlags && (
+          <div className="mb-8 sm:mb-10 md:mb-12">
+            <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">Warning Flags</h2>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <Card className="border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] bg-red-50">
+                <CardContent className="p-4 sm:p-6">
+                  <h3 className="text-lg sm:text-xl font-bold mb-4 uppercase text-red-800">🚩 Red Flags</h3>
+                  <p className="text-sm text-gray-600 mb-3">Watch out for these when job hunting:</p>
+                  <ul className="space-y-2">
+                    {career.warningFlags.redFlags.map((flag, index) => (
+                      <li key={index} className="flex gap-2 text-sm text-gray-700">
+                        <span className="flex-shrink-0 mt-1">•</span>
+                        <span>{flag}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+
+              <Card className="border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] bg-green-50">
+                <CardContent className="p-4 sm:p-6">
+                  <h3 className="text-lg sm:text-xl font-bold mb-4 uppercase text-green-800">✅ Green Flags</h3>
+                  <p className="text-sm text-gray-600 mb-3">Great signs of a healthy workplace:</p>
+                  <ul className="space-y-2">
+                    {career.warningFlags.greenFlags.map((flag, index) => (
+                      <li key={index} className="flex gap-2 text-sm text-gray-700">
+                        <span className="flex-shrink-0 mt-1">•</span>
+                        <span>{flag}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        )}
 
         {/* Career Path */}
         {career.careerPath.length > 0 && (
