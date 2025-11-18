@@ -60,7 +60,7 @@ export default function SetupAdminPage() {
               <h3 className="font-black mb-2">Current Status:</h3>
               {checkUser.error ? (
                 <p className="text-red-600 font-bold">{checkUser.error}</p>
-              ) : (
+              ) : checkUser.user ? (
                 <div>
                   <p className="font-bold">
                     Role: <span className={checkUser.user.role === 'admin' ? 'text-green-600' : 'text-orange-600'}>
@@ -71,7 +71,7 @@ export default function SetupAdminPage() {
                     {checkUser.user.firstName} {checkUser.user.lastName}
                   </p>
                 </div>
-              )}
+              ) : null}
             </div>
           )}
 
