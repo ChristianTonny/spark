@@ -380,7 +380,8 @@ export default defineSchema({
       v.literal("booking"),
       v.literal("message"),
       v.literal("review"),
-      v.literal("system")
+      v.literal("system"),
+      v.literal("mentor_application")
     ),
     title: v.string(),
     message: v.string(),
