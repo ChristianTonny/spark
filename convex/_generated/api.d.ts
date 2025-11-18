@@ -9,6 +9,7 @@
  */
 
 import type * as admin from "../admin.js";
+import type * as adminUtils from "../adminUtils.js";
 import type * as articles from "../articles.js";
 import type * as assessments from "../assessments.js";
 import type * as availabilitySlots from "../availabilitySlots.js";
@@ -27,6 +28,7 @@ import type * as savedCareers from "../savedCareers.js";
 import type * as seed from "../seed.js";
 import type * as studentProfiles from "../studentProfiles.js";
 import type * as testHelpers from "../testHelpers.js";
+import type * as updateAssessment from "../updateAssessment.js";
 import type * as userSettings from "../userSettings.js";
 import type * as users from "../users.js";
 import type * as utils_sanitize from "../utils/sanitize.js";
@@ -47,6 +49,7 @@ import type {
  */
 declare const fullApi: ApiFromModules<{
   admin: typeof admin;
+  adminUtils: typeof adminUtils;
   articles: typeof articles;
   assessments: typeof assessments;
   availabilitySlots: typeof availabilitySlots;
@@ -65,6 +68,7 @@ declare const fullApi: ApiFromModules<{
   seed: typeof seed;
   studentProfiles: typeof studentProfiles;
   testHelpers: typeof testHelpers;
+  updateAssessment: typeof updateAssessment;
   userSettings: typeof userSettings;
   users: typeof users;
   "utils/sanitize": typeof utils_sanitize;

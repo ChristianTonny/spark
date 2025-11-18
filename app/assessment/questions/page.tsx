@@ -84,12 +84,13 @@ export default function AssessmentQuestionsPage() {
           const {
             calculateProfileFromAnswers,
             matchStudentToCareers,
+            getTop3RIASEC,
           } = await import('@/lib/assessment-algorithm');
 
           const studentProfile = calculateProfileFromAnswers(updatedAnswers);
 
-          // Match student to all careers
-          const matches = matchStudentToCareers(studentProfile, allCareers, 10);
+          // Match student to all careers (get top 25 instead of 10)
+          const matches = matchStudentToCareers(studentProfile, allCareers, 25);
 
           // Format matches for Convex
           const careerMatches = matches.map(match => ({
@@ -98,13 +99,25 @@ export default function AssessmentQuestionsPage() {
             matchReasons: match.matchReasons,
             interestScore: match.interestScore,
             valueScore: match.valueScore,
+            personalityScore: match.personalityScore, // NEW
             environmentScore: match.environmentScore,
           }));
+
+          // Format scores for storage and display
+          const scores = {
+            riasec: studentProfile.riasec,
+            values: studentProfile.values,
+            bigFive: studentProfile.bigFive,
+            workStyle: studentProfile.workStyle,
+            environment: studentProfile.environment,
+            topRIASEC: getTop3RIASEC(studentProfile.riasec),
+          };
 
           const result = await saveResult({
             assessmentId: assessment._id,
             answers: updatedAnswers,
             careerMatches,
+            scores, // NEW: Pass scores for display
           });
 
           // Redirect to results page with the result ID
@@ -157,27 +170,57 @@ export default function AssessmentQuestionsPage() {
             {question.text}
           </h2>
 
-          {/* Options */}
-          <div className="space-y-4">
-            {question.options?.map((option, index) => (
-              <button
-                key={index}
-                onClick={() => handleOptionSelect(index)}
-                className={`w-full p-6 text-left font-bold text-lg border-3 border-black transition-all ${
-                  selectedOption === index
-                    ? 'bg-primary text-white shadow-brutal-lg translate-x-[-4px] translate-y-[-4px]'
-                    : 'bg-white hover:shadow-brutal hover:translate-x-[-2px] hover:translate-y-[-2px]'
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <span>{option}</span>
-                  {selectedOption === index && (
-                    <Check className="w-6 h-6 flex-shrink-0 ml-4" />
-                  )}
-                </div>
-              </button>
-            ))}
-          </div>
+          {/* Options - Multiple Choice */}
+          {question.type === 'multiple_choice' && question.options && (
+            <div className="space-y-4">
+              {question.options.map((option, index) => (
+                <button
+                  key={index}
+                  onClick={() => handleOptionSelect(index)}
+                  className={`w-full p-6 text-left font-bold text-lg border-3 border-black transition-all ${
+                    selectedOption === index
+                      ? 'bg-primary text-white shadow-brutal-lg translate-x-[-4px] translate-y-[-4px]'
+                      : 'bg-white hover:shadow-brutal hover:translate-x-[-2px] hover:translate-y-[-2px]'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <span>{option}</span>
+                    {selectedOption === index && (
+                      <Check className="w-6 h-6 flex-shrink-0 ml-4" />
+                    )}
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Options - Likert Scale */}
+          {question.type === 'scale' && (
+            <div className="space-y-6">
+              <div className="flex justify-between text-sm font-bold text-gray-600 mb-2">
+                <span>{question.scaleLabels?.min}</span>
+                <span>{question.scaleLabels?.max}</span>
+              </div>
+              <div className="flex gap-3 justify-center">
+                {[0, 1, 2, 3, 4].map((value) => (
+                  <button
+                    key={value}
+                    onClick={() => handleOptionSelect(value)}
+                    className={`w-16 h-16 md:w-20 md:h-20 font-black text-2xl border-3 border-black transition-all ${
+                      selectedOption === value
+                        ? 'bg-primary text-white shadow-brutal-lg translate-x-[-4px] translate-y-[-4px]'
+                        : 'bg-white hover:shadow-brutal hover:translate-x-[-2px] hover:translate-y-[-2px]'
+                    }`}
+                  >
+                    {value + 1}
+                  </button>
+                ))}
+              </div>
+              <div className="text-center text-sm font-bold text-gray-600 mt-4">
+                1 = Strongly Disagree &nbsp;•&nbsp; 5 = Strongly Agree
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Navigation Buttons */}

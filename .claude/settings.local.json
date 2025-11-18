@@ -18,7 +18,9 @@
       "Bash(cat:*)",
       "Bash(wsl echo $USERPROFILE)",
       "Bash(npx convex deploy)",
-      "Bash(npx convex run:*)"
+      "Bash(npx convex run:*)",
+      "Bash(git commit:*)",
+      "Bash(git push)"
     ],
     "deny": [],
     "ask": []

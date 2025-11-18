@@ -252,25 +252,56 @@ export const approveApplication = mutation({
       await ctx.db.patch(user._id, { role: "mentor" });
     }
 
-    // Create professional profile
-    await ctx.db.insert("professionals", {
-      userId: user._id,
-      company: application.company,
-      jobTitle: application.currentRole,
-      rating: 0,
-      chatsCompleted: 0,
-      careerIds: [], // Admin can set this later or mentor can update
-      availability: [],
-      bio: application.motivation, // Use motivation as initial bio
-      yearsExperience: parseInt(application.yearsExperience) || 0,
-      totalEarnings: 0,
-      earningsThisMonth: 0,
-      earningsLastMonth: 0,
-      isApproved: true,
-      approvedAt: now,
-      approvedBy: admin._id,
-      applicationId: args.applicationId,
-    });
+    // Check if professional profile already exists
+    const existingProfessional = await ctx.db
+      .query("professionals")
+      .withIndex("by_user", (q) => q.eq("userId", user._id))
+      .first();
+
+    if (existingProfessional) {
+      // Update existing professional profile to approved
+      await ctx.db.patch(existingProfessional._id, {
+        isApproved: true,
+        approvedAt: now,
+        approvedBy: admin._id,
+      });
+    } else {
+      // Create professional profile
+      await ctx.db.insert("professionals", {
+        userId: user._id,
+        company: application.company,
+        jobTitle: application.currentRole,
+        rating: 0,
+        chatsCompleted: 0,
+        careerIds: [], // Admin can set this later or mentor can update
+        availability: [],
+        bio: application.motivation, // Use motivation as initial bio
+        yearsExperience: parseInt(application.yearsExperience) || 0,
+        totalEarnings: 0,
+        earningsThisMonth: 0,
+        earningsLastMonth: 0,
+        isApproved: true,
+        approvedAt: now,
+        approvedBy: admin._id,
+        applicationId: args.applicationId,
+      });
+    }
+
+    // Notify the mentor about approval
+    const mentorUser = await ctx.db.get(user._id);
+    if (mentorUser) {
+      await ctx.db.insert("notifications", {
+        userId: user._id,
+        type: "system",
+        title: "Mentor Application Approved! 🎉",
+        message: `Congratulations! Your application has been approved. You can now appear in the mentors directory and students can book sessions with you.`,
+        read: false,
+        createdAt: Date.now(),
+        metadata: {
+          applicationId: args.applicationId,
+        },
+      });
+    }
 
     // Update application status
     await ctx.db.patch(args.applicationId, {

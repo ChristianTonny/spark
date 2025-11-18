@@ -123,7 +123,7 @@ export default function Navigation() {
               {/* Signed In - Show Notification Bell and User Button */}
               <SignedIn>
                 <Link
-                  href={`/dashboard/${userRole}/notifications`}
+                  href={userRole === 'admin' ? '/admin/notifications' : `/dashboard/${userRole}/notifications`}
                   className="relative p-2 border-2 border-brutal-border hover:shadow-brutal-sm transition-all bg-white"
                   aria-label={`Notifications${unreadCount ? ` (${unreadCount} unread)` : ''}`}
                 >
@@ -232,7 +232,7 @@ export default function Navigation() {
               {/* Signed In - Show Notification Link and User Button */}
               <SignedIn>
                 <Link
-                  href={`/dashboard/${userRole}/notifications`}
+                  href={userRole === 'admin' ? '/admin/notifications' : `/dashboard/${userRole}/notifications`}
                   onClick={() => setMobileMenuOpen(false)}
                   className="flex items-center justify-between px-4 py-4 min-h-[52px] font-bold uppercase text-sm border-2 border-brutal-border shadow-brutal-sm active:shadow-none transition-all bg-white"
                 >

@@ -40,7 +40,7 @@ export default function SignUpRoleSelection() {
       title: "I'm an Educator",
       description: 'Guide students through career exploration and monitor their progress',
       icon: <BookOpen className="w-12 h-12" />,
-      color: 'bg-brutal-green',
+      color: 'bg-brutal-purple',
       features: [
         'Monitor student progress',
         'View assessment results',
@@ -66,14 +66,14 @@ export default function SignUpRoleSelection() {
   ];
 
   return (
-    <div className="min-h-screen bg-background py-12 px-4">
+    <div className="min-h-screen bg-gray-50 py-12 px-4">
       <div className="container mx-auto max-w-6xl">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-6xl font-black mb-4 uppercase">
-            Join <span className="text-brutal-orange">OpportunityMap</span>!
+          <h1 className="text-4xl md:text-6xl font-bold mb-4">
+            Join <span className="text-orange-600">OpportunityMap</span>
           </h1>
-          <p className="text-xl md:text-2xl font-bold text-gray-700">
+          <p className="text-xl md:text-2xl text-gray-600">
             Choose your role to get started
           </p>
         </div>
@@ -86,27 +86,27 @@ export default function SignUpRoleSelection() {
               href={option.href}
               className="group block"
             >
-              <div className="bg-white border-3 border-black shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all p-8 h-full flex flex-col">
-                <div className={`${option.color} w-20 h-20 border-3 border-black shadow-brutal flex items-center justify-center text-white mb-6 mx-auto`}>
+              <div className="bg-white rounded-lg shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all p-8 h-full flex flex-col border-4 border-brutal-border">
+                <div className={`${option.color} w-20 h-20 rounded-lg flex items-center justify-center text-white mb-6 mx-auto border-3 border-brutal-border`}>
                   {option.icon}
                 </div>
 
-                <h3 className="text-2xl font-black mb-3 uppercase text-center">{option.title}</h3>
-                <p className="text-sm font-bold text-gray-700 leading-relaxed mb-6 text-center flex-1">
+                <h3 className="text-2xl font-bold mb-3 text-center">{option.title}</h3>
+                <p className="text-sm text-gray-600 leading-relaxed mb-6 text-center flex-1">
                   {option.description}
                 </p>
 
                 <div className="space-y-2 mb-6">
                   {option.features.map((feature, idx) => (
                     <div key={idx} className="flex items-start gap-2">
-                      <span className="text-brutal-green font-black">✓</span>
-                      <span className="text-sm font-bold text-gray-700">{feature}</span>
+                      <span className="text-green-600 font-bold">✓</span>
+                      <span className="text-sm text-gray-700">{feature}</span>
                     </div>
                   ))}
                 </div>
 
-                <div className="pt-4 border-t-3 border-gray-200">
-                  <span className={`block text-center px-6 py-3 ${option.color} text-white font-black uppercase border-3 border-black shadow-brutal group-hover:shadow-brutal-lg transition-all`}>
+                <div className="pt-4 border-t-3 border-brutal-border">
+                  <span className={`block text-center px-6 py-3 ${option.color} text-white font-bold rounded-md border-3 border-brutal-border transition-all`}>
                     Sign Up
                   </span>
                 </div>
@@ -117,9 +117,9 @@ export default function SignUpRoleSelection() {
 
         {/* Already have account */}
         <div className="text-center">
-          <p className="text-lg font-bold text-gray-700">
+          <p className="text-lg text-gray-600">
             Already have an account?{' '}
-            <Link href="/sign-in" className="font-black text-brutal-orange hover:underline">
+            <Link href="/sign-in" className="font-semibold text-orange-600 hover:underline">
               Sign In
             </Link>
           </p>

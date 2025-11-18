@@ -1,6 +1,5 @@
 // Reusable error and empty state components
 import { AlertCircle, SearchX, FileQuestion, Wifi, RefreshCw } from 'lucide-react';
-import { Button } from './ui/button';
 
 interface ErrorStateProps {
   title?: string;
@@ -26,13 +25,13 @@ export function ErrorState({
       <h2 className="text-2xl font-black mb-2">{title}</h2>
       <p className="text-gray-600 mb-6 max-w-md">{message}</p>
       {action && (
-        <Button 
+        <button 
           onClick={action.onClick}
-          className="bg-yellow-400 hover:bg-yellow-500"
+          className="px-6 py-3 bg-brutal-orange text-white font-bold uppercase border-3 border-black shadow-brutal hover:shadow-brutal-lg transition-all flex items-center gap-2 mx-auto"
         >
-          <RefreshCw className="w-4 h-4 mr-2" />
+          <RefreshCw className="w-4 h-4" />
           {action.label}
-        </Button>
+        </button>
       )}
     </div>
   );
@@ -52,9 +51,12 @@ export function EmptyState({
       <h2 className="text-2xl font-black mb-2">{title}</h2>
       <p className="text-gray-600 mb-6 max-w-md">{message}</p>
       {action && (
-        <Button onClick={action.onClick}>
+        <button 
+          onClick={action.onClick}
+          className="px-6 py-3 bg-brutal-blue text-white font-bold uppercase border-3 border-black shadow-brutal hover:shadow-brutal-lg transition-all"
+        >
           {action.label}
-        </Button>
+        </button>
       )}
     </div>
   );

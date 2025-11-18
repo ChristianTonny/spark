@@ -136,6 +136,43 @@ export const create = mutation({
       throw new Error("Professional profile already exists");
     }
 
+    // Create mentor application record
+    const applicationId = await ctx.db.insert("mentorApplications", {
+      fullName: `${user.firstName} ${user.lastName}`,
+      email: user.email,
+      phone: user.phone || "Not provided",
+      linkedin: undefined,
+      currentRole: args.jobTitle,
+      company: args.company,
+      yearsExperience: args.yearsExperience.toString(),
+      industry: "Not specified", // Can be added to form later
+      careerField: "Not specified", // Can be added to form later
+      availability: "Flexible",
+      motivation: args.bio,
+      sessionsPerMonth: "3-5",
+      focusAreas: ["Career Planning", "Industry Insights"],
+      status: "pending",
+      submittedAt: Date.now(),
+    });
+
+    // Notify all admins about the new application
+    const admins = await ctx.db
+      .query("users")
+      .withIndex("by_role", (q) => q.eq("role", "admin"))
+      .collect();
+
+    for (const admin of admins) {
+      await ctx.db.insert("notifications", {
+        userId: admin._id,
+        type: "mentor_application",
+        title: "New Mentor Application",
+        message: `${user.firstName} ${user.lastName} (${args.jobTitle} at ${args.company}) has applied to become a mentor.`,
+        read: false,
+        createdAt: Date.now(),
+        metadata: { applicationId },
+      });
+    }
+
     // Create professional profile (not approved by default)
     const professionalId = await ctx.db.insert("professionals", {
       userId: user._id,
@@ -143,7 +180,7 @@ export const create = mutation({
       jobTitle: args.jobTitle,
       bio: args.bio,
       yearsExperience: args.yearsExperience,
-      rating: 5.0, // Default rating
+      rating: 0, // Start with no rating until students rate them
       chatsCompleted: 0,
       careerIds: [], // Will be set later in profile settings
       availability: [], // Will be set later in availability settings
@@ -153,6 +190,7 @@ export const create = mutation({
       earningsThisMonth: 0,
       earningsLastMonth: 0,
       isApproved: false, // Requires admin approval
+      applicationId: applicationId, // Link to application
     });
 
     return professionalId;

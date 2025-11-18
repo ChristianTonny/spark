@@ -1,9 +1,9 @@
 'use client';
 
-import { Suspense } from 'react';
+import { Suspense, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Sparkles, ArrowRight, Bookmark, RotateCcw } from 'lucide-react';
+import { Sparkles, ArrowRight, Bookmark, RotateCcw, ChevronDown } from 'lucide-react';
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { Spinner } from '@/components/loading-skeleton';
@@ -17,6 +17,7 @@ function AssessmentResultsContent() {
   const resultId = searchParams.get('id');
   const { user, isLoading: authLoading } = useConvexAuth();
   const toast = useToast();
+  const [showAllMatches, setShowAllMatches] = useState(false);
 
   // Fetch all results for current user (only if authenticated)
   const allResults = useQuery(api.assessments.getResults, user ? {} : "skip");
@@ -71,6 +72,57 @@ function AssessmentResultsContent() {
       })).filter(m => m.career !== null)
     : [];
 
+  // Get assessment scores for strengths narrative
+  const scores = currentResult?.scores;
+
+  // Generate strengths narrative
+  const generateStrengthsNarrative = () => {
+    if (!scores?.riasec) return null;
+
+    const riasec = scores.riasec;
+    const topTypes = Object.entries(riasec)
+      .sort(([, a], [, b]) => (b as number) - (a as number))
+      .slice(0, 3)
+      .map(([type]) => type);
+
+    const strengthsMap: Record<string, { title: string; description: string; careers: string }> = {
+      realistic: {
+        title: "🔧 Hands-On Problem Solver",
+        description: "You excel at practical, tangible work. You like building, fixing, and working with tools or equipment. Your mechanical aptitude and preference for concrete results make you effective in hands-on roles.",
+        careers: "Engineering, Construction, Manufacturing, IT Support"
+      },
+      investigative: {
+        title: "🔬 Analytical Thinker",
+        description: "You excel at breaking down complex problems logically. Research, data analysis, and systematic thinking come naturally to you. You enjoy understanding how things work at a deep level.",
+        careers: "Data Analyst, Researcher, Scientist, Software Developer"
+      },
+      artistic: {
+        title: "🎨 Creative Innovator",
+        description: "You excel at creative and original thinking. Design, artistic expression, and innovative solutions are your strengths. You bring fresh perspectives and aesthetic sensibility to your work.",
+        careers: "Designer, Writer, Artist, Content Creator, Marketing"
+      },
+      social: {
+        title: "🤝 People Champion",
+        description: "You excel at helping and working with people. Teaching, mentoring, and supporting others energizes you. Your empathy and communication skills make you effective in people-focused roles.",
+        careers: "Teacher, Counselor, Healthcare, Human Resources"
+      },
+      enterprising: {
+        title: "💼 Strategic Leader",
+        description: "You excel at leading and influencing others. Taking initiative, making decisions, and driving projects forward are your strengths. Your entrepreneurial mindset helps you spot opportunities.",
+        careers: "Manager, Entrepreneur, Sales, Business Development"
+      },
+      conventional: {
+        title: "📊 Systematic Organizer",
+        description: "You excel at structure and organization. Detail-oriented work, processes, and systems are your forte. Your conscientiousness and reliability make you excellent at maintaining order.",
+        careers: "Accountant, Administrator, Project Manager, Analyst"
+      },
+    };
+
+    return topTypes.map(type => strengthsMap[type]).filter(Boolean);
+  };
+
+  const strengths = generateStrengthsNarrative();
+
   // Show loading state
   if (isLoading) {
     return (
@@ -115,13 +167,13 @@ function AssessmentResultsContent() {
             Your Career Matches!
           </h1>
           <p className="text-2xl font-bold text-gray-700">
-            Here are your top 5 career recommendations
+            Here are your top {displayMatches.length} career recommendations
           </p>
         </div>
 
         {/* Results Grid */}
         <div className="space-y-6 mb-12">
-          {displayMatches.map((match, index) => {
+          {displayMatches.slice(0, showAllMatches ? undefined : 10).map((match, index) => {
             const { career, matchScore, reasons } = match;
 
             if (!career) return null;
@@ -132,7 +184,10 @@ function AssessmentResultsContent() {
               'bg-secondary', // 3rd - blue
               'bg-gray-700', // 4th
               'bg-gray-600', // 5th
+              'bg-gray-500', // 6th+
             ];
+
+            const colorIndex = Math.min(index, rankColors.length - 1);
 
             return (
               <div
@@ -144,7 +199,7 @@ function AssessmentResultsContent() {
                     {/* Rank Badge */}
                     <div className="flex-shrink-0">
                       <div
-                        className={`w-16 h-16 ${rankColors[index]} border-3 border-black flex items-center justify-center`}
+                        className={`w-16 h-16 ${rankColors[colorIndex]} border-3 border-black flex items-center justify-center`}
                       >
                         <span className="text-3xl font-black text-white">
                           #{index + 1}
@@ -224,7 +279,121 @@ function AssessmentResultsContent() {
               </div>
             );
           })}
+          
+          {/* Show More Button */}
+          {!showAllMatches && displayMatches.length > 10 && (
+            <div className="text-center">
+              <button
+                onClick={() => setShowAllMatches(true)}
+                className="px-8 py-4 bg-accent text-black font-bold uppercase border-3 border-black shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all flex items-center gap-2 mx-auto"
+              >
+                Show All {displayMatches.length} Matches
+                <ChevronDown className="w-5 h-5" />
+              </button>
+            </div>
+          )}
         </div>
+
+        {/* Your Strengths Section */}
+        {strengths && strengths.length > 0 && (
+          <div className="bg-white border-3 border-black shadow-brutal p-8 mb-8">
+            <h2 className="text-3xl font-black mb-6 uppercase">Your Top Strengths</h2>
+            <p className="text-lg font-bold text-gray-700 mb-6">
+              Based on your assessment, here's what makes you unique:
+            </p>
+            <div className="space-y-6">
+              {strengths.map((strength, index) => (
+                <div key={index} className="border-2 border-black p-6 bg-background">
+                  <h3 className="text-2xl font-black mb-3">{strength.title}</h3>
+                  <p className="text-base font-bold text-gray-700 mb-3">
+                    {strength.description}
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-black text-gray-600 uppercase">Best fit careers:</span>
+                    <span className="text-sm font-bold text-primary">{strength.careers}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Next Steps Section */}
+        {displayMatches.length > 0 && displayMatches[0].career && (
+          <div className="bg-white border-3 border-black shadow-brutal p-8 mb-8">
+            <h2 className="text-3xl font-black mb-6 uppercase">Your Next Steps</h2>
+            <p className="text-lg font-bold text-gray-700 mb-6">
+              Based on your top match ({displayMatches[0].career.title}), here's what you should do next:
+            </p>
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="border-2 border-black p-6">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 bg-primary border-2 border-black flex items-center justify-center">
+                    <span className="text-xl font-black text-white">1</span>
+                  </div>
+                  <h3 className="text-xl font-black">Research Deeply</h3>
+                </div>
+                <p className="text-sm font-bold text-gray-700 mb-3">
+                  Read the detailed career guide to understand day-to-day work, required education, and career progression.
+                </p>
+                <Link href={`/careers/${displayMatches[0].career._id}`}>
+                  <button className="px-4 py-2 bg-black text-white font-bold text-sm border-2 border-black hover:shadow-brutal transition-all">
+                    View Career Guide →
+                  </button>
+                </Link>
+              </div>
+
+              <div className="border-2 border-black p-6">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 bg-secondary border-2 border-black flex items-center justify-center">
+                    <span className="text-xl font-black text-white">2</span>
+                  </div>
+                  <h3 className="text-xl font-black">Compare Options</h3>
+                </div>
+                <p className="text-sm font-bold text-gray-700 mb-3">
+                  Not sure between your top matches? Compare them side-by-side to see the differences.
+                </p>
+                <Link href={`/careers/compare?ids=${displayMatches.slice(0, 3).map(m => m.career?._id).filter(Boolean).join(',')}`}>
+                  <button className="px-4 py-2 bg-black text-white font-bold text-sm border-2 border-black hover:shadow-brutal transition-all">
+                    Compare Top 3 Careers →
+                  </button>
+                </Link>
+              </div>
+
+              <div className="border-2 border-black p-6">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 bg-accent border-2 border-black flex items-center justify-center">
+                    <span className="text-xl font-black">3</span>
+                  </div>
+                  <h3 className="text-xl font-black">Talk to Professionals</h3>
+                </div>
+                <p className="text-sm font-bold text-gray-700 mb-3">
+                  Connect with mentors who work in your top career matches for real-world insights.
+                </p>
+                <Link href="/mentors">
+                  <button className="px-4 py-2 bg-black text-white font-bold text-sm border-2 border-black hover:shadow-brutal transition-all">
+                    Find Mentors →
+                  </button>
+                </Link>
+              </div>
+
+              <div className="border-2 border-black p-6">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 bg-brutal-green border-2 border-black flex items-center justify-center">
+                    <span className="text-xl font-black">4</span>
+                  </div>
+                  <h3 className="text-xl font-black">Start Learning</h3>
+                </div>
+                <p className="text-sm font-bold text-gray-700 mb-3">
+                  Begin building skills relevant to your top careers through online courses and projects.
+                </p>
+                <button className="px-4 py-2 bg-gray-200 text-gray-600 font-bold text-sm border-2 border-black cursor-not-allowed" disabled>
+                  Coming Soon
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Actions */}
         <div className="grid md:grid-cols-2 gap-6 mb-8">
@@ -242,39 +411,6 @@ function AssessmentResultsContent() {
           </Link>
         </div>
 
-        {/* Next Steps */}
-        <div className="bg-white border-3 border-black shadow-brutal p-8">
-          <h2 className="text-3xl font-black mb-6 uppercase">What&apos;s Next?</h2>
-          <div className="grid md:grid-cols-3 gap-6">
-            <div>
-              <div className="w-12 h-12 bg-primary border-3 border-black flex items-center justify-center mb-3">
-                <span className="text-2xl font-black text-white">1</span>
-              </div>
-              <h3 className="text-xl font-black mb-2">Explore Careers</h3>
-              <p className="text-sm font-bold text-gray-700">
-                Click on each career to learn more about the day-to-day work, education requirements, and salary.
-              </p>
-            </div>
-            <div>
-              <div className="w-12 h-12 bg-secondary border-3 border-black flex items-center justify-center mb-3">
-                <span className="text-2xl font-black text-white">2</span>
-              </div>
-              <h3 className="text-xl font-black mb-2">Watch Videos</h3>
-              <p className="text-sm font-bold text-gray-700">
-                See real professionals talk about their careers and what a typical day looks like.
-              </p>
-            </div>
-            <div>
-              <div className="w-12 h-12 bg-accent border-3 border-black flex items-center justify-center mb-3">
-                <span className="text-2xl font-black">3</span>
-              </div>
-              <h3 className="text-xl font-black mb-2">Book a Mentor</h3>
-              <p className="text-sm font-bold text-gray-700">
-                Schedule a 15-minute chat with professionals in careers that interest you.
-              </p>
-            </div>
-          </div>
-        </div>
 
         {/* Back Link */}
         <div className="text-center mt-8">

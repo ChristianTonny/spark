@@ -77,9 +77,11 @@ export const saveResult = mutation({
         matchReasons: v.array(v.string()),
         interestScore: v.optional(v.number()),
         valueScore: v.optional(v.number()),
+        personalityScore: v.optional(v.number()), // NEW: Big Five personality score
         environmentScore: v.optional(v.number()),
       })
     ),
+    scores: v.optional(v.any()), // NEW: Store calculated scores for display
   },
   handler: async (ctx, args) => {
     const user = await getCurrentUserOrThrow(ctx);
@@ -89,6 +91,7 @@ export const saveResult = mutation({
       studentId: user._id.toString(),
       answers: args.answers,
       careerMatches: args.careerMatches,
+      scores: args.scores, // NEW: Store RIASEC, values, bigFive, workStyle scores
       completedAt: Date.now(),
     });
 

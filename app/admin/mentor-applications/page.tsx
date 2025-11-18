@@ -204,8 +204,12 @@ function ApplicationCard({
             <p className="text-lg font-bold text-gray-700">
               {application.currentRole} at {application.company}
             </p>
-            <p className="text-sm text-gray-600">
-              {application.yearsExperience} experience • {application.industry}
+            <p className="text-sm text-gray-600 mb-2">
+              {application.yearsExperience} years experience • {application.industry}
+            </p>
+            {/* Short bio preview */}
+            <p className="text-sm text-gray-700 line-clamp-2 mt-2">
+              {application.motivation}
             </p>
           </div>
           <button
@@ -261,12 +265,12 @@ function ApplicationCard({
               </div>
             )}
 
-            {/* Motivation */}
+            {/* About Me / Motivation */}
             <div>
               <label className="block text-sm font-bold uppercase mb-1">
-                Why They Want to Mentor
+                About Me
               </label>
-              <p className="text-gray-700 bg-gray-50 p-4 border-2 border-gray-200">
+              <p className="text-gray-700 bg-gray-50 p-4 border-2 border-gray-200 whitespace-pre-wrap">
                 {application.motivation}
               </p>
             </div>

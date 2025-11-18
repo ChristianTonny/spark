@@ -91,6 +91,13 @@ export default defineSchema({
       stability: v.number(),      // 0-100 scale
     })),
 
+    // NEW: Big Five personality profile typical for this career
+    personalityProfile: v.optional(v.object({
+      openness: v.number(),         // 0-100 scale (typical level for successful professionals)
+      conscientiousness: v.number(), // 0-100 scale
+      extraversion: v.number(),      // 0-100 scale
+    })),
+
     workEnvironment: v.optional(v.object({
       teamSize: v.string(),       // 'solo' | 'independent' | 'small' | 'large' | 'leader' | 'minimal'
       pace: v.string(),           // 'steady' | 'moderate' | 'intense' | 'flexible' | 'deadline-driven' | 'predictable'
@@ -213,6 +220,7 @@ export default defineSchema({
         interestScore: v.optional(v.number()),
         valueScore: v.optional(v.number()),
         environmentScore: v.optional(v.number()),
+        personalityScore: v.optional(v.number()), // NEW: Big Five personality fit
       })
     ),
     completedAt: v.number(),
@@ -236,6 +244,18 @@ export default defineSchema({
           growth: v.number(),
           stability: v.number(),
         }),
+        // NEW: Big Five personality traits (focus on top 3)
+        bigFive: v.optional(v.object({
+          openness: v.number(),         // 0-100 scale
+          conscientiousness: v.number(), // 0-100 scale
+          extraversion: v.number(),      // 0-100 scale
+        })),
+        // NEW: Work style preferences
+        workStyle: v.optional(v.object({
+          leadership: v.number(),      // 0-100 scale
+          collaboration: v.number(),   // 0-100 scale
+          independence: v.number(),    // 0-100 scale
+        })),
         environment: v.object({
           teamSize: v.string(),
           pace: v.string(),

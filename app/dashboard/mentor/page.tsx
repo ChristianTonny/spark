@@ -53,10 +53,44 @@ export default function MentorDashboardPage() {
   }
 
   const fullName = `${professional.firstName} ${professional.lastName}`;
+  const isApproved = professional.isApproved === true;
 
   return (
     <div className="min-h-screen bg-gray-50 py-4 sm:py-8">
       <div className="container mx-auto px-4 max-w-7xl">
+        {/* Approval Status Banner */}
+        {!isApproved && (
+          <div className="mb-6 bg-brutal-yellow border-3 border-brutal-border shadow-brutal-lg p-4 sm:p-6">
+            <div className="flex items-start gap-3 sm:gap-4">
+              <div className="flex-shrink-0">
+                <Clock className="w-6 h-6 sm:w-8 sm:h-8 text-brutal-text" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg sm:text-xl font-black uppercase mb-2">
+                  Profile Under Review
+                </h3>
+                <p className="text-sm sm:text-base font-bold text-gray-800 mb-3">
+                  Your mentor profile is currently being reviewed by our admin team. You&apos;ll be notified once approved!
+                </p>
+                <div className="space-y-2 text-sm font-bold">
+                  <div className="flex items-center gap-2">
+                    <span className="text-red-600">✗</span>
+                    <span>You won&apos;t appear in the public mentor directory yet</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-red-600">✗</span>
+                    <span>Students cannot book sessions with you yet</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-green-600">✓</span>
+                    <span>You can still set up your profile and availability</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Header */}
         <div className="mb-6 sm:mb-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">

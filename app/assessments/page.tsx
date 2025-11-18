@@ -49,8 +49,8 @@ export default function AssessmentsPage() {
           <div className="mb-8 sm:mb-10">
             <h2 className="text-xl sm:text-2xl md:text-3xl font-black uppercase mb-4 sm:mb-6">What to Expect</h2>
             <p className="text-sm sm:text-base md:text-lg font-bold text-gray-700 mb-4">
-              This 10-minute assessment will help you discover careers that match your interests,
-              skills, and goals. Answer honestly - there are no right or wrong answers!
+              This 15-minute assessment will help you discover careers that match your interests,
+              personality, and work values. Answer honestly - there are no right or wrong answers!
             </p>
           </div>
 
@@ -61,10 +61,10 @@ export default function AssessmentsPage() {
                 <div className="p-2 bg-accent border-2 border-black">
                   <Target className="w-5 h-5 sm:w-6 sm:h-6" />
                 </div>
-                <h3 className="text-base sm:text-lg md:text-xl font-black uppercase">15 Questions</h3>
+                <h3 className="text-base sm:text-lg md:text-xl font-black uppercase">25 Questions</h3>
               </div>
               <p className="text-xs sm:text-sm font-bold text-gray-700">
-                Quick and focused questions about your interests and strengths
+                Research-backed questions covering interests, personality & work values
               </p>
             </div>
 
@@ -73,10 +73,10 @@ export default function AssessmentsPage() {
                 <div className="p-2 bg-secondary border-2 border-black">
                   <Clock className="w-5 h-5 sm:w-6 sm:h-6 text-orange-500" />
                 </div>
-                <h3 className="text-base sm:text-lg md:text-xl font-black uppercase">10 Minutes</h3>
+                <h3 className="text-base sm:text-lg md:text-xl font-black uppercase">15 Minutes</h3>
               </div>
               <p className="text-sm font-bold text-gray-700">
-                Complete at your own pace - you can pause and resume anytime
+                Complete at your own pace - progress is saved automatically
               </p>
             </div>
 
@@ -85,10 +85,10 @@ export default function AssessmentsPage() {
                 <div className="p-2 bg-primary border-2 border-black">
                   <Sparkles className="w-6 h-6 text-white" />
                 </div>
-                <h3 className="text-xl font-black uppercase">Top 5 Matches</h3>
+                <h3 className="text-xl font-black uppercase">Top 25 Matches</h3>
               </div>
               <p className="text-sm font-bold text-gray-700">
-                Get personalized career recommendations with match scores
+                Get detailed career recommendations with personalized insights
               </p>
             </div>
           </div>

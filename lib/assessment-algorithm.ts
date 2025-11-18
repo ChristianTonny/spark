@@ -27,6 +27,20 @@ export interface ValueScore {
   [key: string]: number;  // Index signature for compatibility
 }
 
+export interface BigFiveScore {
+  openness: number;         // 0-100 scale
+  conscientiousness: number; // 0-100 scale
+  extraversion: number;      // 0-100 scale
+  [key: string]: number;     // Index signature for compatibility
+}
+
+export interface WorkStyleScore {
+  leadership: number;      // 0-100 scale
+  collaboration: number;   // 0-100 scale
+  independence: number;    // 0-100 scale
+  [key: string]: number;   // Index signature for compatibility
+}
+
 export interface EnvironmentPreference {
   teamSize: 'solo' | 'independent' | 'small' | 'large' | 'leader' | 'minimal';
   pace: 'steady' | 'moderate' | 'intense' | 'flexible' | 'deadline-driven' | 'predictable';
@@ -35,6 +49,8 @@ export interface EnvironmentPreference {
 export interface AssessmentProfile {
   riasec: RIASECScore;
   values: ValueScore;
+  bigFive?: BigFiveScore;        // Optional for backward compatibility
+  workStyle?: WorkStyleScore;    // Optional for backward compatibility
   environment: EnvironmentPreference;
 }
 
@@ -47,6 +63,7 @@ export interface Career {
   salaryMax: number;
   interestProfile?: RIASECScore;
   valueProfile?: ValueScore;
+  personalityProfile?: BigFiveScore;  // NEW
   workEnvironment?: {
     teamSize: string;
     pace: string;
@@ -58,6 +75,7 @@ export interface MatchResult {
   matchPercentage: number;
   interestScore: number;
   valueScore: number;
+  personalityScore: number;        // NEW
   environmentScore: number;
   topRIASEC: string[];
   matchReasons: string[];
@@ -215,10 +233,11 @@ function generateReasons(
 /**
  * Calculate career match score for a student profile
  *
- * Uses weighted scoring:
- * - 50% Interest alignment (RIASEC)
- * - 30% Value alignment
- * - 20% Environment fit
+ * Uses weighted scoring (research-recommended from assessment.md):
+ * - 40% Interest alignment (RIASEC)
+ * - 25% Value alignment
+ * - 20% Personality fit (Big Five)
+ * - 15% Environment fit
  */
 export function calculateCareerMatch(
   studentProfile: AssessmentProfile,
@@ -231,25 +250,35 @@ export function calculateCareerMatch(
       matchPercentage: 0,
       interestScore: 0,
       valueScore: 0,
+      personalityScore: 0,
       environmentScore: 0,
       topRIASEC: getTop3RIASEC(studentProfile.riasec),
       matchReasons: ['This career needs updated assessment data'],
     };
   }
 
-  // 1. RIASEC Interest Match (50% weight)
+  // 1. RIASEC Interest Match (40% weight)
   const interestMatch = cosineSimilarity(
     studentProfile.riasec,
     career.interestProfile
   );
 
-  // 2. Value Alignment (30% weight)
+  // 2. Value Alignment (25% weight)
   const valueMatch = cosineSimilarity(
     studentProfile.values,
     career.valueProfile
   );
 
-  // 3. Environment Fit (20% weight)
+  // 3. Personality Fit (20% weight) - NEW
+  let personalityMatch = 0.5; // Default neutral if no data
+  if (studentProfile.bigFive && career.personalityProfile) {
+    personalityMatch = cosineSimilarity(
+      studentProfile.bigFive,
+      career.personalityProfile
+    );
+  }
+
+  // 4. Environment Fit (15% weight)
   let environmentMatch = 0;
   if (studentProfile.environment.teamSize === career.workEnvironment.teamSize) {
     environmentMatch += 0.5;
@@ -258,11 +287,12 @@ export function calculateCareerMatch(
     environmentMatch += 0.5;
   }
 
-  // Weighted total
+  // Weighted total (40% + 25% + 20% + 15% = 100%)
   const totalScore = (
-    (interestMatch * 0.5) +
-    (valueMatch * 0.3) +
-    (environmentMatch * 0.2)
+    (interestMatch * 0.40) +
+    (valueMatch * 0.25) +
+    (personalityMatch * 0.20) +
+    (environmentMatch * 0.15)
   ) * 100;
 
   return {
@@ -270,6 +300,7 @@ export function calculateCareerMatch(
     matchPercentage: Math.round(totalScore),
     interestScore: Math.round(interestMatch * 100),
     valueScore: Math.round(valueMatch * 100),
+    personalityScore: Math.round(personalityMatch * 100),
     environmentScore: Math.round(environmentMatch * 100),
     topRIASEC: getTop3RIASEC(studentProfile.riasec),
     matchReasons: generateReasons(studentProfile, career),
@@ -277,11 +308,13 @@ export function calculateCareerMatch(
 }
 
 /**
- * Calculate RIASEC and value scores from 12-question assessment answers
+ * Calculate RIASEC, values, Big Five, and work style scores from 25-question assessment
  *
  * Answer format: { [questionId]: optionIndex }
- * Questions 1-8: RIASEC interest questions
- * Questions 9-12: Values and environment questions
+ * Questions 1-12: RIASEC interest questions (2 per type)
+ * Questions 13-18: Work values (forced choice)
+ * Questions 19-22: Big Five personality (Openness, Conscientiousness, Extraversion)
+ * Questions 23-25: Work style scenarios
  */
 export function calculateProfileFromAnswers(answers: Record<string, number>): AssessmentProfile {
   // Initialize scores
@@ -303,110 +336,201 @@ export function calculateProfileFromAnswers(answers: Record<string, number>): As
     stability: 0,
   };
 
+  const bigFive: BigFiveScore = {
+    openness: 0,
+    conscientiousness: 0,
+    extraversion: 0,
+  };
+
+  const workStyle: WorkStyleScore = {
+    leadership: 0,
+    collaboration: 0,
+    independence: 0,
+  };
+
   let teamSize: EnvironmentPreference['teamSize'] = 'small';
   let pace: EnvironmentPreference['pace'] = 'moderate';
 
-  // Scoring rules for each question based on ASSESSMENT_RESEARCH.md
+  // Scoring rules for 25-question assessment based on ASSESSMENT_RESEARCH.md
   const scoringRules: Record<string, Array<{
     riasec?: Partial<RIASECScore>;
     values?: Partial<ValueScore>;
+    bigFive?: Partial<BigFiveScore>;
+    workStyle?: Partial<WorkStyleScore>;
     environment?: Partial<EnvironmentPreference>;
   }>> = {
-    'q1': [
-      { riasec: { realistic: 15, investigative: 5 } },
-      { riasec: { investigative: 15, realistic: 5 } },
-      { riasec: { artistic: 15, investigative: 5 } },
-      { riasec: { social: 15, artistic: 5 } },
-      { riasec: { enterprising: 15, social: 5 } },
-      { riasec: { conventional: 15, enterprising: 5 } },
+    // ===== RIASEC INTEREST QUESTIONS (Q1-Q12: 2 per type) =====
+    // Questions use Likert scale: 0=Strongly Disagree, 1=Disagree, 2=Neutral, 3=Agree, 4=Strongly Agree
+    // Q1-2: Realistic (hands-on, practical work)
+    'q1': [ // Likert: "I would enjoy repairing mechanical equipment or electronics"
+      { riasec: { realistic: 0 } },   // Strongly Disagree
+      { riasec: { realistic: 5 } },   // Disagree
+      { riasec: { realistic: 10 } },  // Neutral
+      { riasec: { realistic: 15 } },  // Agree
+      { riasec: { realistic: 20 } },  // Strongly Agree
     ],
-    'q2': [
-      { riasec: { realistic: 12, investigative: 5 } },
-      { riasec: { investigative: 15, conventional: 5 } },
-      { riasec: { artistic: 15, investigative: 5 } },
-      { riasec: { social: 15, enterprising: 5 } },
-      { riasec: { enterprising: 15, social: 5 } },
-      { riasec: { conventional: 15, realistic: 5 } },
+    'q2': [ // Likert: "I prefer outdoor work over desk work"
+      { riasec: { realistic: 0 } },
+      { riasec: { realistic: 5 } },
+      { riasec: { realistic: 10 } },
+      { riasec: { realistic: 15 } },
+      { riasec: { realistic: 20 } },
     ],
-    'q3': [
-      { riasec: { realistic: 15, conventional: 3 } },
-      { riasec: { investigative: 15, conventional: 5 } },
-      { riasec: { artistic: 15, enterprising: 3 } },
-      { riasec: { social: 15, artistic: 5 } },
-      { riasec: { enterprising: 15, social: 5 } },
-      { riasec: { conventional: 15, investigative: 3 } },
+    
+    // Q3-4: Investigative (analytical, research)
+    'q3': [ // Likert: "I enjoy researching complex problems to find solutions"
+      { riasec: { investigative: 0 } },
+      { riasec: { investigative: 5 } },
+      { riasec: { investigative: 10 } },
+      { riasec: { investigative: 15 } },
+      { riasec: { investigative: 20 } },
     ],
-    'q4': [
-      { riasec: { realistic: 15, conventional: 5 } },
-      { riasec: { investigative: 15, conventional: 8 } },
-      { riasec: { artistic: 15, investigative: 3 } },
-      { riasec: { social: 15, artistic: 3 } },
-      { riasec: { enterprising: 15, conventional: 5 } },
-      { riasec: { conventional: 15, enterprising: 5 } },
+    'q4': [ // Likert: "Reading scientific articles or research papers interests me"
+      { riasec: { investigative: 0 } },
+      { riasec: { investigative: 5 } },
+      { riasec: { investigative: 10 } },
+      { riasec: { investigative: 15 } },
+      { riasec: { investigative: 20 } },
     ],
-    'q5': [
-      { riasec: { realistic: 15, investigative: 3 } },
-      { riasec: { investigative: 15, artistic: 3 } },
-      { riasec: { artistic: 15, social: 3 } },
-      { riasec: { social: 15, enterprising: 3 } },
-      { riasec: { enterprising: 15, social: 3 } },
-      { riasec: { conventional: 15, investigative: 5 } },
+    
+    // Q5-6: Artistic (creative, expressive)
+    'q5': [ // Likert: "I enjoy creating visual designs, artwork, or creative content"
+      { riasec: { artistic: 0 } },
+      { riasec: { artistic: 5 } },
+      { riasec: { artistic: 10 } },
+      { riasec: { artistic: 15 } },
+      { riasec: { artistic: 20 } },
     ],
-    'q6': [
-      { riasec: { realistic: 15, enterprising: 5 } },
-      { riasec: { investigative: 15, conventional: 5 } },
-      { riasec: { artistic: 15, social: 3 } },
-      { riasec: { social: 15, enterprising: 8 } },
-      { riasec: { enterprising: 15, conventional: 5 } },
-      { riasec: { conventional: 15, investigative: 5 } },
+    'q6': [ // Likert: "Writing stories, poetry, or creative content is enjoyable to me"
+      { riasec: { artistic: 0 } },
+      { riasec: { artistic: 5 } },
+      { riasec: { artistic: 10 } },
+      { riasec: { artistic: 15 } },
+      { riasec: { artistic: 20 } },
     ],
-    'q7': [
-      { riasec: { realistic: 12, investigative: 5 } },
-      { riasec: { investigative: 15, artistic: 3 } },
-      { riasec: { artistic: 15, social: 3 } },
-      { riasec: { social: 15, enterprising: 3 } },
-      { riasec: { enterprising: 12, realistic: 5 } },
-      { riasec: { conventional: 15, investigative: 5 } },
+    
+    // Q7-8: Social (helping, teaching)
+    'q7': [ // Likert: "I find satisfaction in teaching or explaining concepts to others"
+      { riasec: { social: 0 } },
+      { riasec: { social: 5 } },
+      { riasec: { social: 10 } },
+      { riasec: { social: 15 } },
+      { riasec: { social: 20 } },
     ],
-    'q8': [
-      { riasec: { realistic: 15, conventional: 3 } },
-      { riasec: { investigative: 15, artistic: 3 } },
-      { riasec: { artistic: 15, investigative: 3 } },
-      { riasec: { social: 15, artistic: 5 } },
-      { riasec: { enterprising: 15, social: 3 } },
-      { riasec: { conventional: 15, enterprising: 3 } },
+    'q8': [ // Likert: "Working in healthcare or counseling appeals to me"
+      { riasec: { social: 0 } },
+      { riasec: { social: 5 } },
+      { riasec: { social: 10 } },
+      { riasec: { social: 15 } },
+      { riasec: { social: 20 } },
     ],
-    'q9': [
-      { riasec: { enterprising: 10, conventional: 8 }, values: { income: 20 } },
-      { riasec: { social: 10, investigative: 8 }, values: { impact: 20 } },
-      { riasec: { artistic: 12, enterprising: 5 }, values: { autonomy: 20 } },
-      { riasec: { social: 8, conventional: 8 }, values: { balance: 20 } },
-      { riasec: { enterprising: 12, investigative: 8 }, values: { growth: 20 } },
-      { riasec: { conventional: 12, realistic: 5 }, values: { stability: 20 } },
+    
+    // Q9-10: Enterprising (leadership, business)
+    'q9': [ // Likert: "I enjoy leading teams and making strategic decisions"
+      { riasec: { enterprising: 0 } },
+      { riasec: { enterprising: 5 } },
+      { riasec: { enterprising: 10 } },
+      { riasec: { enterprising: 15 } },
+      { riasec: { enterprising: 20 } },
     ],
-    'q10': [
-      { riasec: { enterprising: 15, investigative: 5 }, values: { autonomy: 15, income: 15 } },
-      { riasec: { investigative: 15, conventional: 5 }, values: { growth: 20 } },
-      { riasec: { artistic: 15, social: 5 }, values: { impact: 15, autonomy: 10 } },
-      { riasec: { enterprising: 12, social: 10 }, values: { impact: 20 } },
-      { riasec: { social: 10, artistic: 8 }, values: { balance: 20 } },
-      { riasec: { conventional: 12, enterprising: 8 }, values: { stability: 20 } },
+    'q10': [ // Likert: "Selling products or services and persuading others sounds interesting"
+      { riasec: { enterprising: 0 } },
+      { riasec: { enterprising: 5 } },
+      { riasec: { enterprising: 10 } },
+      { riasec: { enterprising: 15 } },
+      { riasec: { enterprising: 20 } },
     ],
-    'q11': [
-      { riasec: { enterprising: 12, realistic: 8 }, environment: { pace: 'intense' } },
-      { riasec: { investigative: 12, artistic: 8 }, environment: { pace: 'moderate' } },
-      { riasec: { artistic: 10, enterprising: 8 }, environment: { pace: 'flexible' } },
-      { riasec: { conventional: 12, social: 8 }, environment: { pace: 'steady' } },
-      { riasec: { enterprising: 10, investigative: 10 }, environment: { pace: 'deadline-driven' } },
-      { riasec: { conventional: 15, realistic: 5 }, environment: { pace: 'predictable' } },
+    
+    // Q11-12: Conventional (organized, detail-oriented)
+    'q11': [ // Likert: "I like organizing information, files, or data in systematic ways"
+      { riasec: { conventional: 0 } },
+      { riasec: { conventional: 5 } },
+      { riasec: { conventional: 10 } },
+      { riasec: { conventional: 15 } },
+      { riasec: { conventional: 20 } },
     ],
-    'q12': [
-      { riasec: { investigative: 12, artistic: 10 }, environment: { teamSize: 'solo' } },
-      { riasec: { realistic: 10, conventional: 10 }, environment: { teamSize: 'independent' } },
-      { riasec: { artistic: 10, social: 10 }, environment: { teamSize: 'small' } },
-      { riasec: { social: 15, enterprising: 8 }, environment: { teamSize: 'large' } },
-      { riasec: { enterprising: 15, social: 8 }, environment: { teamSize: 'leader' } },
-      { riasec: { conventional: 15, realistic: 5 }, environment: { teamSize: 'minimal' } },
+    'q12': [ // Likert: "Following established procedures and guidelines is important to me"
+      { riasec: { conventional: 0 } },
+      { riasec: { conventional: 5 } },
+      { riasec: { conventional: 10 } },
+      { riasec: { conventional: 15 } },
+      { riasec: { conventional: 20 } },
+    ],
+
+    // ===== WORK VALUES QUESTIONS (Q13-18: Forced choice) =====
+    'q13': [ // "Which matters more in a career?"
+      { values: { income: 15 } },      // High salary even if routine
+      { values: { impact: 15 } },      // Lower salary doing meaningful work
+    ],
+    'q14': [ // "Choose one:"
+      { values: { balance: 15 } },     // Work-life balance with steady income
+      { values: { growth: 15 } },      // Career advancement with longer hours
+    ],
+    'q15': [ // "What's more important?"
+      { values: { autonomy: 15 } },    // Creative freedom and independence
+      { values: { stability: 15 } },   // Job security and predictability
+    ],
+    'q16': [ // "Prefer:" 
+      { values: { impact: 10, growth: 5 } },    // Help individuals solve problems
+      { values: { income: 10, growth: 5 } },    // Build wealth through business
+    ],
+    'q17': [ // "Would you rather:"
+      { values: { autonomy: 10, balance: 5 } }, // Set your own schedule
+      { values: { stability: 10, income: 5 } }, // Reliable 9-5 with benefits
+    ],
+    'q18': [ // "Choose:"
+      { values: { growth: 10, impact: 5 } },    // Rapidly developing skills
+      { values: { balance: 10, stability: 5 } }, // Maintaining work-life harmony
+    ],
+
+    // ===== BIG FIVE PERSONALITY (Q19-22) =====
+    'q19': [ // Openness: "I enjoy exploring new ideas and trying unconventional approaches"
+      { bigFive: { openness: 0 } },
+      { bigFive: { openness: 25 } },
+      { bigFive: { openness: 50 } },
+      { bigFive: { openness: 75 } },
+      { bigFive: { openness: 100 } },
+    ],
+    'q20': [ // Conscientiousness: "I make detailed plans before starting projects"
+      { bigFive: { conscientiousness: 0 } },
+      { bigFive: { conscientiousness: 25 } },
+      { bigFive: { conscientiousness: 50 } },
+      { bigFive: { conscientiousness: 75 } },
+      { bigFive: { conscientiousness: 100 } },
+    ],
+    'q21': [ // Conscientiousness (reversed): "I often complete tasks at the last minute"
+      { bigFive: { conscientiousness: 100 } },  // Strongly Disagree = High C
+      { bigFive: { conscientiousness: 75 } },
+      { bigFive: { conscientiousness: 50 } },
+      { bigFive: { conscientiousness: 25 } },
+      { bigFive: { conscientiousness: 0 } },    // Strongly Agree = Low C
+    ],
+    'q22': [ // Extraversion: "I feel energized after spending time with large groups"
+      { bigFive: { extraversion: 0 } },
+      { bigFive: { extraversion: 25 } },
+      { bigFive: { extraversion: 50 } },
+      { bigFive: { extraversion: 75 } },
+      { bigFive: { extraversion: 100 } },
+    ],
+
+    // ===== WORK STYLE SCENARIOS (Q23-25) =====
+    'q23': [ // "Your group project is falling behind. You typically:"
+      { workStyle: { leadership: 25, collaboration: 5 }, riasec: { enterprising: 5 } },        // Take charge and delegate
+      { workStyle: { collaboration: 25, leadership: 5 }, riasec: { social: 5 } },              // Facilitate team discussion
+      { workStyle: { independence: 25 }, riasec: { realistic: 5 } },                           // Focus on your part
+      { workStyle: { collaboration: 15, leadership: 10 }, riasec: { social: 5 } },             // Help resolve conflicts
+    ],
+    'q24': [ // "When facing a complex problem, you prefer to:"
+      { workStyle: { independence: 20 }, riasec: { investigative: 5 }, bigFive: { openness: 10 } },     // Research thoroughly first
+      { workStyle: { independence: 15, collaboration: 5 }, riasec: { artistic: 5 } },                    // Try different approaches
+      { workStyle: { collaboration: 20 }, riasec: { social: 5 }, bigFive: { extraversion: 10 } },       // Discuss with others
+      { workStyle: { independence: 20 }, riasec: { investigative: 5, conventional: 3 } },                // Break into parts systematically
+    ],
+    'q25': [ // "Which work environment sounds most appealing?"
+      { environment: { teamSize: 'independent', pace: 'predictable' }, riasec: { conventional: 5 } },    // Quiet office, clear tasks
+      { environment: { teamSize: 'large', pace: 'intense' }, riasec: { enterprising: 5 }, workStyle: { collaboration: 10 } },  // Dynamic, frequent collaboration
+      { environment: { teamSize: 'small', pace: 'moderate' }, workStyle: { collaboration: 10, independence: 10 } },             // Mix of independent and team work
+      { environment: { teamSize: 'solo', pace: 'flexible' }, riasec: { artistic: 5 }, workStyle: { independence: 15 } },       // Flexible remote work
     ],
   };
 
@@ -435,6 +559,24 @@ export function calculateProfileFromAnswers(answers: Record<string, number>): As
       });
     }
 
+    // Add Big Five scores (NEW)
+    if (rule.bigFive) {
+      Object.entries(rule.bigFive).forEach(([key, value]) => {
+        if (value !== undefined) {
+          bigFive[key as keyof BigFiveScore] += value;
+        }
+      });
+    }
+
+    // Add work style scores (NEW)
+    if (rule.workStyle) {
+      Object.entries(rule.workStyle).forEach(([key, value]) => {
+        if (value !== undefined) {
+          workStyle[key as keyof WorkStyleScore] += value;
+        }
+      });
+    }
+
     // Set environment preferences (most recent wins)
     if (rule.environment) {
       if (rule.environment.teamSize) teamSize = rule.environment.teamSize;
@@ -442,9 +584,17 @@ export function calculateProfileFromAnswers(answers: Record<string, number>): As
     }
   });
 
+  // Normalize Big Five scores (average across questions)
+  // Q19: 1 question for openness = 0-100
+  // Q20-21: 2 questions for conscientiousness = 0-200, normalize to 0-100
+  // Q22: 1 question for extraversion = 0-100
+  bigFive.conscientiousness = bigFive.conscientiousness / 2;
+
   return {
     riasec,
     values,
+    bigFive,
+    workStyle,
     environment: { teamSize, pace },
   };
 }

@@ -11,6 +11,9 @@ const isPublicRoute = createRouteMatcher([
   '/login(.*)',
   '/signup(.*)',
   '/onboarding(.*)', // Allow access to onboarding pages for new users
+  '/auth-redirect', // Smart redirect after sign-in
+  '/setup-admin', // Admin setup utility
+  '/setup-educator', // Educator setup utility
   '/api(.*)',
 ]);
 

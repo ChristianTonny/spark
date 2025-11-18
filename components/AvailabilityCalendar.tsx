@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import { Button } from "./ui/button";
 
 interface TimeSlot {
   dayOfWeek: number;
@@ -148,20 +147,20 @@ export function AvailabilityCalendar({
 
       {/* Action Buttons */}
       <div className="flex gap-4">
-        <Button
+        <button
           onClick={handleSave}
           disabled={isSaving || selectedSlots.size === 0}
-          className="flex-1"
+          className="flex-1 px-5 py-3 sm:px-6 min-h-[48px] border-3 border-black bg-brutal-green font-bold uppercase text-sm sm:text-base text-black hover:bg-green-400 active:bg-green-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isSaving ? "Saving..." : "Save Availability"}
-        </Button>
-        <Button
+        </button>
+        <button
           onClick={() => setSelectedSlots(new Set())}
-          variant="outline"
           disabled={selectedSlots.size === 0}
+          className="px-5 py-3 sm:px-6 min-h-[48px] border-3 border-black bg-white font-bold uppercase text-sm sm:text-base text-black hover:bg-gray-100 active:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Clear All
-        </Button>
+        </button>
       </div>
 
       {/* Summary */}
