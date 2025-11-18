@@ -1353,14 +1353,14 @@ export const seedAll = internalMutation({
       earningsLastMonth: 240000,
     }));
 
-    // Create assessment - 12-question RIASEC system
+    // Create assessment - 25-question enhanced system
     const assessmentId = await ctx.db.insert("assessments", {
       type: "interests",
       title: "Career Discovery Assessment",
-      description: "Discover careers that match your interests, skills, and goals using the RIASEC framework",
-      icon: "❤️",
-      duration: 5,
-      questionCount: 12,
+      description: "Discover careers that match your interests, personality, and work values through 25 research-backed questions",
+      icon: "🎯",
+      duration: 15,
+      questionCount: 25,
       questions: [
         // SECTION 1: INTERESTS (RIASEC) - Questions 1-8
         {

@@ -108,7 +108,7 @@ export default function SetupAdminPage() {
           <h3 className="font-black mb-3">📝 Instructions:</h3>
           <ol className="space-y-2 text-sm font-bold list-decimal list-inside">
             <li>Make sure the user (ctonny111@gmail.com) has signed up first</li>
-            <li>Click "Make Admin" button above</li>
+            <li>Click &quot;Make Admin&quot; button above</li>
             <li>Wait for success message</li>
             <li>Sign out and sign back in</li>
             <li>You should be redirected to /admin dashboard</li>

@@ -18,6 +18,7 @@ import type * as careerChats from "../careerChats.js";
 import type * as careers from "../careers.js";
 import type * as earnings from "../earnings.js";
 import type * as educators from "../educators.js";
+import type * as fixAssessment from "../fixAssessment.js";
 import type * as mentorApplications from "../mentorApplications.js";
 import type * as messages from "../messages.js";
 import type * as migrations_fixRelatedCareerIds from "../migrations/fixRelatedCareerIds.js";
@@ -58,6 +59,7 @@ declare const fullApi: ApiFromModules<{
   careers: typeof careers;
   earnings: typeof earnings;
   educators: typeof educators;
+  fixAssessment: typeof fixAssessment;
   mentorApplications: typeof mentorApplications;
   messages: typeof messages;
   "migrations/fixRelatedCareerIds": typeof migrations_fixRelatedCareerIds;

@@ -88,8 +88,8 @@ export default function SetupEducatorPage() {
             <div className="border-t-3 border-black pt-6 mt-6">
               <h2 className="font-black uppercase text-sm mb-2">Instructions</h2>
               <ol className="list-decimal list-inside space-y-2 text-sm text-gray-700">
-                <li>Enter the educator's email address</li>
-                <li>Click "Make Educator"</li>
+                <li>Enter the educator&apos;s email address</li>
+                <li>Click &quot;Make Educator&quot;</li>
                 <li>The user will be assigned the educator role</li>
                 <li>They can now sign in and access the educator dashboard</li>
               </ol>

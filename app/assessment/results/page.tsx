@@ -299,7 +299,7 @@ function AssessmentResultsContent() {
           <div className="bg-white border-3 border-black shadow-brutal p-8 mb-8">
             <h2 className="text-3xl font-black mb-6 uppercase">Your Top Strengths</h2>
             <p className="text-lg font-bold text-gray-700 mb-6">
-              Based on your assessment, here's what makes you unique:
+              Based on your assessment, here&apos;s what makes you unique:
             </p>
             <div className="space-y-6">
               {strengths.map((strength, index) => (
@@ -323,7 +323,7 @@ function AssessmentResultsContent() {
           <div className="bg-white border-3 border-black shadow-brutal p-8 mb-8">
             <h2 className="text-3xl font-black mb-6 uppercase">Your Next Steps</h2>
             <p className="text-lg font-bold text-gray-700 mb-6">
-              Based on your top match ({displayMatches[0].career.title}), here's what you should do next:
+              Based on your top match ({displayMatches[0].career.title}), here&apos;s what you should do next:
             </p>
             <div className="grid md:grid-cols-2 gap-6">
               <div className="border-2 border-black p-6">

@@ -113,7 +113,7 @@ export default function EducatorNotificationsPage() {
               <Bell className="w-16 h-16 mx-auto mb-4 text-gray-400" />
               <p className="text-gray-500 font-bold uppercase">No notifications yet</p>
               <p className="text-gray-400 mt-2">
-                You'll receive updates about student progress, assessments, and platform activity here.
+                You&apos;ll receive updates about student progress, assessments, and platform activity here.
               </p>
             </div>
           ) : (
