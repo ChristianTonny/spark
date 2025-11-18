@@ -22,7 +22,10 @@
       "Bash(git commit:*)",
       "Bash(git push)",
       "Bash(del \"c:\\Users\\ChristianTonny\\Downloads\\Development\\spark\\convex\\updateDataScientist.ts\")",
-      "Bash(npx eslint:*)"
+      "Bash(npx eslint:*)",
+      "Bash(move BUILD_STATUS.md docs )",
+      "Bash(move assessment.md docs )",
+      "Bash(move:*)"
     ],
     "deny": [],
     "ask": []
