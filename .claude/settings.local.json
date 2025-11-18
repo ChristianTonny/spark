@@ -21,7 +21,8 @@
       "Bash(npx convex run:*)",
       "Bash(git commit:*)",
       "Bash(git push)",
-      "Bash(del \"c:\\Users\\ChristianTonny\\Downloads\\Development\\spark\\convex\\updateDataScientist.ts\")"
+      "Bash(del \"c:\\Users\\ChristianTonny\\Downloads\\Development\\spark\\convex\\updateDataScientist.ts\")",
+      "Bash(npx eslint:*)"
     ],
     "deny": [],
     "ask": []

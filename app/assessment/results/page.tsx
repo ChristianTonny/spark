@@ -201,7 +201,7 @@ function AssessmentResultsContent() {
                       <div
                         className={`w-16 h-16 ${rankColors[colorIndex]} border-3 border-black flex items-center justify-center`}
                       >
-                        <span className="text-3xl font-black text-white">
+                        <span className={`text-3xl font-black ${index === 0 || index === 2 ? 'text-black' : 'text-white'}`}>
                           #{index + 1}
                         </span>
                       </div>
@@ -328,8 +328,8 @@ function AssessmentResultsContent() {
             <div className="grid md:grid-cols-2 gap-6">
               <div className="border-2 border-black p-6">
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="w-10 h-10 bg-primary border-2 border-black flex items-center justify-center">
-                    <span className="text-xl font-black text-white">1</span>
+                  <div className="w-10 h-10 bg-accent border-2 border-black flex items-center justify-center">
+                    <span className="text-xl font-black text-black">1</span>
                   </div>
                   <h3 className="text-xl font-black">Research Deeply</h3>
                 </div>
@@ -345,8 +345,8 @@ function AssessmentResultsContent() {
 
               <div className="border-2 border-black p-6">
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="w-10 h-10 bg-secondary border-2 border-black flex items-center justify-center">
-                    <span className="text-xl font-black text-white">2</span>
+                  <div className="w-10 h-10 bg-primary border-2 border-black flex items-center justify-center">
+                    <span className="text-xl font-black text-black">2</span>
                   </div>
                   <h3 className="text-xl font-black">Compare Options</h3>
                 </div>
@@ -362,8 +362,8 @@ function AssessmentResultsContent() {
 
               <div className="border-2 border-black p-6">
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="w-10 h-10 bg-accent border-2 border-black flex items-center justify-center">
-                    <span className="text-xl font-black">3</span>
+                  <div className="w-10 h-10 bg-secondary border-2 border-black flex items-center justify-center">
+                    <span className="text-xl font-black text-black">3</span>
                   </div>
                   <h3 className="text-xl font-black">Talk to Professionals</h3>
                 </div>
@@ -380,7 +380,7 @@ function AssessmentResultsContent() {
               <div className="border-2 border-black p-6">
                 <div className="flex items-center gap-3 mb-3">
                   <div className="w-10 h-10 bg-brutal-green border-2 border-black flex items-center justify-center">
-                    <span className="text-xl font-black">4</span>
+                    <span className="text-xl font-black text-black">4</span>
                   </div>
                   <h3 className="text-xl font-black">Start Learning</h3>
                 </div>
