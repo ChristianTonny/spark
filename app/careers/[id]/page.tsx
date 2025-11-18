@@ -17,7 +17,9 @@ import {
   Calendar,
   Star,
   ArrowRight,
-  ExternalLink
+  ExternalLink,
+  Sparkles,
+  Eye
 } from "lucide-react";
 import { useState } from "react";
 import { CareerDetailSkeleton } from "@/components/loading-skeleton";
@@ -44,6 +46,12 @@ export default function CareerDetailPage() {
   const availableProfessionals = useQuery(
     api.professionals.getByCareerIds,
     career ? { careerIds: [careerId] } : "skip"
+  );
+
+  // Get user's previous quiz result for this career
+  const previousQuizResult = useQuery(
+    api.quizResults.getResultForCareer,
+    career && user ? { careerId: careerId as any } : "skip"
   );
 
   // Get related careers
@@ -177,6 +185,56 @@ export default function CareerDetailPage() {
         {/* Reality Quiz - Try This Career (Featured at top) */}
         {career.realityQuiz && (
           <div className="mb-8 sm:mb-10 md:mb-12">
+            {/* Previous Quiz Result Banner */}
+            {previousQuizResult && (
+              <div className={`mb-4 sm:mb-6 p-4 sm:p-6 border-3 border-black ${
+                previousQuizResult.readinessPercentage >= 70 ? 'bg-green-50' :
+                previousQuizResult.readinessPercentage >= 50 ? 'bg-yellow-50' :
+                'bg-orange-50'
+              }`}>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Sparkles className="w-5 h-5" />
+                      <h3 className="text-lg sm:text-xl font-black uppercase">You've Taken This Quiz Before!</h3>
+                    </div>
+                    <p className="text-sm sm:text-base font-bold text-gray-700">
+                      You scored <span className="text-xl font-black">{previousQuizResult.readinessPercentage}%</span> on{' '}
+                      {new Date(previousQuizResult.completedAt).toLocaleDateString('en-RW', {
+                        month: 'long',
+                        day: 'numeric',
+                        year: 'numeric'
+                      })}
+                    </p>
+                    <p className="text-xs sm:text-sm text-gray-600 mt-1">
+                      {previousQuizResult.readinessPercentage >= 70 && '✨ Strong alignment with this career!'}
+                      {previousQuizResult.readinessPercentage >= 50 && previousQuizResult.readinessPercentage < 70 && '📊 Moderate alignment - explore more before committing'}
+                      {previousQuizResult.readinessPercentage < 50 && '💡 Consider exploring other career options'}
+                    </p>
+                  </div>
+                  <Link href="/dashboard/student">
+                    <button className="px-4 py-2 sm:px-6 sm:py-3 min-h-[48px] bg-white text-black font-bold uppercase border-3 border-black shadow-brutal hover:shadow-brutal-lg transition-all text-sm sm:text-base whitespace-nowrap">
+                      <Eye className="w-4 h-4 sm:w-5 sm:h-5 inline mr-2" />
+                      View All Results
+                    </button>
+                  </Link>
+                </div>
+                <div className="mt-4 pt-4 border-t-2 border-black">
+                  <p className="text-xs sm:text-sm font-bold text-gray-700 mb-2">Your score breakdown:</p>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
+                    {Object.entries(previousQuizResult.scores).map(([key, value]) => (
+                      <div key={key} className="bg-white border-2 border-black p-2">
+                        <p className="text-xs font-bold text-gray-600 uppercase truncate">
+                          {key.replace(/([A-Z])/g, ' $1').trim()}
+                        </p>
+                        <p className="text-lg font-black">{Math.round(value as number)}%</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
             <RealityQuiz
               quiz={career.realityQuiz}
               careerId={career._id}

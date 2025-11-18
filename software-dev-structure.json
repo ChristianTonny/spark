@@ -1,0 +1,820 @@
+﻿{
+    "_creationTime":  1762462832022.288,
+    "_id":  "jd7fg38dz2675jqdadx0p5ztc57txsxy",
+    "breakingIn":  [
+                       {
+                           "cost":  "10-50M RWF (~$10-50K) depending on university",
+                           "pathName":  "Traditional (University)",
+                           "percentage":  50,
+                           "steps":  [
+                                         "Get Computer Science or related degree",
+                                         "Do 2-3 internships during summers",
+                                         "Build personal projects alongside coursework",
+                                         "Network with alumni and companies",
+                                         "Apply to junior positions in final year"
+                                     ],
+                           "timeline":  "4 years degree + 6 months job search"
+                       },
+                       {
+                           "cost":  "2-10M RWF ($2-10K) for bootcamp",
+                           "pathName":  "Bootcamp Graduate",
+                           "percentage":  25,
+                           "steps":  [
+                                         "Choose reputable bootcamp (check job placement rates)",
+                                         "Complete intensive 12-week program",
+                                         "Build 3-5 portfolio projects",
+                                         "Leverage bootcamp\u0027s career services",
+                                         "Apply to 50-100 junior positions"
+                                     ],
+                           "timeline":  "3-6 months bootcamp + 3-6 months job search"
+                       },
+                       {
+                           "cost":  "Free to 500K RWF ($0-500) for courses",
+                           "pathName":  "Self-Taught (Online)",
+                           "percentage":  20,
+                           "steps":  [
+                                         "Follow structured curriculum (FreeCodeCamp, Odin Project)",
+                                         "Build real projects, not just tutorials",
+                                         "Contribute to open source on GitHub",
+                                         "Network on Twitter/LinkedIn tech communities",
+                                         "Start freelancing to build experience",
+                                         "Apply with strong portfolio"
+                                     ],
+                           "timeline":  "6-18 months self-study + 6 months job search"
+                       },
+                       {
+                           "cost":  "Free if leveraging existing skills",
+                           "pathName":  "Career Switcher",
+                           "percentage":  5,
+                           "steps":  [
+                                         "Identify transferable skills from current role",
+                                         "Learn programming focused on your domain (e.g., finance ΓåÆ fintech)",
+                                         "Build projects related to previous expertise",
+                                         "Network with developers in your industry",
+                                         "Apply for junior/mid roles that value domain knowledge"
+                                     ],
+                           "timeline":  "6-12 months transition"
+                       }
+                   ],
+    "careerCapital":  {
+                          "exitOpportunities":  [
+                                                    "Product Manager (common transition after 5 years)",
+                                                    "Technical Writer (90% skill overlap)",
+                                                    "Dev Relations / Developer Advocate",
+                                                    "Entrepreneur / Startup Founder",
+                                                    "Data Scientist (if you learn ML)",
+                                                    "Engineering Manager",
+                                                    "Technical Recruiter",
+                                                    "IT Consultant"
+                                                ],
+                          "specificSkills":  [
+                                                 "Full-stack web development",
+                                                 "Cloud infrastructure (AWS/Azure)",
+                                                 "Database design and optimization",
+                                                 "API design and integration",
+                                                 "DevOps and CI/CD pipelines"
+                                             ],
+                          "transferableSkills":  [
+                                                     "Logical problem-solving (works everywhere)",
+                                                     "Project management and planning",
+                                                     "Technical communication",
+                                                     "Learning new systems quickly",
+                                                     "Data analysis and interpretation"
+                                                 ]
+                      },
+    "careerPath":  [
+                       {
+                           "description":  "Focus on mathematics, physics, and computer science. Join coding clubs.",
+                           "duration":  "3 years",
+                           "requirements":  [
+                                                "Good grades in Math",
+                                                "Basic computer skills"
+                                            ],
+                           "stage":  "High School (S4-S6)"
+                       },
+                       {
+                           "description":  "Earn Bachelor\u0027s in Computer Science, Software Engineering, or IT.",
+                           "duration":  "4 years",
+                           "estimatedCost":  8000000,
+                           "requirements":  [
+                                                "A-Level certificate",
+                                                "Strong performance in Math and Physics"
+                                            ],
+                           "stage":  "University"
+                       }
+                   ],
+    "category":  "Technology",
+    "currency":  "RWF",
+    "fullDescription":  "Software developers design, build, test, and maintain applications and systems. You\u0027ll write code, debug issues, collaborate with teams, and continuously learn new technologies. The reality is less \u0027coding genius\u0027 and more \u0027professional problem solver who Googles a lot.\u0027",
+    "growthPotential":  5,
+    "interestProfile":  {
+                            "artistic":  60,
+                            "conventional":  40,
+                            "enterprising":  50,
+                            "investigative":  90,
+                            "realistic":  30,
+                            "social":  40
+                        },
+    "personalityProfile":  {
+                               "conscientiousness":  70,
+                               "extraversion":  40,
+                               "openness":  80
+                           },
+    "prosAndCons":  {
+                        "bestFor":  [
+                                        "Love solving puzzles and logical problems",
+                                        "Comfortable with ambiguity and constant change",
+                                        "Can sit and focus for long periods",
+                                        "Enjoy continuous learning",
+                                        "Want location flexibility",
+                                        "Comfortable working mostly with computers"
+                                    ],
+                        "cons":  [
+                                     "Imposter syndrome is constant - always someone better",
+                                     "Tech changes fast - need continuous learning or fall behind",
+                                     "Sitting for 8+ hours daily (health concerns)",
+                                     "On-call rotations mean weekend/night emergencies",
+                                     "Debugging can be mentally exhausting",
+                                     "Ageism concerns in tech industry",
+                                     "Initial job hunt is brutal (100+ applications common)"
+                                 ],
+                        "notFor":  [
+                                       "Need immediate tangible results (takes time to see impact)",
+                                       "Prefer stable, unchanging routines",
+                                       "Want constant human interaction",
+                                       "Can\u0027t handle abstract/logical thinking",
+                                       "Need clear success metrics (coding is often subjective)"
+                                   ],
+                        "pros":  [
+                                     "High salary potential - 36M RWF to 120M+ RWF in Rwanda",
+                                     "Remote work flexibility - work from anywhere",
+                                     "Constantly learning and solving new problems",
+                                     "Create tangible products that people use",
+                                     "Strong job market - demand exceeds supply",
+                                     "Low barrier to entry - can be self-taught",
+                                     "International opportunities - work for global companies"
+                                 ]
+                    },
+    "realityCheck":  {
+                         "myths":  [
+                                       "You code alone in a dark room all day",
+                                       "You need to be a math genius",
+                                       "You\u0027re done learning after you land the job",
+                                       "It\u0027s all building cool features and apps"
+                                   ],
+                         "realities":  [
+                                           "60% of your time is reading and debugging existing code, not writing new code",
+                                           "You spend 2-3 hours daily in meetings, code reviews, and discussions",
+                                           "You\u0027re essentially a professional Googler - nobody memorizes everything",
+                                           "Most days are spent on maintenance, bug fixes, and small improvements"
+                                       ],
+                         "surprises":  [
+                                           "How much time you spend understanding business requirements, not just coding",
+                                           "Soft skills (communication, empathy) matter as much as technical skills",
+                                           "You\u0027ll switch tech stacks every 2-3 years as industry evolves",
+                                           "Imposter syndrome never fully goes away, even for seniors"
+                                       ]
+                     },
+    "realityQuiz":  {
+                        "description":  "Experience real scenarios developers face daily. See if this career matches your style.",
+                        "duration":  7,
+                        "questions":  [
+                                          {
+                                              "explanation":  "Most experienced developers choose option 2 - balancing urgency with smart recovery processes. Production issues happen to everyone.",
+                                              "id":  "q1",
+                                              "options":  [
+                                                              {
+                                                                  "insight":  "You show strong pressure tolerance and responsibility, but may risk burnout",
+                                                                  "scores":  {
+                                                                                 "collaboration":  0,
+                                                                                 "creativity":  0,
+                                                                                 "independence":  5,
+                                                                                 "pressure":  10,
+                                                                                 "technical":  8,
+                                                                                 "workLifeBalance":  -5
+                                                                             },
+                                                                  "text":  "Drop everything, cancel dinner, debug immediately until it\u0027s fixed"
+                                                              },
+                                                              {
+                                                                  "insight":  "You balance urgency with sustainability - key for long-term success",
+                                                                  "scores":  {
+                                                                                 "collaboration":  5,
+                                                                                 "creativity":  0,
+                                                                                 "independence":  0,
+                                                                                 "pressure":  7,
+                                                                                 "technical":  9,
+                                                                                 "workLifeBalance":  8
+                                                                             },
+                                                                  "text":  "Document the issue, create a rollback plan, set up monitoring, fix it Monday"
+                                                              },
+                                                              {
+                                                                  "insight":  "You value collaboration and know when to ask for help",
+                                                                  "scores":  {
+                                                                                 "collaboration":  10,
+                                                                                 "creativity":  0,
+                                                                                 "independence":  -3,
+                                                                                 "pressure":  5,
+                                                                                 "technical":  4,
+                                                                                 "workLifeBalance":  0
+                                                                             },
+                                                                  "text":  "Call senior developers immediately for help and guidance"
+                                                              },
+                                                              {
+                                                                  "insight":  "High-pressure situations may be challenging - consider if this is right for you",
+                                                                  "scores":  {
+                                                                                 "collaboration":  0,
+                                                                                 "creativity":  0,
+                                                                                 "independence":  0,
+                                                                                 "pressure":  -8,
+                                                                                 "technical":  2,
+                                                                                 "workLifeBalance":  0
+                                                                             },
+                                                                  "text":  "Feel overwhelmed and panic about the situation"
+                                                              }
+                                                          ],
+                                              "realityNote":  "78% of developers face production issues monthly. The best handle it systematically, not heroically.",
+                                              "scenario":  "It\u0027s 6 PM on Friday. Your code broke production and 1,000 users can\u0027t access the app. Your team is waiting for you at dinner. What do you do?"
+                                          },
+                                          {
+                                              "explanation":  "Options 2, 3, and 4 are all valid strategies. The key is knowing when to use each one.",
+                                              "id":  "q2",
+                                              "options":  [
+                                                              {
+                                                                  "insight":  "Persistence is valuable but can become inefficient without fresh perspectives",
+                                                                  "scores":  {
+                                                                                 "collaboration":  -5,
+                                                                                 "creativity":  0,
+                                                                                 "independence":  8,
+                                                                                 "pressure":  6,
+                                                                                 "technical":  5,
+                                                                                 "workLifeBalance":  0
+                                                                             },
+                                                                  "text":  "Keep pushing - I\u0027ll figure it out eventually"
+                                                              },
+                                                              {
+                                                                  "insight":  "You understand the value of mental space in problem-solving",
+                                                                  "scores":  {
+                                                                                 "collaboration":  0,
+                                                                                 "creativity":  0,
+                                                                                 "independence":  6,
+                                                                                 "pressure":  8,
+                                                                                 "technical":  7,
+                                                                                 "workLifeBalance":  7
+                                                                             },
+                                                                  "text":  "Take a break, clear your head, come back fresh"
+                                                              },
+                                                              {
+                                                                  "insight":  "You leverage collaboration effectively - a key developer skill",
+                                                                  "scores":  {
+                                                                                 "collaboration":  10,
+                                                                                 "creativity":  0,
+                                                                                 "independence":  3,
+                                                                                 "pressure":  7,
+                                                                                 "technical":  8,
+                                                                                 "workLifeBalance":  0
+                                                                             },
+                                                                  "text":  "Ask a colleague to pair program and get a second perspective"
+                                                              },
+                                                              {
+                                                                  "insight":  "You know how to use available resources efficiently",
+                                                                  "scores":  {
+                                                                                 "collaboration":  4,
+                                                                                 "creativity":  6,
+                                                                                 "independence":  7,
+                                                                                 "pressure":  0,
+                                                                                 "technical":  9,
+                                                                                 "workLifeBalance":  0
+                                                                             },
+                                                                  "text":  "Search Stack Overflow and developer forums for similar issues"
+                                                              }
+                                                          ],
+                                              "realityNote":  "Developers spend 30-40% of their time debugging. Learning to debug efficiently is crucial.",
+                                              "scenario":  "You\u0027ve been debugging the same issue for 3 hours with no progress. What\u0027s your next move?"
+                                          },
+                                          {
+                                              "explanation":  "Software changes constantly. Developers learn new technologies multiple times per year.",
+                                              "id":  "q3",
+                                              "options":  [
+                                                              {
+                                                                  "insight":  "You thrive on continuous learning - perfect for software development",
+                                                                  "scores":  {
+                                                                                 "collaboration":  0,
+                                                                                 "creativity":  10,
+                                                                                 "independence":  7,
+                                                                                 "pressure":  6,
+                                                                                 "technical":  8,
+                                                                                 "workLifeBalance":  0
+                                                                             },
+                                                                  "text":  "Excited! Love learning new tech"
+                                                              },
+                                                              {
+                                                                  "insight":  "Technology changes constantly - this may cause ongoing stress",
+                                                                  "scores":  {
+                                                                                 "collaboration":  0,
+                                                                                 "creativity":  -3,
+                                                                                 "independence":  4,
+                                                                                 "pressure":  -5,
+                                                                                 "technical":  3,
+                                                                                 "workLifeBalance":  0
+                                                                             },
+                                                                  "text":  "Stressed. Prefer sticking to what I know"
+                                                              },
+                                                              {
+                                                                  "insight":  "Smart approach - leveraging team knowledge accelerates learning",
+                                                                  "scores":  {
+                                                                                 "collaboration":  10,
+                                                                                 "creativity":  6,
+                                                                                 "independence":  0,
+                                                                                 "pressure":  7,
+                                                                                 "technical":  7,
+                                                                                 "workLifeBalance":  0
+                                                                             },
+                                                                  "text":  "Ask to pair with someone experienced in this tech"
+                                                              },
+                                                              {
+                                                                  "insight":  "Self-directed learning is a core developer skill",
+                                                                  "scores":  {
+                                                                                 "collaboration":  3,
+                                                                                 "creativity":  7,
+                                                                                 "independence":  9,
+                                                                                 "pressure":  0,
+                                                                                 "technical":  9,
+                                                                                 "workLifeBalance":  0
+                                                                             },
+                                                                  "text":  "Dive into documentation and tutorials immediately"
+                                                              }
+                                                          ],
+                                              "realityNote":  "Average developer learns 3-5 new frameworks/tools annually. Continuous learning is the job.",
+                                              "scenario":  "Your manager assigns you a project using a technology you\u0027ve never used. Deadline is 2 weeks. How do you react?"
+                                          },
+                                          {
+                                              "explanation":  "Good developers balance assigned work with proactive improvement. Options 1 and 2 show initiative.",
+                                              "id":  "q4",
+                                              "options":  [
+                                                              {
+                                                                  "insight":  "You show initiative and creativity - valuable traits for senior roles",
+                                                                  "scores":  {
+                                                                                 "collaboration":  0,
+                                                                                 "creativity":  10,
+                                                                                 "independence":  9,
+                                                                                 "pressure":  0,
+                                                                                 "technical":  8,
+                                                                                 "workLifeBalance":  -3
+                                                                             },
+                                                                  "text":  "Build a quick prototype in my free time to demonstrate the value"
+                                                              },
+                                                              {
+                                                                  "insight":  "You balance ideas with team input - collaborative innovation",
+                                                                  "scores":  {
+                                                                                 "collaboration":  10,
+                                                                                 "creativity":  8,
+                                                                                 "independence":  0,
+                                                                                 "pressure":  5,
+                                                                                 "technical":  6,
+                                                                                 "workLifeBalance":  0
+                                                                             },
+                                                                  "text":  "Bring it up in the next team meeting for discussion"
+                                                              },
+                                                              {
+                                                                  "insight":  "You respect hierarchy and proper channels",
+                                                                  "scores":  {
+                                                                                 "collaboration":  6,
+                                                                                 "creativity":  7,
+                                                                                 "independence":  5,
+                                                                                 "pressure":  0,
+                                                                                 "technical":  5,
+                                                                                 "workLifeBalance":  0
+                                                                             },
+                                                                  "text":  "Email my manager privately with the suggestion"
+                                                              },
+                                                              {
+                                                                  "insight":  "While focused, you may miss opportunities to add extra value",
+                                                                  "scores":  {
+                                                                                 "collaboration":  4,
+                                                                                 "creativity":  -3,
+                                                                                 "independence":  3,
+                                                                                 "pressure":  8,
+                                                                                 "technical":  0,
+                                                                                 "workLifeBalance":  0
+                                                                             },
+                                                                  "text":  "Focus on my assigned work - don\u0027t want to overstep"
+                                                              }
+                                                          ],
+                                              "realityNote":  "Many successful products started as developer side projects. Innovation is encouraged.",
+                                              "scenario":  "You have a brilliant idea for improving the product, but it\u0027s not in your assigned tasks. What do you do?"
+                                          },
+                                          {
+                                              "explanation":  "Code reviews are learning opportunities. Options 1-3 show growth mindset.",
+                                              "id":  "q5",
+                                              "options":  [
+                                                              {
+                                                                  "insight":  "You value code quality highly, though this may affect work-life balance",
+                                                                  "scores":  {
+                                                                                 "collaboration":  6,
+                                                                                 "creativity":  0,
+                                                                                 "independence":  0,
+                                                                                 "pressure":  7,
+                                                                                 "technical":  10,
+                                                                                 "workLifeBalance":  -4
+                                                                             },
+                                                                  "text":  "Refactor it now - I want the code to be excellent"
+                                                              },
+                                                              {
+                                                                  "insight":  "You balance quality with sustainable work pace",
+                                                                  "scores":  {
+                                                                                 "collaboration":  7,
+                                                                                 "creativity":  0,
+                                                                                 "independence":  0,
+                                                                                 "pressure":  8,
+                                                                                 "technical":  8,
+                                                                                 "workLifeBalance":  9
+                                                                             },
+                                                                  "text":  "Schedule refactoring for Monday - it\u0027s not urgent"
+                                                              },
+                                                              {
+                                                                  "insight":  "You value learning and clear communication",
+                                                                  "scores":  {
+                                                                                 "collaboration":  10,
+                                                                                 "creativity":  7,
+                                                                                 "independence":  4,
+                                                                                 "pressure":  0,
+                                                                                 "technical":  8,
+                                                                                 "workLifeBalance":  0
+                                                                             },
+                                                                  "text":  "Ask the reviewer to show me what they mean before changing anything"
+                                                              },
+                                                              {
+                                                                  "insight":  "You may struggle with code quality expectations in professional settings",
+                                                                  "scores":  {
+                                                                                 "collaboration":  -3,
+                                                                                 "creativity":  0,
+                                                                                 "independence":  0,
+                                                                                 "pressure":  3,
+                                                                                 "technical":  -5,
+                                                                                 "workLifeBalance":  7
+                                                                             },
+                                                                  "text":  "It works, so I\u0027ll leave it - \u0027if it ain\u0027t broke, don\u0027t fix it\u0027"
+                                                              }
+                                                          ],
+                                              "realityNote":  "Code review is standard practice. Expect feedback on 80%+ of your code. It\u0027s how teams improve.",
+                                              "scenario":  "Code review feedback says your code works but could be cleaner. It\u0027s Friday afternoon. What do you do?"
+                                          }
+                                      ],
+                        "results":  {
+                                        "high":  {
+                                                     "message":  "Your responses align well with successful software developers. You show good balance between technical skills and collaboration, handle pressure constructively, and understand the importance of continuous learning.",
+                                                     "min":  70,
+                                                     "title":  "Strong Developer Potential"
+                                                 },
+                                        "low":  {
+                                                    "message":  "Your responses suggest software development may not be the best fit. This doesn\u0027t mean you can\u0027t code - many roles use programming differently. Consider data analysis, technical writing, or IT support.",
+                                                    "min":  0,
+                                                    "title":  "Consider Other Paths"
+                                                },
+                                        "medium":  {
+                                                       "message":  "You have some aptitudes for software development but may find certain aspects challenging. Consider which scenarios felt uncomfortable and whether you\u0027d enjoy facing them regularly.",
+                                                       "min":  50,
+                                                       "title":  "Development Career Possible"
+                                                   }
+                                    },
+                        "scoringGuide":  {
+                                             "collaboration":  {
+                                                                   "max":  55,
+                                                                   "min":  -15,
+                                                                   "weight":  0.2
+                                                               },
+                                             "creativity":  {
+                                                                "max":  50,
+                                                                "min":  -10,
+                                                                "weight":  0.15
+                                                            },
+                                             "independence":  {
+                                                                  "max":  50,
+                                                                  "min":  -5,
+                                                                  "weight":  0.15
+                                                              },
+                                             "pressure":  {
+                                                              "max":  50,
+                                                              "min":  -20,
+                                                              "weight":  0.2
+                                                          },
+                                             "technical":  {
+                                                               "max":  55,
+                                                               "min":  -10,
+                                                               "weight":  0.2
+                                                           },
+                                             "workLifeBalance":  {
+                                                                     "max":  45,
+                                                                     "min":  -15,
+                                                                     "weight":  0.1
+                                                                 }
+                                         },
+                        "title":  "A Day as a Software Developer"
+                    },
+    "relatedCareerIds":  [
+                             "jd7dwttkdc3kaxt8tgk6ej3k8n7twgee",
+                             "jd75gtwma2ndt5gq9e2cysp4917twjck",
+                             "jd7cxxrs2w7fsjakbwjvgjrbm97twbe7"
+                         ],
+    "remoteWork":  {
+                       "friendly":  true,
+                       "notes":  "Most software roles in Rwanda offer hybrid or full remote. International remote jobs pay $60-150K but very competitive.",
+                       "percentage":  70
+                   },
+    "requiredEducation":  "Bachelor\u0027s Degree in Computer Science",
+    "requiredSkills":  [
+                           "JavaScript",
+                           "Python",
+                           "Problem Solving",
+                           "Git",
+                           "Teamwork"
+                       ],
+    "resources":  [
+                      {
+                          "description":  "Free, comprehensive, self-paced curriculum from zero to job-ready. Best structured free resource.",
+                          "name":  "FreeCodeCamp",
+                          "rating":  3,
+                          "type":  "course",
+                          "url":  "https://freecodecamp.org"
+                      },
+                      {
+                          "description":  "Free full-stack curriculum. More project-based than FCC. Excellent for self-learners.",
+                          "name":  "The Odin Project",
+                          "rating":  3,
+                          "type":  "course",
+                          "url":  "https://theodinproject.com"
+                      },
+                      {
+                          "description":  "Free, rigorous intro to CS. Challenging but builds strong fundamentals.",
+                          "name":  "CS50 (Harvard)",
+                          "rating":  3,
+                          "type":  "course",
+                          "url":  "https://cs50.harvard.edu"
+                      },
+                      {
+                          "description":  "Practice coding interviews. Essential for job prep, frustrating but necessary.",
+                          "name":  "LeetCode",
+                          "rating":  2,
+                          "type":  "tool",
+                          "url":  "https://leetcode.com"
+                      },
+                      {
+                          "description":  "Real design challenges to build portfolio. Makes your projects look professional.",
+                          "name":  "Frontend Mentor",
+                          "rating":  3,
+                          "type":  "tool",
+                          "url":  "https://frontendmentor.io"
+                      },
+                      {
+                          "description":  "Local Slack/Discord group. Job postings, mentorship, meetups. Join ASAP.",
+                          "name":  "Rwanda Developers Community",
+                          "rating":  3,
+                          "type":  "community"
+                      },
+                      {
+                          "description":  "Follow #100DaysOfCode, engage with devs, share your journey. Leads to opportunities.",
+                          "name":  "Twitter Tech Community",
+                          "rating":  2,
+                          "type":  "community"
+                      }
+                  ],
+    "salaryMax":  15000000,
+    "salaryMin":  5000000,
+    "salaryProgression":  [
+                              {
+                                  "level":  "Junior (0-2 years)",
+                                  "range":  "36-50M RWF ($36-50K)",
+                                  "years":  "0-2"
+                              },
+                              {
+                                  "level":  "Mid-Level (3-5 years)",
+                                  "range":  "50-80M RWF ($50-80K)",
+                                  "years":  "3-5"
+                              },
+                              {
+                                  "level":  "Senior (6-10 years)",
+                                  "range":  "80-120M RWF ($80-120K)",
+                                  "years":  "6-10"
+                              },
+                              {
+                                  "level":  "Lead/Principal (10+ years)",
+                                  "range":  "120-200M+ RWF ($120-200K+)",
+                                  "years":  "10+"
+                              }
+                          ],
+    "saves":  93,
+    "shortDescription":  "Build applications and solve problems with code to create digital solutions.",
+    "skillRoadmap":  [
+                         {
+                             "duration":  "0-6 months",
+                             "projects":  [
+                                              "Personal portfolio website",
+                                              "To-do list app",
+                                              "Simple calculator",
+                                              "Weather app using API"
+                                          ],
+                             "resources":  [
+                                               "FreeCodeCamp",
+                                               "MDN Web Docs",
+                                               "JavaScript.info",
+                                               "Git Handbook"
+                                           ],
+                             "skills":  [
+                                            "HTML/CSS",
+                                            "JavaScript basics",
+                                            "Git fundamentals",
+                                            "Command line basics"
+                                        ],
+                             "stage":  "Beginner"
+                         },
+                         {
+                             "duration":  "6-18 months",
+                             "projects":  [
+                                              "Full-stack blog with auth",
+                                              "E-commerce site",
+                                              "Real-time chat app",
+                                              "API integration projects"
+                                          ],
+                             "resources":  [
+                                               "React docs",
+                                               "Udemy courses",
+                                               "YouTube tutorials",
+                                               "Frontend Mentor challenges"
+                                           ],
+                             "skills":  [
+                                            "React/Vue",
+                                            "Backend basics (Node.js)",
+                                            "Databases (SQL)",
+                                            "RESTful APIs",
+                                            "Responsive design"
+                                        ],
+                             "stage":  "Intermediate"
+                         },
+                         {
+                             "duration":  "18-36 months",
+                             "projects":  [
+                                              "Contribute to open source",
+                                              "Build scalable web app",
+                                              "Create developer tool",
+                                              "Technical blog posts"
+                                          ],
+                             "resources":  [
+                                               "System Design Primer",
+                                               "Clean Code book",
+                                               "Mentorship",
+                                               "Real work projects"
+                                           ],
+                             "skills":  [
+                                            "System design",
+                                            "Testing (Jest, Cypress)",
+                                            "DevOps basics",
+                                            "Performance optimization",
+                                            "Security best practices"
+                                        ],
+                             "stage":  "Advanced"
+                         }
+                     ],
+    "successStories":  [
+                           {
+                               "advice":  "Don\u0027t wait to feel \u0027ready\u0027 - start freelancing small projects after 3 months of learning. Real projects teach more than tutorials.",
+                               "age":  28,
+                               "biggestHelp":  "Twitter tech community introduced me to first freelance client",
+                               "currentSalary":  "72M RWF ($72K)",
+                               "hardestPart":  "Building confidence without formal CS degree. Applying to 100+ jobs.",
+                               "name":  "Grace Uwase",
+                               "previousRole":  "High school math teacher",
+                               "switchTrigger":  "Needed remote work flexibility for family, saw tech salaries",
+                               "timeline":  "18 months (6 months learning + 1 year freelancing + landed full-time)"
+                           },
+                           {
+                               "advice":  "Apply even if you don\u0027t meet 100% of requirements. Most job descriptions are wish lists. Your portfolio matters more than perfect qualifications.",
+                               "age":  24,
+                               "biggestHelp":  "Bootcamp\u0027s career coach helped improve resume and interview skills",
+                               "currentSalary":  "45M RWF ($45K)",
+                               "hardestPart":  "Rejection after rejection. Took 9 months and 200 applications to get first offer.",
+                               "name":  "Claude Mugisha",
+                               "previousRole":  "Recent university graduate (Business degree)",
+                               "switchTrigger":  "Couldn\u0027t find business job, friend suggested coding bootcamp",
+                               "timeline":  "12 months (3-month bootcamp + 9 months job search)"
+                           },
+                           {
+                               "advice":  "Your previous career isn\u0027t wasted - use industry knowledge as competitive advantage. Build projects solving problems from your old field.",
+                               "age":  32,
+                               "biggestHelp":  "Banking domain knowledge got me mid-level role at fintech startup",
+                               "currentSalary":  "95M RWF ($95K)",
+                               "hardestPart":  "Learning to code while working full-time. Exhausting but necessary to pay bills.",
+                               "name":  "Eric Nkusi",
+                               "previousRole":  "Bank operations manager",
+                               "switchTrigger":  "Saw fintech potential in Rwanda, wanted to build solutions",
+                               "timeline":  "10 months (self-taught evenings/weekends while working)"
+                           }
+                       ],
+    "timeToEntry":  "6-24 months depending on path chosen",
+    "title":  "Software Developer",
+    "valueProfile":  {
+                         "autonomy":  75,
+                         "balance":  60,
+                         "growth":  90,
+                         "impact":  70,
+                         "income":  80,
+                         "stability":  70
+                     },
+    "videoThumbnail":  "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800",
+    "videoUrl":  "https://www.youtube.com/embed/dQw4w9WgXcQ",
+    "views":  1247,
+    "warningFlags":  {
+                         "greenFlags":  [
+                                            "Clear onboarding process with buddy system",
+                                            "Pair programming and code review culture",
+                                            "Learning budget (conferences, courses, books)",
+                                            "Transparent salary bands",
+                                            "Regular 1-on-1s with manager",
+                                            "Work-life balance respected (no weekend messages)",
+                                            "Modern tech stack and tools"
+                                        ],
+                         "redFlags":  [
+                                          "\u0027We\u0027re a family\u0027 culture (often means unpaid overtime)",
+                                          "No junior developers on team (no mentorship)",
+                                          "High turnover rate (check LinkedIn for ex-employees)",
+                                          "Unpaid \u0027test projects\u0027 taking more than 4 hours",
+                                          "Unclear product roadmap or business model",
+                                          "Founders micromanage technical decisions",
+                                          "No code review process"
+                                      ]
+                     },
+    "weekInLife":  {
+                       "goodDay":  [
+                                       {
+                                           "activity":  "Morning standup - quick 15min team sync",
+                                           "time":  "9:00 AM"
+                                       },
+                                       {
+                                           "activity":  "Deep focus coding - implementing new feature you designed",
+                                           "time":  "9:30 AM"
+                                       },
+                                       {
+                                           "activity":  "Lunch break, chat with teammates",
+                                           "time":  "12:00 PM"
+                                       },
+                                       {
+                                           "activity":  "Code review - giving feedback on teammate\u0027s work",
+                                           "time":  "1:00 PM"
+                                       },
+                                       {
+                                           "activity":  "Pairing session with junior dev, helping them debug",
+                                           "time":  "2:00 PM"
+                                       },
+                                       {
+                                           "activity":  "Writing tests for your new feature",
+                                           "time":  "3:30 PM"
+                                       },
+                                       {
+                                           "activity":  "Deploy to production, everything works! ≡ƒÄë",
+                                           "time":  "5:00 PM"
+                                       },
+                                       {
+                                           "activity":  "Log off, feeling accomplished",
+                                           "time":  "5:30 PM"
+                                       }
+                                   ],
+                       "hardDay":  [
+                                       {
+                                           "activity":  "Production is down! Emergency Slack messages",
+                                           "time":  "8:30 AM"
+                                       },
+                                       {
+                                           "activity":  "Debugging production issue under pressure",
+                                           "time":  "9:00 AM"
+                                       },
+                                       {
+                                           "activity":  "Finally found the bug - it was a typo ≡ƒÿà",
+                                           "time":  "11:00 AM"
+                                       },
+                                       {
+                                           "activity":  "Skip lunch, still fixing and testing",
+                                           "time":  "12:00 PM"
+                                       },
+                                       {
+                                           "activity":  "Deploy fix, monitoring closely",
+                                           "time":  "2:00 PM"
+                                       },
+                                       {
+                                           "activity":  "Post-mortem meeting about what went wrong",
+                                           "time":  "3:00 PM"
+                                       },
+                                       {
+                                           "activity":  "Back to planned work, but mentally drained",
+                                           "time":  "4:00 PM"
+                                       },
+                                       {
+                                           "activity":  "Leave late, frustrated day",
+                                           "time":  "6:30 PM"
+                                       }
+                                   ]
+                   },
+    "workEnvironment":  {
+                            "pace":  "moderate",
+                            "structure":  "flexible",
+                            "teamSize":  "small"
+                        }
+}

@@ -1,7 +1,8 @@
-import { mutation, query, QueryCtx, MutationCtx } from "./_generated/server";
+import { mutation, query, QueryCtx, MutationCtx, internalMutation, internalAction } from "./_generated/server";
 import { v } from "convex/values";
 import { validateString, validateRating, validateUrl } from "./utils/sanitize";
 import { Id } from "./_generated/dataModel";
+import { internal } from "./_generated/api";
 
 // Helper to get current user ID
 async function getCurrentUserId(ctx: QueryCtx | MutationCtx): Promise<Id<"users"> | null> {
@@ -368,6 +369,25 @@ export const approveBooking = mutation({
         senderRole: 'mentor',
       },
     });
+
+    // Send confirmation email to student
+    const studentUser = await ctx.db.get(studentUserId);
+    const career = chat.careerId ? await ctx.db.get(chat.careerId as Id<"careers">) : null;
+    
+    if (studentUser?.email) {
+      await ctx.scheduler.runAfter(0, internal.emails.sendEmail, {
+        type: "booking_confirmation",
+        data: {
+          to: studentUser.email,
+          studentName: `${studentUser.firstName} ${studentUser.lastName}`,
+          mentorName,
+          careerTitle: career?.title,
+          scheduledAt: chat.scheduledAt!,
+          duration: chat.duration || 60,
+          meetingLink: validatedMeetingUrl,
+        },
+      });
+    }
 
     return { success: true };
   },

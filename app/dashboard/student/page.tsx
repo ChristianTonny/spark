@@ -32,9 +32,11 @@ export default function StudentDashboard() {
   // Fetch data from Convex (automatically uses authenticated user)
   const savedCareers = useQuery(api.savedCareers.list, user ? {} : "skip");
   const assessmentResults = useQuery(api.assessments.getResults, user ? {} : "skip");
+  const quizResults = useQuery(api.quizResults.getUserResults, user ? {} : "skip");
   const studentProfile = useQuery(api.studentProfiles.getCurrent, user ? {} : "skip");
   const confirmedBookings = useQuery(api.careerChats.getStudentBookings, user ? { status: "confirmed" } : "skip");
   const deleteResult = useMutation(api.assessments.deleteResult);
+  const deleteQuizResult = useMutation(api.quizResults.deleteResult);
 
   const studentData = {
     name: clerkUser ? `${clerkUser.firstName} ${clerkUser.lastName}` : "Student",
@@ -58,6 +60,12 @@ export default function StudentDashboard() {
   const handleDeleteResult = async (resultId: string) => {
     if (confirm("Are you sure you want to delete this assessment result?")) {
       await deleteResult({ resultId: resultId as any });
+    }
+  };
+
+  const handleDeleteQuizResult = async (resultId: string) => {
+    if (confirm("Are you sure you want to delete this quiz result?")) {
+      await deleteQuizResult({ resultId: resultId as any });
     }
   };
 
@@ -290,6 +298,123 @@ export default function StudentDashboard() {
                     <Link href="/assessments">
                       <button className="px-6 py-3 min-h-[44px] bg-primary text-white font-bold uppercase border-3 border-black shadow-brutal hover:shadow-brutal-lg transition-all text-sm sm:text-base">
                         Start Assessment
+                      </button>
+                    </Link>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Quiz Results Section */}
+            <div className="bg-white border-3 border-black shadow-brutal-lg">
+              <div className="p-4 sm:p-6 border-b-3 border-black">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <Target className="w-5 h-5 sm:w-6 sm:h-6" />
+                    <h2 className="text-xl sm:text-2xl font-black uppercase">My Quiz Results</h2>
+                  </div>
+                  <Link href="/careers" className="w-full sm:w-auto">
+                    <button className="w-full sm:w-auto px-4 py-2 bg-brutal-orange text-white font-bold uppercase border-3 border-black shadow-brutal hover:shadow-brutal-lg transition-all text-sm">
+                      Take More Quizzes
+                    </button>
+                  </Link>
+                </div>
+              </div>
+
+              <div className="p-4 sm:p-6">
+                {quizResults && quizResults.length > 0 ? (
+                  <div className="space-y-4">
+                    {quizResults.slice(0, 5).map((result) => {
+                      const career = result.career;
+                      if (!career) return null;
+
+                      const readinessColor =
+                        result.readinessPercentage >= 70 ? 'bg-brutal-green' :
+                        result.readinessPercentage >= 50 ? 'bg-brutal-yellow' :
+                        'bg-brutal-pink';
+
+                      return (
+                        <div
+                          key={result._id}
+                          className="border-2 border-black p-3 sm:p-4"
+                        >
+                          <div className="flex flex-col gap-3">
+                            <div className="flex items-start gap-3">
+                              <div className="w-16 h-16 sm:w-20 sm:h-20 border-2 border-black overflow-hidden flex-shrink-0">
+                                <img
+                                  src={career.videoThumbnail}
+                                  alt={career.title}
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex flex-wrap items-center gap-2 mb-2">
+                                  <span className="text-xs sm:text-sm font-bold text-gray-600">
+                                    {new Date(result.completedAt).toLocaleDateString('en-RW', {
+                                      month: 'short',
+                                      day: 'numeric',
+                                      year: 'numeric'
+                                    })}
+                                  </span>
+                                  <span className={`px-2 py-1 ${readinessColor} text-black text-xs font-bold border-2 border-black`}>
+                                    {result.readinessPercentage}% Ready
+                                  </span>
+                                </div>
+                                <h4 className="text-base sm:text-lg font-black mb-1">
+                                  {career.title}
+                                </h4>
+                                <p className="text-xs sm:text-sm font-bold text-gray-700 mb-2">
+                                  {career.category}
+                                </p>
+                                {/* Score Breakdown */}
+                                <div className="grid grid-cols-3 gap-2">
+                                  {Object.entries(result.scores).slice(0, 3).map(([key, value]) => (
+                                    <div key={key} className="text-xs">
+                                      <span className="text-gray-600 font-bold uppercase block truncate">
+                                        {key.replace(/([A-Z])/g, ' $1').trim()}
+                                      </span>
+                                      <span className="font-black">{Math.round(value as number)}%</span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex gap-2">
+                              <Link href={`/careers/${career._id}`} className="flex-1 sm:flex-initial">
+                                <button className="w-full px-4 py-2 min-h-[44px] bg-white border-2 border-black shadow-brutal-sm hover:shadow-brutal transition-all flex items-center justify-center gap-2 font-bold text-sm">
+                                  <Eye className="w-4 h-4" />
+                                  View Career
+                                </button>
+                              </Link>
+                              <Link href={`/careers/${career._id}`} className="flex-1 sm:flex-initial">
+                                <button className="w-full px-4 py-2 min-h-[44px] bg-brutal-orange text-white border-2 border-black shadow-brutal-sm hover:shadow-brutal transition-all flex items-center justify-center gap-2 font-bold text-sm">
+                                  <ArrowRight className="w-4 h-4" />
+                                  Retake
+                                </button>
+                              </Link>
+                              <button
+                                onClick={() => handleDeleteQuizResult(result._id)}
+                                className="px-3 sm:px-4 py-2 min-h-[44px] bg-white border-2 border-black shadow-brutal-sm hover:shadow-brutal hover:bg-red-50 transition-all"
+                                title="Delete result"
+                              >
+                                <Trash2 className="w-4 h-4 text-red-600" />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 sm:py-12">
+                    <Target className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 text-gray-400" />
+                    <h3 className="text-lg sm:text-xl font-black mb-2">No Quiz Results Yet</h3>
+                    <p className="text-sm sm:text-base text-gray-600 font-bold mb-4 px-4">
+                      Take reality quizzes on career pages to test if a career is right for you!
+                    </p>
+                    <Link href="/careers">
+                      <button className="px-6 py-3 min-h-[44px] bg-primary text-white font-bold uppercase border-3 border-black shadow-brutal hover:shadow-brutal-lg transition-all text-sm sm:text-base">
+                        Explore Careers
                       </button>
                     </Link>
                   </div>

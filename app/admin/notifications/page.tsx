@@ -4,6 +4,7 @@ import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
 import { Id } from '../../../convex/_generated/dataModel';
 import { Bell, FileText, Users, CheckCircle, Trash2 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 const getNotificationStyle = (type: string) => {
   switch (type) {
@@ -19,6 +20,7 @@ const getNotificationStyle = (type: string) => {
 };
 
 export default function AdminNotificationsPage() {
+  const { toast } = useToast();
   const notifications = useQuery(api.notifications.getNotifications);
   const unreadCount = useQuery(api.notifications.getUnreadCount);
 
@@ -39,8 +41,17 @@ export default function AdminNotificationsPage() {
   const handleMarkAllRead = async () => {
     try {
       await markAllAsRead({});
+      toast({
+        title: "Success",
+        description: "All notifications marked as read.",
+        variant: "default",
+      });
     } catch (error) {
-      console.error('Failed to mark all as read:', error);
+      toast({
+        title: "Error",
+        description: "Failed to mark all notifications as read.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -48,15 +59,28 @@ export default function AdminNotificationsPage() {
     try {
       await markAsRead({ notificationId });
     } catch (error) {
-      console.error('Failed to mark as read:', error);
+      toast({
+        title: "Error",
+        description: "Failed to mark notification as read.",
+        variant: "destructive",
+      });
     }
   };
 
   const handleDelete = async (notificationId: Id<"notifications">) => {
     try {
       await deleteNotification({ notificationId });
+      toast({
+        title: "Success",
+        description: "Notification deleted.",
+        variant: "default",
+      });
     } catch (error) {
-      console.error('Failed to delete notification:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete notification.",
+        variant: "destructive",
+      });
     }
   };
 

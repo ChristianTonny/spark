@@ -1,5 +1,6 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { internal } from "./_generated/api";
 
 // Submit a new mentor application
 export const submit = mutation({
@@ -33,6 +34,17 @@ export const submit = mutation({
       ...args,
       status: "pending",
       submittedAt: Date.now(),
+    });
+
+    // Send email notification to admin
+    const adminEmail = process.env.ADMIN_EMAIL || "admin@spark.rw";
+    await ctx.scheduler.runAfter(0, internal.emails.sendEmail, {
+      type: "mentor_application",
+      data: {
+        to: adminEmail,
+        applicantName: args.fullName,
+        applicationId: applicationId,
+      },
     });
 
     return { applicationId };

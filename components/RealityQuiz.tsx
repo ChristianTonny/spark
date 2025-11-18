@@ -1,9 +1,8 @@
-'use client';
-
 import { useState } from 'react';
 import { ArrowRight, ArrowLeft, Check, AlertCircle, Sparkles, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { useMutation } from 'convex/react';
 import { api } from '@/convex/_generated/api';
+import { useToast } from '@/hooks/use-toast';
 
 interface QuizOption {
   text: string;
@@ -62,6 +61,7 @@ interface RealityQuizProps {
 }
 
 export function RealityQuiz({ quiz, careerId, careerTitle }: RealityQuizProps) {
+  const { toast } = useToast();
   const [started, setStarted] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<Record<string, number>>({});
@@ -194,7 +194,11 @@ export function RealityQuiz({ quiz, careerId, careerTitle }: RealityQuizProps) {
         resultTier,
       });
     } catch (error) {
-      console.error('Failed to save quiz result:', error);
+      toast({
+        title: "Failed to Save Results",
+        description: error instanceof Error ? error.message : "Your results couldn't be saved. Please try again.",
+        variant: "destructive",
+      });
     }
   };
 
