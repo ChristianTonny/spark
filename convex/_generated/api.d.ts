@@ -27,6 +27,7 @@ import type * as notifications from "../notifications.js";
 import type * as professionals from "../professionals.js";
 import type * as savedCareers from "../savedCareers.js";
 import type * as seed from "../seed.js";
+import type * as setupEducator from "../setupEducator.js";
 import type * as studentProfiles from "../studentProfiles.js";
 import type * as testHelpers from "../testHelpers.js";
 import type * as updateAssessment from "../updateAssessment.js";
@@ -68,6 +69,7 @@ declare const fullApi: ApiFromModules<{
   professionals: typeof professionals;
   savedCareers: typeof savedCareers;
   seed: typeof seed;
+  setupEducator: typeof setupEducator;
   studentProfiles: typeof studentProfiles;
   testHelpers: typeof testHelpers;
   updateAssessment: typeof updateAssessment;
