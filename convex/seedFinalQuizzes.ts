@@ -413,7 +413,7 @@ export const seedRemainingQuizzes = mutation({
         career = allCareers.find((c) =>
           c.title.toLowerCase().includes(item.title.toLowerCase()) ||
           item.title.toLowerCase().includes(c.title.toLowerCase())
-        );
+        ) ?? null;
       }
 
       if (career) {
@@ -433,8 +433,8 @@ export const seedRemainingQuizzes = mutation({
           category: item.category,
           shortDescription: item.shortDescription,
           fullDescription: item.fullDescription,
-          videoUrl: "https://www.youtube.com/watch?v=example",
-          videoThumbnail: `https://images.unsplash.com/photo-${Date.now()}?w=800`,
+          videoUrl: "https://www.youtube.com/embed/example",
+          videoThumbnail: "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=800",
           salaryMin: item.salaryMin,
           salaryMax: item.salaryMax,
           currency: "RWF",

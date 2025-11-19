@@ -38,6 +38,7 @@ import type * as setupEducator from "../setupEducator.js";
 import type * as studentProfiles from "../studentProfiles.js";
 import type * as testHelpers from "../testHelpers.js";
 import type * as updateAssessment from "../updateAssessment.js";
+import type * as updateCareerData from "../updateCareerData.js";
 import type * as updateIncompleteProfiles from "../updateIncompleteProfiles.js";
 import type * as userSettings from "../userSettings.js";
 import type * as users from "../users.js";
@@ -88,6 +89,7 @@ declare const fullApi: ApiFromModules<{
   studentProfiles: typeof studentProfiles;
   testHelpers: typeof testHelpers;
   updateAssessment: typeof updateAssessment;
+  updateCareerData: typeof updateCareerData;
   updateIncompleteProfiles: typeof updateIncompleteProfiles;
   userSettings: typeof userSettings;
   users: typeof users;

@@ -43,6 +43,12 @@ export default defineSchema({
     chatsCompleted: v.number(),
     chatsUpcoming: v.number(),
     assessmentsTaken: v.number(),
+    careerReadinessScore: v.optional(v.number()),
+    scoreHistory: v.optional(v.array(v.object({
+      date: v.number(),
+      score: v.number(),
+      event: v.string(),
+    }))),
   }).index("by_user", ["userId"]),
 
   // Career profiles
