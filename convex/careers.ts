@@ -129,3 +129,113 @@ export const getWithQuizzes = query({
     return careers.filter(c => c.realityQuiz !== undefined);
   },
 });
+
+// Get career with associated schools (enriched with cost analysis)
+export const getByIdWithSchools = query({
+  args: { id: v.id("careers") },
+  handler: async (ctx, args) => {
+    const career = await ctx.db.get(args.id);
+    if (!career || !career.costAnalysis) return career;
+    
+    // Fetch schools for each stage in breakdown
+    const enrichedBreakdown = await Promise.all(
+      career.costAnalysis.breakdown.map(async (stage) => {
+        const schools = await Promise.all(
+          stage.schoolIds.map(async (id) => {
+            const school = await ctx.db.get(id);
+            return school;
+          })
+        );
+        
+        return {
+          ...stage,
+          schools: schools.filter(s => s !== null),
+        };
+      })
+    );
+    
+    return { 
+      ...career, 
+      costAnalysis: { 
+        ...career.costAnalysis, 
+        breakdown: enrichedBreakdown 
+      } 
+    };
+  },
+});
+
+// Get multiple careers with schools (for comparison)
+export const getByIdsWithSchools = query({
+  args: { ids: v.array(v.id("careers")) },
+  handler: async (ctx, args) => {
+    const careersWithSchools = await Promise.all(
+      args.ids.map(async (id) => {
+        const career = await ctx.db.get(id);
+        if (!career || !career.costAnalysis) return career;
+        
+        // Fetch schools for each stage in breakdown
+        const enrichedBreakdown = await Promise.all(
+          career.costAnalysis.breakdown.map(async (stage) => {
+            const schools = await Promise.all(
+              stage.schoolIds.map(async (schoolId) => {
+                const school = await ctx.db.get(schoolId);
+                return school;
+              })
+            );
+            
+            return {
+              ...stage,
+              schools: schools.filter(s => s !== null),
+            };
+          })
+        );
+        
+        return { 
+          ...career, 
+          costAnalysis: { 
+            ...career.costAnalysis, 
+            breakdown: enrichedBreakdown 
+          } 
+        };
+      })
+    );
+    
+    return careersWithSchools.filter(c => c !== null);
+  },
+});
+
+// Get aggregated schools for multiple careers (useful for assessment results)
+export const getSchoolsForCareers = query({
+  args: { careerIds: v.array(v.id("careers")) },
+  handler: async (ctx, args) => {
+    const allSchoolIds = new Set<string>();
+    
+    // Collect all unique school IDs from all careers
+    for (const careerId of args.careerIds) {
+      const career = await ctx.db.get(careerId);
+      if (career?.costAnalysis) {
+        for (const stage of career.costAnalysis.breakdown) {
+          for (const schoolId of stage.schoolIds) {
+            allSchoolIds.add(schoolId as any);
+          }
+        }
+      }
+    }
+    
+    // Fetch all unique schools
+    const schools = await Promise.all(
+      Array.from(allSchoolIds).map(id => ctx.db.get(id as any))
+    );
+    
+    // Sort by tier: featured > partner > listed
+    const validSchools = schools.filter(s => s !== null && s.isActive);
+    return validSchools.sort((a, b) => {
+      const tierOrder = { featured: 0, partner: 1, listed: 2 };
+      const aTier = tierOrder[a.partnershipTier];
+      const bTier = tierOrder[b.partnershipTier];
+      
+      if (aTier !== bTier) return aTier - bTier;
+      return b.clickCount - a.clickCount;
+    });
+  },
+});

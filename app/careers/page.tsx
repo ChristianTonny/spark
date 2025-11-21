@@ -287,13 +287,24 @@ export default function CareersPage() {
                     </div>
 
                     {/* Footer */}
-                    <div className="flex items-center justify-between pt-4 border-t-3 border-gray-200">
+                    <div className="grid grid-cols-2 gap-4 pt-4 border-t-3 border-gray-200">
                       <div>
                         <p className="text-sm font-bold text-gray-600 uppercase">Salary</p>
                         <p className="text-lg font-black text-brutal-orange">
                           {(career.salaryMin / 1000000).toFixed(1)}M - {(career.salaryMax / 1000000).toFixed(1)}M
                         </p>
                       </div>
+                      {career.costAnalysis && (
+                        <div className="text-right">
+                          <p className="text-sm font-bold text-gray-600 uppercase">Entry Cost</p>
+                          <p className="text-lg font-black text-brutal-blue">
+                            {(career.costAnalysis.totalCostMin / 1000000).toFixed(1)}M+
+                          </p>
+                        </div>
+                      )}
+                      {!career.costAnalysis && <div></div>}
+                    </div>
+                    <div className="pt-2 flex justify-end">
                       <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
                     </div>
                   </div>

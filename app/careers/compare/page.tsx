@@ -10,6 +10,7 @@ import { Spinner } from '@/components/loading-skeleton';
 import { useConvexAuth } from '@/lib/hooks/useConvexAuth';
 import { useToast } from '@/lib/use-toast';
 import { ToastContainer } from '@/components/toast-container';
+import { SchoolRecommendations } from '@/components/SchoolRecommendations';
 import type { Id } from "@/convex/_generated/dataModel";
 
 function CareerComparisonContent() {
@@ -30,6 +31,12 @@ function CareerComparisonContent() {
 
   const bookmarkedIds = useQuery(api.savedCareers.getIds, user ? {} : "skip");
   const toggleBookmark = useMutation(api.savedCareers.toggle);
+  
+  // Get schools for selected careers
+  const aggregatedSchools = useQuery(
+    api.careers.getSchoolsForCareers,
+    careerIds.length > 0 ? { careerIds } : "skip"
+  );
 
   // Handle bookmark
   const handleBookmark = async (careerId: string, careerTitle: string) => {
@@ -92,6 +99,26 @@ function CareerComparisonContent() {
     {
       label: 'Salary Range',
       getValue: (career: any) => `${(career.salaryMin / 1000000).toFixed(1)}M - ${(career.salaryMax / 1000000).toFixed(1)}M RWF/year`,
+    },
+    {
+      label: 'Cost to Entry',
+      getValue: (career: any) => {
+        if (!career.costAnalysis) return 'Not specified';
+        return `${(career.costAnalysis.totalCostMin / 1000000).toFixed(1)}M - ${(career.costAnalysis.totalCostMax / 1000000).toFixed(1)}M RWF`;
+      },
+    },
+    {
+      label: 'Education Duration',
+      getValue: (career: any) => {
+        if (!career.costAnalysis?.breakdown) return 'Not specified';
+        const stages = career.costAnalysis.breakdown;
+        // Extract years from duration strings like "4 years", "3 years"
+        const totalYears = stages.reduce((sum: number, stage: any) => {
+          const match = stage.duration.match(/(\d+)\s*years?/i);
+          return sum + (match ? parseInt(match[1]) : 0);
+        }, 0);
+        return totalYears > 0 ? `${totalYears} years` : 'Variable';
+      },
     },
     {
       label: 'Category',
@@ -283,6 +310,18 @@ function CareerComparisonContent() {
             </div>
           ))}
         </div>
+
+        {/* School Recommendations */}
+        {aggregatedSchools && aggregatedSchools.length > 0 && (
+          <div className="mt-8 p-6 bg-white border-3 border-black shadow-brutal">
+            <SchoolRecommendations 
+              schools={aggregatedSchools} 
+              title="Recommended Schools for These Careers"
+              maxDisplay={6}
+              showViewAll={false}
+            />
+          </div>
+        )}
 
         {/* Add Another Career Button */}
         {careers.length < 3 && (

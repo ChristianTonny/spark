@@ -235,6 +235,29 @@ export default defineSchema({
         low: v.object({ min: v.number(), title: v.string(), message: v.string() }),       // 0-49%
       }),
     })),
+
+    // Cost Analysis - Entry costs for this career
+    costAnalysis: v.optional(v.object({
+      totalCostMin: v.number(),      // Minimum total cost in RWF
+      totalCostMax: v.number(),      // Maximum total cost in RWF
+      breakdown: v.array(v.object({
+        stage: v.string(),           // "High School", "University", "Certification", etc.
+        duration: v.string(),        // "3 years", "6 months"
+        costMin: v.number(),         // Min cost for this stage
+        costMax: v.number(),         // Max cost for this stage
+        description: v.string(),     // What this stage includes
+        schoolIds: v.array(v.id("schools")), // Recommended schools for this stage
+      })),
+      additionalCosts: v.object({
+        materials: v.optional(v.object({ min: v.number(), max: v.number(), description: v.string() })),
+        living: v.optional(v.object({ min: v.number(), max: v.number(), description: v.string() })),
+        certifications: v.optional(v.object({ min: v.number(), max: v.number(), description: v.string() })),
+        other: v.optional(v.object({ min: v.number(), max: v.number(), description: v.string() })),
+      }),
+      financialAidAvailable: v.boolean(),
+      scholarshipInfo: v.optional(v.string()),
+      lastUpdated: v.number(),       // Timestamp for data freshness
+    })),
   })
     .index("by_category", ["category"])
     .index("by_title", ["title"]),
@@ -621,4 +644,63 @@ export default defineSchema({
     .index("by_user", ["userId"])
     .index("by_career", ["careerId"])
     .index("by_user_and_career", ["userId", "careerId"]),
+
+  // Schools - Educational institutions in Rwanda
+  schools: defineTable({
+    name: v.string(),
+    type: v.union(
+      v.literal("university"),
+      v.literal("technical_college"),
+      v.literal("vocational_school"),
+      v.literal("high_school"),
+      v.literal("training_center"),
+      v.literal("online_platform")
+    ),
+    location: v.object({
+      city: v.string(),
+      district: v.string(),
+    }),
+    website: v.optional(v.string()),
+    contactEmail: v.optional(v.string()),
+    contactPhone: v.optional(v.string()),
+    
+    // Programs offered
+    programsOffered: v.array(v.object({
+      name: v.string(),
+      duration: v.string(),
+      tuitionPerYear: v.number(),
+      careerIds: v.array(v.id("careers")), // Which careers this program leads to
+    })),
+    
+    // Partnership status
+    partnershipTier: v.union(
+      v.literal("featured"),    // Pays for top placement
+      v.literal("partner"),     // Basic partnership
+      v.literal("listed")       // Free listing
+    ),
+    partnerSince: v.optional(v.number()),
+    
+    // School info
+    description: v.string(),
+    logo: v.optional(v.string()),
+    accreditation: v.optional(v.string()),
+    establishedYear: v.optional(v.number()),
+    studentCount: v.optional(v.number()),
+    scholarshipInfo: v.optional(v.string()), // Information about available scholarships
+    
+    // Metrics
+    clickCount: v.number(),
+    inquiryCount: v.number(),
+    
+    // Display
+    isActive: v.boolean(),
+    featured: v.boolean(),      // Show in featured slots
+    
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_type", ["type"])
+    .index("by_tier", ["partnershipTier"])
+    .index("by_featured", ["featured", "partnershipTier"])
+    .index("by_active", ["isActive"]),
 });
