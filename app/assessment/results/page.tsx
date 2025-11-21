@@ -11,6 +11,7 @@ import { useConvexAuth } from '@/lib/hooks/useConvexAuth';
 import { useToast } from '@/lib/use-toast';
 import { ToastContainer } from '@/components/toast-container';
 import { SchoolRecommendations } from '@/components/SchoolRecommendations';
+import type { Id } from '@/convex/_generated/dataModel';
 
 function AssessmentResultsContent() {
   const searchParams = useSearchParams();
@@ -26,8 +27,11 @@ function AssessmentResultsContent() {
   const toggleBookmark = useMutation(api.savedCareers.toggle);
 
   // Get mentors for top matched careers (top 3)
-  const topCareerIds = allResults && allResults.length > 0
-    ? allResults[0].careerMatches.slice(0, 3).map(m => m.careerId).filter(Boolean)
+  const topCareerIds: Id<"careers">[] = allResults && allResults.length > 0
+    ? allResults[0].careerMatches
+        .slice(0, 3)
+        .map(match => match.careerId)
+        .filter((id): id is Id<"careers"> => Boolean(id))
     : [];
 
   const relevantMentors = useQuery(
