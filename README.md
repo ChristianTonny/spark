@@ -4,6 +4,16 @@
 
 ---
 
+## 🔗 Important Links
+
+- **🌐 Live Platform:** [opportunitymap.vercel.app](https://opportunitymap.vercel.app)
+- **📹 Video Demo:** [Watch on YouTube](https://youtu.be/zT2KXHflTPg)
+- **📄 SRS Document:** [Software Requirements Specification](./docs/SRS.md)
+- **💻 GitHub Repository:** [github.com/ChristianTonny/spark](https://github.com/ChristianTonny/spark)
+- **📊 Submission Document:** [Google Doc](https://docs.google.com/document/d/1YWhXg8nGDik4Kd3zYoQYY40U62PYx-MX1mP39ueXHVQ/edit?usp=sharing)
+
+---
+
 ## The Problem We're Solving
 
 **Right now, thousands of Rwandan students are gambling their futures on guesswork.**
@@ -486,16 +496,6 @@ Test accounts available on request for evaluation purposes.
 **Launch Readiness: 85%**
 
 Core platform complete and live. Focus now is content creation (more quizzes, career data) and user acquisition.
-
----
-
-## Important Links
-
-- **🌐 Live Platform:** [opportunitymap.vercel.app](https://opportunitymap.vercel.app)
-- **📹 Video Demo:** [Watch on YouTube](https://youtu.be/zT2KXHflTPg)
-- **📄 SRS Document:** [Software Requirements Specification](./docs/SRS.md)
-- **💻 GitHub Repository:** [github.com/ChristianTonny/spark](https://github.com/ChristianTonny/spark)
-- **📊 Submission Document:** [Google Doc](https://docs.google.com/document/d/1YWhXg8nGDik4Kd3zYoQYY40U62PYx-MX1mP39ueXHVQ/edit?usp=sharing)
 
 ---
 
