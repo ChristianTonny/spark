@@ -26,7 +26,8 @@
       "Bash(move BUILD_STATUS.md docs )",
       "Bash(move assessment.md docs )",
       "Bash(move:*)",
-      "Bash(vercel --prod:*)"
+      "Bash(vercel --prod:*)",
+      "Bash(Select-String -Pattern \"school\" -Context 2)"
     ],
     "deny": [],
     "ask": []

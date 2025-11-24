@@ -10,6 +10,7 @@ import { Spinner } from '@/components/loading-skeleton';
 import { useConvexAuth } from '@/lib/hooks/useConvexAuth';
 import { useToast } from '@/lib/use-toast';
 import { ToastContainer } from '@/components/toast-container';
+import { SchoolRecommendations } from '@/components/SchoolRecommendations';
 
 function AssessmentResultsContent() {
   const searchParams = useSearchParams();
@@ -26,11 +27,17 @@ function AssessmentResultsContent() {
 
   // Get mentors for top matched careers (top 3)
   const topCareerIds = allResults && allResults.length > 0
-    ? allResults[0].careerMatches.slice(0, 3).map(m => m.careerId).filter(Boolean)
+    ? allResults[0].careerMatches.slice(0, 3).map(m => m.careerId).filter(Boolean) as any[]
     : [];
 
   const relevantMentors = useQuery(
     api.professionals.getByCareerIds,
+    topCareerIds.length > 0 ? { careerIds: topCareerIds } : "skip"
+  );
+
+  // Get schools for top matched careers
+  const topMatchSchools = useQuery(
+    api.careers.getSchoolsForCareers,
     topCareerIds.length > 0 ? { careerIds: topCareerIds } : "skip"
   );
 
@@ -232,6 +239,11 @@ function AssessmentResultsContent() {
                             <span className="px-3 py-1 bg-background text-xs font-black uppercase border-2 border-black">
                               {(career.salaryMin / 1000000).toFixed(1)}M - {(career.salaryMax / 1000000).toFixed(1)}M RWF
                             </span>
+                            {career.costAnalysis && (
+                              <span className="px-3 py-1 bg-brutal-blue text-white text-xs font-black uppercase border-2 border-black">
+                                Entry: {(career.costAnalysis.totalCostMin / 1000000).toFixed(1)}M+
+                              </span>
+                            )}
                           </div>
 
                           {/* Match Reasons */}
@@ -418,6 +430,22 @@ function AssessmentResultsContent() {
                 View All Mentors →
               </button>
             </Link>
+          </div>
+        )}
+
+        {/* School Recommendations for Top Matches */}
+        {topMatchSchools && topMatchSchools.length > 0 && (
+          <div className="bg-white border-3 border-black shadow-brutal p-6 md:p-8 mb-8">
+            <SchoolRecommendations
+              schools={topMatchSchools}
+              title="Recommended Schools for Your Top Matches"
+              maxDisplay={6}
+              showViewAll={false}
+            />
+            <p className="mt-4 text-sm text-gray-600 font-bold">
+              These institutions offer programs that align with your top career matches.
+              Click "Visit Website" to learn about admission requirements and application processes.
+            </p>
           </div>
         )}
 
