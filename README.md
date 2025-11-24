@@ -8,9 +8,8 @@
 
 - **🌐 Live Platform:** [opportunitymap.vercel.app](https://opportunitymap.vercel.app)
 - **📹 Video Demo:** [Watch on YouTube](https://youtu.be/zT2KXHflTPg)
-- **📄 SRS Document:** [Software Requirements Specification](./docs/SRS.md)
 - **💻 GitHub Repository:** [github.com/ChristianTonny/spark](https://github.com/ChristianTonny/spark)
-- **📊 Submission Document:** [Google Doc](https://docs.google.com/document/d/1YWhXg8nGDik4Kd3zYoQYY40U62PYx-MX1mP39ueXHVQ/edit?usp=sharing)
+- **📄 SRS Document:** [Google Doc](https://docs.google.com/document/d/1YWhXg8nGDik4Kd3zYoQYY40U62PYx-MX1mP39ueXHVQ/edit?usp=sharing)
 
 ---
 
