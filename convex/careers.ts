@@ -1,5 +1,6 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
+import type { Id } from "./_generated/dataModel";
 
 // Get all careers
 export const list = query({
@@ -224,16 +225,23 @@ export const getSchoolsForCareers = query({
     
     // Fetch all unique schools
     const schools = await Promise.all(
-      Array.from(allSchoolIds).map(id => ctx.db.get(id as any))
+      Array.from(allSchoolIds).map(async (id) => {
+        const school = await ctx.db.get(id as Id<"schools">);
+        // Type guard to ensure we're only returning school documents
+        if (school && 'name' in school && 'type' in school && 'partnershipTier' in school) {
+          return school;
+        }
+        return null;
+      })
     );
-    
+
     // Sort by tier: featured > partner > listed
-    const validSchools = schools.filter(s => s !== null && s.isActive);
+    const validSchools = schools.filter((s): s is NonNullable<typeof s> => s !== null && 'isActive' in s && s.isActive);
     return validSchools.sort((a, b) => {
       const tierOrder = { featured: 0, partner: 1, listed: 2 };
       const aTier = tierOrder[a.partnershipTier];
       const bTier = tierOrder[b.partnershipTier];
-      
+
       if (aTier !== bTier) return aTier - bTier;
       return b.clickCount - a.clickCount;
     });

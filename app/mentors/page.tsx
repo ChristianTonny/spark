@@ -88,7 +88,7 @@ export default function MentorsPage() {
         <div className="mb-6 sm:mb-8">
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black mb-3 sm:mb-4 uppercase">Browse Mentors</h1>
           <p className="text-base sm:text-lg md:text-xl font-bold text-gray-700">
-            Connect with professionals and get career advice in 15-minute sessions
+            Connect with professionals for focused 60-minute sessions packed with real-world advice
           </p>
         </div>
 
@@ -374,7 +374,7 @@ export default function MentorsPage() {
                   </div>
                   <h3 className="text-xl font-black mb-2">Book a Session</h3>
                   <p className="text-sm font-bold text-gray-700">
-                    Choose an available time slot that works for you. Sessions are 15 minutes long.
+                    Choose an available time slot that works for you. Sessions run for 60 minutes so you can go deep.
                   </p>
                 </div>
                 <div>

@@ -51,7 +51,8 @@ export const getResults = query({
                     category: career.category,
                     shortDescription: career.shortDescription,
                     salaryMin: career.salaryMin,
-                    salaryMax: career.salaryMax
+                    salaryMax: career.salaryMax,
+                    costAnalysis: 'costAnalysis' in career ? career.costAnalysis : undefined
                   }
                 : null,
             };

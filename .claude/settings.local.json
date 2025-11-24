@@ -25,7 +25,8 @@
       "Bash(npx eslint:*)",
       "Bash(move BUILD_STATUS.md docs )",
       "Bash(move assessment.md docs )",
-      "Bash(move:*)"
+      "Bash(move:*)",
+      "Bash(vercel --prod:*)"
     ],
     "deny": [],
     "ask": []

@@ -195,52 +195,289 @@ With OpportunityMap, **they won't need luck. They'll have data, experience, and 
 ### Tech Stack
 - **Frontend:** Next.js 14, TypeScript, Tailwind CSS
 - **Backend:** Convex (real-time database)
-- **Auth:** Clerk
+- **Auth:** Clerk (multi-role authentication)
+- **Email:** Resend (transactional emails)
 - **Deployment:** Vercel
 
-### Quick Start
+### Complete Setup Instructions
+
+#### Prerequisites
+- Node.js 18+ installed
+- npm or yarn package manager
+- Git installed
+- Accounts needed: Convex, Clerk, Resend (for email), Vercel (for deployment)
+
+#### Step 1: Clone the Repository
 
 ```bash
-# Install
-npm install
-
-# Run dev server
-npm run dev
-
-# Build
-npm run build
-
-# Deploy Convex
-npx convex deploy
+git clone https://github.com/ChristianTonny/spark.git
+cd spark
 ```
+
+#### Step 2: Install Dependencies
+
+```bash
+npm install
+```
+
+#### Step 3: Set Up Convex (Backend Database)
+
+1. Create a Convex account at [convex.dev](https://convex.dev)
+2. Install Convex CLI globally (if not already installed):
+```bash
+npm install -g convex
+```
+3. Initialize Convex in the project:
+```bash
+npx convex dev
+```
+4. This will create a `.env.local` file with `CONVEX_DEPLOYMENT` and `NEXT_PUBLIC_CONVEX_URL`
+
+#### Step 4: Set Up Clerk (Authentication)
+
+1. Create a Clerk account at [clerk.com](https://clerk.com)
+2. Create a new application in Clerk dashboard
+3. Go to **API Keys** section
+4. Copy your publishable key and secret key
+5. Add to `.env.local`:
+```bash
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_xxxxxxxxxxxxx
+CLERK_SECRET_KEY=sk_test_xxxxxxxxxxxxx
+```
+6. In Clerk dashboard, configure:
+   - Enable Email/Password authentication
+   - Set up redirect URLs: `http://localhost:3000/auth-redirect`
+   - Add custom fields for user roles if needed
+
+#### Step 5: Set Up Resend (Email Service) - Optional for Development
+
+1. Create a Resend account at [resend.com](https://resend.com)
+2. Get your API key from the dashboard
+3. Add to `.env.local`:
+```bash
+RESEND_API_KEY=re_xxxxxxxxxxxxx
+```
+4. For production, verify your domain in Resend dashboard
+
+#### Step 6: Configure Environment Variables
+
+Your `.env.local` file should contain:
+
+```bash
+# Convex
+CONVEX_DEPLOYMENT=your-deployment-name
+NEXT_PUBLIC_CONVEX_URL=https://your-convex-url.convex.cloud
+
+# Clerk
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_xxxxxxxxxxxxx
+CLERK_SECRET_KEY=sk_test_xxxxxxxxxxxxx
+
+# Resend (Optional for dev)
+RESEND_API_KEY=re_xxxxxxxxxxxxx
+```
+
+#### Step 7: Seed the Database (First Time Only)
+
+Run the seed script to populate initial data (careers, assessments, etc.):
+
+```bash
+npm run seed
+```
+
+Or manually through Convex dashboard by running individual seed files in `/convex`.
+
+#### Step 8: Run Development Server
+
+```bash
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+#### Step 9: Create Test Users
+
+1. Sign up as a student at `/sign-up`
+2. To test mentor features, you'll need to:
+   - Apply as a mentor at `/apply-as-mentor`
+   - Log in as admin (first user becomes admin)
+   - Approve the mentor application in admin dashboard
+3. For admin access, the first registered user automatically gets admin role
 
 ### Project Structure
 
 ```
-app/                    # Next.js pages & routes
-components/             # React components
-convex/                 # Backend (database schema, API functions)
-lib/                    # Utilities, types, quiz data
-docs/                   # Documentation & guides
+spark/
+├── app/                    # Next.js 14 app directory
+│   ├── (auth)/            # Auth pages (sign-in, sign-up)
+│   ├── dashboard/         # Student dashboard
+│   ├── mentors/          # Mentor marketplace
+│   ├── careers/          # Career exploration
+│   ├── assessment/       # Career assessment
+│   ├── admin/            # Admin panel
+│   └── api/              # API routes
+├── components/            # Reusable React components
+│   ├── ui/               # Shadcn UI components
+│   └── *.tsx             # Feature components
+├── convex/               # Backend (Convex)
+│   ├── schema.ts         # Database schema
+│   ├── users.ts          # User management
+│   ├── careers.ts        # Career data
+│   ├── assessments.ts    # Assessment logic
+│   ├── professionals.ts  # Mentor management
+│   ├── careerChats.ts    # Booking system
+│   ├── messages.ts       # Real-time chat
+│   └── notifications.ts  # Notification system
+├── lib/                  # Utilities and helpers
+│   ├── assessment-algorithm.ts  # RIASEC matching
+│   ├── types.ts          # TypeScript types
+│   └── sample-quizzes/   # Reality quiz data
+├── docs/                 # Documentation
+│   ├── SRS.md           # Software Requirements Spec
+│   ├── BUILD_STATUS.md  # Feature inventory
+│   └── REMAINING_TASKS.md # Development roadmap
+├── public/              # Static assets
+└── styles/              # Global styles
 ```
 
 ### Key Commands
 
 ```bash
-npm run dev              # Dev server
-npm run build            # Production build
-npx tsc --noEmit         # Check TypeScript
-npx eslint . --fix       # Fix linting
-npx convex deploy        # Deploy backend
+# Development
+npm run dev              # Start dev server (localhost:3000)
+npm run build            # Build for production
+npm start                # Run production build locally
+
+# Code Quality
+npx tsc --noEmit         # Check TypeScript errors
+npx eslint . --fix       # Fix linting issues
+
+# Database
+npx convex dev           # Run Convex in dev mode
+npx convex deploy        # Deploy Convex to production
+npm run seed             # Seed database with initial data
+
+# Testing
+npm run typecheck        # Run type checking
 ```
+
+### Deployment to Production
+
+#### Deploy Convex Backend
+
+```bash
+npx convex deploy --prod
+```
+
+This gives you production environment variables to use in Vercel.
+
+#### Deploy to Vercel
+
+1. Push code to GitHub
+2. Import project in [Vercel](https://vercel.com)
+3. Add environment variables in Vercel dashboard:
+   - `CONVEX_DEPLOYMENT` (from convex deploy)
+   - `NEXT_PUBLIC_CONVEX_URL` (from convex deploy)
+   - `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`
+   - `CLERK_SECRET_KEY`
+   - `RESEND_API_KEY`
+4. Deploy
+
+#### Post-Deployment Setup
+
+1. Update Clerk redirect URLs to production domain
+2. Verify Resend domain for production emails
+3. Run seed script on production Convex
+4. Test all user flows (sign-up, assessment, booking, chat)
+
+### Database Schema Overview
+
+**Core Tables:**
+- `users` - All user accounts (Student, Mentor, Educator, Admin, Company)
+- `studentProfiles` - Student-specific data (grade, interests, career readiness)
+- `professionals` - Mentor profiles (rates, availability, earnings)
+- `careers` - Career library (100+ careers with comprehensive data)
+- `assessments` - Assessment definitions (RIASEC, Big Five, Values)
+- `assessmentResults` - Student assessment scores and matches
+- `careerChats` - Booking/session management
+- `messages` - Real-time chat messages
+- `notifications` - System notifications
+- `quizResults` - Reality quiz attempts and scores
+- `schools` - Educational institution listings
+- `articles` - Mentor blog posts
+- `mentorApplications` - Pending mentor applications
+- `availabilitySlots` - Mentor scheduling
+- `savedCareers` - Student bookmarks
+
+### Key Features Implementation
+
+#### RIASEC Assessment Algorithm
+Located in `lib/assessment-algorithm.ts`:
+- Calculates interest profile (Realistic, Investigative, Artistic, Social, Enterprising, Conventional)
+- Measures Big Five personality traits (Openness, Conscientiousness, Extraversion)
+- Evaluates work values (Impact, Income, Autonomy, Balance, Growth, Stability)
+- Generates top 25 career matches with detailed reasoning
+
+#### Reality Check Quizzes
+Located in `lib/sample-quizzes/`:
+- 10 complete quizzes (Software Dev, Teacher, Nurse, Business Analyst, etc.)
+- 6-7 scenario-based questions per quiz
+- 6-dimensional scoring (Technical, Pressure, Collaboration, Creativity, Independence, Work-Life Balance)
+- Real-time readiness percentage calculation
+
+#### Booking System
+Workflow: Request → Mentor Approval → Schedule → Chat → Complete → Rate
+- Real-time notifications via Convex subscriptions
+- Email notifications via Resend
+- Calendar integration ready (Calendly support)
+- Payment tracking for mentors
+
+### Troubleshooting
+
+**Issue: Convex connection errors**
+- Solution: Ensure `npx convex dev` is running in a separate terminal
+- Check `.env.local` has correct `NEXT_PUBLIC_CONVEX_URL`
+
+**Issue: Clerk authentication not working**
+- Solution: Verify redirect URLs in Clerk dashboard match your local/production URLs
+- Clear browser cookies and try again
+
+**Issue: Email notifications not sending**
+- Solution: Check `RESEND_API_KEY` is set correctly
+- Verify domain in Resend dashboard for production
+
+**Issue: TypeScript errors during build**
+- Solution: Run `npx tsc --noEmit` to see all errors
+- Check `convex/schema.ts` for type mismatches
+
+**Issue: Database schema changes not reflecting**
+- Solution: Restart `npx convex dev`
+- Clear Convex cache: `npx convex dev --clear-all`
 
 ### Documentation
 
 See `/docs` for:
-- `BUILD_STATUS.md` - Full feature status
-- `REMAINING_TASKS.md` - What's next
-- `REALITY_QUIZ_STATUS.md` - Quiz system details
-- `CODING_GUIDELINES.md` - Code standards
+- `SRS.md` - Software Requirements Specification (complete system design)
+- `BUILD_STATUS.md` - Full feature status and implementation details
+- `REMAINING_TASKS.md` - Future development roadmap
+- `CODING_GUIDELINES.md` - Code standards and best practices
+- `RWANDA_EDUCATION_COSTS.md` - Local market research
+- `HONEST_EVALUATION.md` - Critical self-assessment
+
+### Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Follow coding guidelines in `/docs/CODING_GUIDELINES.md`
+4. Test thoroughly (assessment flow, booking system, chat)
+5. Commit changes (`git commit -m 'Add amazing feature'`)
+6. Push to branch (`git push origin feature/amazing-feature`)
+7. Open a Pull Request
+
+### Live Demo
+
+🌐 **Production URL:** [opportunitymap.vercel.app](https://opportunitymap.vercel.app)
+
+Test accounts available on request for evaluation purposes.
 
 ---
 
@@ -252,6 +489,18 @@ Core platform complete and live. Focus now is content creation (more quizzes, ca
 
 ---
 
-**Built with ❤️ by Christian Tonny for Rwanda's students**
+## Important Links
+
+- **🌐 Live Platform:** [opportunitymap.vercel.app](https://opportunitymap.vercel.app)
+- **📹 Video Demo:** [Watch on YouTube](https://youtu.be/zT2KXHflTPg)
+- **📄 SRS Document:** [Software Requirements Specification](./docs/SRS.md)
+- **💻 GitHub Repository:** [github.com/ChristianTonny/spark](https://github.com/ChristianTonny/spark)
+- **📊 Submission Document:** [Google Doc](https://docs.google.com/document/d/1YWhXg8nGDik4Kd3zYoQYY40U62PYx-MX1mP39ueXHVQ/edit?usp=sharing)
+
+---
+
+**Built with ❤️ by Christian Tonny Iradukunda for Rwanda's students**
 
 *Because talent is everywhere. Opportunity should be too.*
+
+**African Leadership University | Software Engineering | November 2025**
