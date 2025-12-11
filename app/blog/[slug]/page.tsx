@@ -5,14 +5,15 @@ import { api } from "@/convex/_generated/api";
 import { useEffect } from "react";
 import { Clock, Eye, ArrowLeft, Calendar, Tag, Bookmark, BookmarkCheck } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 
-export default function ArticleDetailPage({ params }: { params: { slug: string } }) {
+export default function ArticleDetailPage() {
   const router = useRouter();
+  const params = useParams();
   const { user } = useUser();
 
-  const article = useQuery(api.articles.getArticleBySlug, { slug: params.slug });
+  const article = useQuery(api.articles.getArticleBySlug, { slug: params.slug as string });
   const isBookmarked = useQuery(
     api.articles.isBookmarked,
     article ? { articleId: article._id } : "skip"
