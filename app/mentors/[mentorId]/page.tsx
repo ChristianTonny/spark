@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useParams } from 'next/navigation';
 import { ArrowLeft, Star, Calendar, MessageCircle, Briefcase, Award, Edit2, Trash2, CheckCircle, Clock, AlertCircle } from 'lucide-react';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '@/convex/_generated/api';
@@ -11,11 +12,8 @@ import { ChatDrawer } from '@/components/ChatDrawer';
 import { useState } from 'react';
 import { useConvexAuth } from '@/lib/hooks/useConvexAuth';
 
-export default function MentorProfilePage({
-  params,
-}: {
-  params: { mentorId: string };
-}) {
+export default function MentorProfilePage() {
+  const params = useParams();
   const mentorUserId = params.mentorId as Id<"users">;
 
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);

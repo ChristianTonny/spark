@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import "../styles/tiptap.css";
@@ -14,18 +14,19 @@ export const metadata: Metadata = {
   title: "OpportunityMap - Discover Your Future Career in Rwanda",
   description: "Explore 100+ careers, take assessments, and book 15-min chats with professionals to discover your path.",
   manifest: "/manifest.json",
-  themeColor: "#FF6B35",
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 5,
-    userScalable: true,
-  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
     title: "OpportunityMap",
   },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+  themeColor: "#FF6B35",
 };
 
 export default function RootLayout({

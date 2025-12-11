@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { ArrowLeft, Save, Send } from "lucide-react";
 import { Id } from "@/convex/_generated/dataModel";
 import ArticleEditor from "@/components/ArticleEditor";
@@ -25,8 +25,9 @@ const CATEGORIES = [
   "Other",
 ];
 
-export default function EditArticlePage({ params }: { params: { id: string } }) {
+export default function EditArticlePage() {
   const router = useRouter();
+  const params = useParams();
   const articleId = params.id as Id<"articles">;
   const article = useQuery(api.articles.getArticleById, { articleId });
   const updateArticle = useMutation(api.articles.update);

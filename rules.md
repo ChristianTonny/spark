@@ -67,7 +67,7 @@ Before removing ANY code, ask yourself:
 - [ ] Did the user explicitly request this deletion?
 - [ ] Am I 100% certain this code is unused?
 - [ ] Have I checked all files for dependencies?
-- [ ] Is this code part of a feature the user wants?
+- [ ] Is this code part of a feature the uer wants?
 
 **If ANY answer is uncertain, DO NOT DELETE.**
 
