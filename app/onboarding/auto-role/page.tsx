@@ -63,8 +63,11 @@ function AutoRoleContent() {
       }
 
       try {
-        // Set the role in Convex database only if it's different
-        if (convexUser.role !== role) {
+        // Guardrails:
+        // - Student can be set immediately.
+        // - Mentor/Educator cannot be self-selected to access dashboards.
+        //   Mentors must complete onboarding first; educators require admin assignment.
+        if (role === "student" && convexUser.role !== role) {
           await updateUserRole({ role });
         }
 
@@ -79,7 +82,8 @@ function AutoRoleContent() {
             router.push('/dashboard/student');
             break;
           case 'educator':
-            router.push('/dashboard/educator');
+            setError("Educator access is by invitation. Please sign up as a student or contact an admin.");
+            setIsProcessing(false);
             break;
           case 'mentor':
             router.push('/onboarding/mentor'); // Mentors need additional setup

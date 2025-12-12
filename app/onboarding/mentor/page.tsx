@@ -13,6 +13,7 @@ import { Briefcase, User, Award, Link as LinkIcon } from 'lucide-react';
 export default function MentorOnboardingPage() {
   const router = useRouter();
   const createProfessional = useMutation(api.professionals.create);
+  const updateUserRole = useMutation(api.users.updateRole);
 
   const [formData, setFormData] = useState({
     company: '',
@@ -53,6 +54,9 @@ export default function MentorOnboardingPage() {
         calendlyUrl: formData.calendlyUrl || undefined,
         ratePerChat: formData.ratePerChat ? parseFloat(formData.ratePerChat) : undefined,
       });
+
+      // Now that the professional profile exists, assign mentor role (server-side guardrails apply)
+      await updateUserRole({ role: "mentor" });
 
       // Redirect to mentor dashboard
       router.push('/dashboard/mentor');

@@ -1,5 +1,6 @@
 import { v } from "convex/values";
 import { mutation, query, QueryCtx } from "./_generated/server";
+import { Id } from "./_generated/dataModel";
 
 /**
  * Get the current authenticated user from Clerk
@@ -160,6 +161,35 @@ export const updateRole = mutation({
   },
   handler: async (ctx, args) => {
     const user = await getCurrentUserOrThrow(ctx);
+
+    // Guardrails:
+    // - Only admins can assign privileged roles (educator/company/partner/admin)
+    // - Mentor role can be assigned only after the user has created a professional profile
+    //   (which is still subject to admin approval for public visibility/booking)
+    const isAdmin = user.role === "admin";
+
+    if (args.role === "mentor" && !isAdmin) {
+      const professional = await ctx.db
+        .query("professionals")
+        .withIndex("by_user", (q) => q.eq("userId", user._id as Id<"users">))
+        .first();
+
+      if (!professional) {
+        throw new Error(
+          "To become a mentor, you must first complete the mentor onboarding form."
+        );
+      }
+    }
+
+    if (
+      (args.role === "educator" ||
+        args.role === "company" ||
+        args.role === "partner" ||
+        args.role === "admin") &&
+      !isAdmin
+    ) {
+      throw new Error("This role can only be assigned by an admin.");
+    }
 
     await ctx.db.patch(user._id, {
       role: args.role,

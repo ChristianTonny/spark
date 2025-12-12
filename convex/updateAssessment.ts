@@ -19,7 +19,7 @@ export const updateTo25Questions = internalMutation({
     const assessmentId = await ctx.db.insert("assessments", {
       type: "interests",
       title: "Career Discovery Assessment",
-      description: "Discover careers that match your interests, personality, and work values through 25 research-backed questions",
+      description: "25 quick questions to find careers that match your interests, values, and work style",
       icon: "🎯",
       duration: 15,
       questionCount: 25,
@@ -28,7 +28,7 @@ export const updateTo25Questions = internalMutation({
         // Q1-2: Realistic
         {
           id: "q1",
-          text: "I would enjoy repairing mechanical equipment or electronics",
+          text: "I enjoy hands-on work like fixing things (electronics, machines, motorbikes, tools)",
           type: "scale",
           scaleMin: 0,
           scaleMax: 4,
@@ -39,7 +39,7 @@ export const updateTo25Questions = internalMutation({
         },
         {
           id: "q2",
-          text: "I prefer outdoor work over desk work",
+          text: "I prefer practical work (field/site/workshop) over sitting at a desk all day",
           type: "scale",
           scaleMin: 0,
           scaleMax: 4,
@@ -52,7 +52,7 @@ export const updateTo25Questions = internalMutation({
         // Q3-4: Investigative
         {
           id: "q3",
-          text: "I enjoy researching complex problems to find solutions",
+          text: "I enjoy investigating a problem until I understand what’s really going on",
           type: "scale",
           scaleMin: 0,
           scaleMax: 4,
@@ -63,7 +63,7 @@ export const updateTo25Questions = internalMutation({
         },
         {
           id: "q4",
-          text: "Reading scientific articles or research papers interests me",
+          text: "I like learning from data, experiments, or evidence (not just opinions)",
           type: "scale",
           scaleMin: 0,
           scaleMax: 4,
@@ -76,7 +76,7 @@ export const updateTo25Questions = internalMutation({
         // Q5-6: Artistic
         {
           id: "q5",
-          text: "I enjoy creating visual designs, artwork, or creative content",
+          text: "I enjoy creating or improving things like designs, videos, photos, music, or writing",
           type: "scale",
           scaleMin: 0,
           scaleMax: 4,
@@ -87,7 +87,7 @@ export const updateTo25Questions = internalMutation({
         },
         {
           id: "q6",
-          text: "Writing stories, poetry, or creative content is enjoyable to me",
+          text: "I like work where I can express ideas and do things in my own style",
           type: "scale",
           scaleMin: 0,
           scaleMax: 4,
@@ -100,7 +100,7 @@ export const updateTo25Questions = internalMutation({
         // Q7-8: Social
         {
           id: "q7",
-          text: "I find satisfaction in teaching or explaining concepts to others",
+          text: "I enjoy helping people learn (teaching, explaining, coaching, mentoring)",
           type: "scale",
           scaleMin: 0,
           scaleMax: 4,
@@ -111,7 +111,7 @@ export const updateTo25Questions = internalMutation({
         },
         {
           id: "q8",
-          text: "Working in healthcare or counseling appeals to me",
+          text: "I’m interested in work that supports people directly (health, community work, counseling)",
           type: "scale",
           scaleMin: 0,
           scaleMax: 4,
@@ -124,7 +124,7 @@ export const updateTo25Questions = internalMutation({
         // Q9-10: Enterprising
         {
           id: "q9",
-          text: "I enjoy leading teams and making strategic decisions",
+          text: "I enjoy leading projects and making decisions that affect outcomes",
           type: "scale",
           scaleMin: 0,
           scaleMax: 4,
@@ -135,7 +135,7 @@ export const updateTo25Questions = internalMutation({
         },
         {
           id: "q10",
-          text: "Selling products or services and persuading others sounds interesting",
+          text: "I like persuading people (sales, pitching ideas, negotiating, entrepreneurship)",
           type: "scale",
           scaleMin: 0,
           scaleMax: 4,
@@ -148,7 +148,7 @@ export const updateTo25Questions = internalMutation({
         // Q11-12: Conventional
         {
           id: "q11",
-          text: "I like organizing information, files, or data in systematic ways",
+          text: "I like organizing information (files, records, numbers, schedules) to keep things running",
           type: "scale",
           scaleMin: 0,
           scaleMax: 4,
@@ -159,7 +159,7 @@ export const updateTo25Questions = internalMutation({
         },
         {
           id: "q12",
-          text: "Following established procedures and guidelines is important to me",
+          text: "I prefer clear instructions and processes (standards, checklists, rules)",
           type: "scale",
           scaleMin: 0,
           scaleMax: 4,
@@ -172,11 +172,11 @@ export const updateTo25Questions = internalMutation({
         // ===== WORK VALUES (Q13-Q18) - Forced Choice =====
         {
           id: "q13",
-          text: "Which matters more to you in a career?",
+          text: "Which matters more right now?",
           type: "multiple_choice",
           options: [
-            "High salary even if the work is routine",
-            "Lower salary doing meaningful work",
+            "Higher income even if the work is repetitive",
+            "Meaningful work even if income is lower",
           ],
         },
         {
@@ -184,26 +184,26 @@ export const updateTo25Questions = internalMutation({
           text: "Choose one:",
           type: "multiple_choice",
           options: [
-            "Work-life balance with steady income",
-            "Career advancement with longer hours",
+            "Stable routine + predictable hours",
+            "Fast growth even with longer hours",
           ],
         },
         {
           id: "q15",
-          text: "What's more important to you?",
+          text: "What matters more?",
           type: "multiple_choice",
           options: [
-            "Creative freedom and independence",
-            "Job security and predictability",
+            "Freedom to choose how you work",
+            "Security and predictability",
           ],
         },
         {
           id: "q16",
-          text: "Which career path appeals more?",
+          text: "Which direction feels closer to you?",
           type: "multiple_choice",
           options: [
-            "Help individuals solve their problems",
-            "Build wealth through business ventures",
+            "Helping people directly",
+            "Building/leading a business",
           ],
         },
         {
@@ -211,8 +211,8 @@ export const updateTo25Questions = internalMutation({
           text: "Would you rather:",
           type: "multiple_choice",
           options: [
-            "Set your own schedule and work independently",
-            "Have a reliable 9-5 job with benefits and structure",
+            "Control your schedule and work independently",
+            "Have a structured job with benefits",
           ],
         },
         {
@@ -220,15 +220,15 @@ export const updateTo25Questions = internalMutation({
           text: "Choose what matters most:",
           type: "multiple_choice",
           options: [
-            "Rapidly developing new skills and advancing",
-            "Maintaining work-life balance and harmony",
+            "Learning fast and advancing",
+            "Work-life balance and stability",
           ],
         },
 
         // ===== BIG FIVE PERSONALITY (Q19-Q22) =====
         {
           id: "q19",
-          text: "I enjoy exploring new ideas and trying unconventional approaches",
+          text: "I like trying new ideas and new ways of doing things",
           type: "scale",
           scaleMin: 0,
           scaleMax: 4,
@@ -239,7 +239,7 @@ export const updateTo25Questions = internalMutation({
         },
         {
           id: "q20",
-          text: "I make detailed plans before starting projects",
+          text: "I plan ahead and follow through on my plans",
           type: "scale",
           scaleMin: 0,
           scaleMax: 4,
@@ -250,7 +250,7 @@ export const updateTo25Questions = internalMutation({
         },
         {
           id: "q21",
-          text: "I often complete tasks at the last minute",
+          text: "I often do important work at the last minute",
           type: "scale",
           scaleMin: 0,
           scaleMax: 4,
@@ -261,7 +261,7 @@ export const updateTo25Questions = internalMutation({
         },
         {
           id: "q22",
-          text: "I feel energized after spending time with large groups of people",
+          text: "I gain energy from being around many people",
           type: "scale",
           scaleMin: 0,
           scaleMax: 4,
@@ -274,35 +274,35 @@ export const updateTo25Questions = internalMutation({
         // ===== WORK STYLE SCENARIOS (Q23-Q25) =====
         {
           id: "q23",
-          text: "Your group project is falling behind schedule. You typically:",
+          text: "Your team is behind schedule. You usually:",
           type: "multiple_choice",
           options: [
-            "Take charge and assign tasks to get back on track",
-            "Facilitate a team discussion to find solutions together",
-            "Focus on completing your part excellently",
-            "Help resolve conflicts and keep the team motivated",
+            "Take charge and assign tasks to catch up",
+            "Bring the team together and agree on a plan",
+            "Focus on finishing your part extremely well",
+            "Keep people calm and motivated so the team works better",
           ],
         },
         {
           id: "q24",
-          text: "When facing a complex problem, you prefer to:",
+          text: "When you face a hard problem, you prefer to:",
           type: "multiple_choice",
           options: [
-            "Research thoroughly before attempting solutions",
-            "Try different approaches quickly to see what works",
-            "Discuss with others to get diverse perspectives",
-            "Break it into smaller parts and solve systematically",
+            "Research deeply before choosing a solution",
+            "Try different options fast and learn by doing",
+            "Talk with others to hear different perspectives",
+            "Break it into steps and solve systematically",
           ],
         },
         {
           id: "q25",
-          text: "Which work environment sounds most appealing?",
+          text: "Which environment fits you best?",
           type: "multiple_choice",
           options: [
-            "Quiet office with clear tasks and minimal interruptions",
-            "Dynamic environment with frequent collaboration and change",
-            "Mix of independent work and team interaction",
-            "Flexible remote work with occasional meetings",
+            "Quiet place, clear tasks, minimal interruptions",
+            "Fast-changing place with lots of teamwork",
+            "A mix of solo work and teamwork",
+            "Flexible/remote work with occasional meetings",
           ],
         },
       ],

@@ -12,7 +12,7 @@ Owner: Christian (G)
   - **Auth hardening**
     - Review Clerk sign-in configuration, session handling, and protected routes.
     - Verify any sensitive pages/actions require an authenticated user and correct role.
-    - Add guardrails so users cannot self-select educator/mentor roles to reach those dashboards; enforce explicit approval.
+    - Add guardrails so users cannot self-select educator/mentor roles to reach those dashboards; enforce explicit approval. (**Implemented**)
   - **Email/webhook hardening**
     - Audit `/api/emails/send` request verification and environment configuration.
     - Ensure production refuses unsigned/unauthorized webhook calls (no “allow if missing secret” behavior).
@@ -95,6 +95,12 @@ Owner: Christian (G)
   - Draft a sustainable business model + monetization hypothesis
 - **Product discipline**:
   - Build features you would personally use; define success metrics (SMART goals) per milestone.
+
+---
+
+## Progress notes
+
+- See `docs/implemented-progress.md` for a concise summary of what’s been shipped on this working branch and how to verify it.
 
 
 
