@@ -467,13 +467,18 @@ function AssessmentResultsContent() {
           </div>
         )}
 
-        {/* School Recommendations for Top Matches */}
+        {/* School Recommendations for Top Matches (ALU only for now) */}
         {topMatchSchools && topMatchSchools.length > 0 && (
           <div className="bg-white border-3 border-black shadow-brutal p-6 md:p-8 mb-8">
             <SchoolRecommendations
-              schools={topMatchSchools}
+              schools={topMatchSchools.filter(
+                (s) =>
+                  typeof s.name === "string" &&
+                  (s.name.includes("African Leadership University") ||
+                    s.name.includes("ALU"))
+              )}
               title="Recommended Schools for Your Top Matches"
-              maxDisplay={6}
+              maxDisplay={1}
               showViewAll={false}
             />
             <p className="mt-4 text-sm text-gray-600 font-bold">
