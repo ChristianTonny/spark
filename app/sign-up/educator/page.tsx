@@ -1,8 +1,15 @@
 'use client';
 
 import { SignUp } from '@clerk/nextjs';
+import { Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 
-export default function EducatorSignUpPage() {
+function EducatorSignUpInner() {
+  const searchParams = useSearchParams();
+  const returnTo = searchParams.get("returnTo") || "";
+  const safeReturnTo =
+    returnTo.startsWith("/") && !returnTo.startsWith("//") ? returnTo : "";
+
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
@@ -19,10 +26,22 @@ export default function EducatorSignUpPage() {
               card: "bg-white shadow-lg rounded-lg",
             },
           }}
-          afterSignUpUrl="/onboarding/auto-role?role=educator"
-          signInUrl="/sign-in"
+          afterSignUpUrl={
+            safeReturnTo
+              ? `/onboarding/auto-role?role=educator&returnTo=${encodeURIComponent(safeReturnTo)}`
+              : "/onboarding/auto-role?role=educator"
+          }
+          signInUrl={safeReturnTo ? `/sign-in?returnTo=${encodeURIComponent(safeReturnTo)}` : "/sign-in"}
         />
       </div>
     </div>
+  );
+}
+
+export default function EducatorSignUpPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center p-4"><div className="w-full max-w-md text-center font-bold">Loading…</div></div>}>
+      <EducatorSignUpInner />
+    </Suspense>
   );
 }

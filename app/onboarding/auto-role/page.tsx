@@ -52,6 +52,9 @@ function AutoRoleContent() {
 
       // Get the role from query params
       const role = searchParams.get('role') as 'student' | 'educator' | 'mentor' | null;
+      const returnTo = searchParams.get("returnTo") || "";
+      const safeReturnTo =
+        returnTo.startsWith("/") && !returnTo.startsWith("//") ? returnTo : "";
       
       if (!role || !['student', 'educator', 'mentor'].includes(role)) {
         // Default to student dashboard if no valid role
@@ -64,8 +67,13 @@ function AutoRoleContent() {
         if (convexUser.role !== role) {
           await updateUserRole({ role });
         }
-        
-        // Redirect to appropriate destination
+
+        // Redirect to returnTo if provided (internal only). Otherwise use role default.
+        if (safeReturnTo) {
+          router.push(safeReturnTo);
+          return;
+        }
+
         switch (role) {
           case 'student':
             router.push('/dashboard/student');

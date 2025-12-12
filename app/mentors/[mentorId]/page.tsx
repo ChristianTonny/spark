@@ -502,6 +502,7 @@ export default function MentorProfilePage() {
         onClose={() => setIsBookingModalOpen(false)}
         mentorId={mentorUserId}
         mentorName={fullName}
+        isMentorApproved={mentor?.isApproved === true}
       />
 
       {/* Rating Modal */}

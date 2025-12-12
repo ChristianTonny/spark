@@ -38,7 +38,7 @@ export default function AssessmentIntroPage() {
                 <div className="p-2 bg-accent border-2 border-black">
                   <Target className="w-6 h-6" />
                 </div>
-                <h3 className="text-xl font-black uppercase">15 Questions</h3>
+                <h3 className="text-xl font-black uppercase">~15 Questions</h3>
               </div>
               <p className="text-sm font-bold text-gray-700">
                 Quick and focused questions about your interests and strengths
@@ -53,7 +53,7 @@ export default function AssessmentIntroPage() {
                 <h3 className="text-xl font-black uppercase text-black">10 Minutes</h3>
               </div>
               <p className="text-sm font-bold text-gray-700">
-                Complete at your own pace - you can pause and resume anytime
+                Complete in one sitting for best results
               </p>
             </div>
 
@@ -128,10 +128,10 @@ export default function AssessmentIntroPage() {
         {/* Additional Info */}
         <div className="grid md:grid-cols-2 gap-6">
           <div className="p-6 bg-white border-3 border-black shadow-brutal">
-            <h3 className="text-xl font-black uppercase mb-3">💾 Your Privacy</h3>
+            <h3 className="text-xl font-black uppercase mb-3">💾 Saving Your Results</h3>
             <p className="text-sm font-bold text-gray-700">
-              Your responses are saved to your account so you can review and retake the 
-              assessment anytime. We never share your data.
+              To save your results to your account, you’ll be asked to sign in at the end.
+              We never share your data.
             </p>
           </div>
 

@@ -11,8 +11,13 @@ function verifyConvexRequest(request: NextRequest) {
   const expectedSecret = process.env.CONVEX_WEBHOOK_SECRET;
   
   if (!expectedSecret) {
-    console.warn('CONVEX_WEBHOOK_SECRET not set - email webhook is insecure');
-    return true; // Allow in development
+    // Allow missing secret only in non-production environments
+    if (process.env.NODE_ENV !== 'production') {
+      console.warn('CONVEX_WEBHOOK_SECRET not set - allowing email webhook in non-production');
+      return true;
+    }
+    console.error('CONVEX_WEBHOOK_SECRET not set - rejecting email webhook in production');
+    return false;
   }
   
   return authHeader === `Bearer ${expectedSecret}`;

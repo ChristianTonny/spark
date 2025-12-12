@@ -2,6 +2,8 @@
 
 import Link from 'next/link';
 import { GraduationCap, BookOpen, Briefcase } from 'lucide-react';
+import { Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 
 type Role = 'student' | 'educator' | 'mentor';
 
@@ -19,7 +21,12 @@ interface RoleOption {
  * Role selection page - users choose their role before Clerk signup
  * This is the first step in the signup flow
  */
-export default function SignUpRoleSelection() {
+function SignUpRoleSelectionInner() {
+  const searchParams = useSearchParams();
+  const returnTo = searchParams.get("returnTo") || "";
+  const safeReturnTo =
+    returnTo.startsWith("/") && !returnTo.startsWith("//") ? returnTo : "";
+
   const roleOptions: RoleOption[] = [
     {
       value: 'student',
@@ -33,7 +40,7 @@ export default function SignUpRoleSelection() {
         'Connect with mentors',
         'Track your progress',
       ],
-      href: '/sign-up/student',
+      href: safeReturnTo ? `/sign-up/student?returnTo=${encodeURIComponent(safeReturnTo)}` : '/sign-up/student',
     },
     {
       value: 'educator',
@@ -47,7 +54,7 @@ export default function SignUpRoleSelection() {
         'Track career interests',
         'Generate reports',
       ],
-      href: '/sign-up/educator',
+      href: safeReturnTo ? `/sign-up/educator?returnTo=${encodeURIComponent(safeReturnTo)}` : '/sign-up/educator',
     },
     {
       value: 'mentor',
@@ -61,7 +68,7 @@ export default function SignUpRoleSelection() {
         'Set your availability',
         'Earn as you mentor',
       ],
-      href: '/sign-up/mentor',
+      href: safeReturnTo ? `/sign-up/mentor?returnTo=${encodeURIComponent(safeReturnTo)}` : '/sign-up/mentor',
     },
   ];
 
@@ -119,12 +126,23 @@ export default function SignUpRoleSelection() {
         <div className="text-center">
           <p className="text-lg text-gray-600">
             Already have an account?{' '}
-            <Link href="/sign-in" className="font-semibold text-orange-600 hover:underline">
+            <Link
+              href={safeReturnTo ? `/sign-in?returnTo=${encodeURIComponent(safeReturnTo)}` : "/sign-in"}
+              className="font-semibold text-orange-600 hover:underline"
+            >
               Sign In
             </Link>
           </p>
         </div>
       </div>
     </div>
+  );
+}
+
+export default function SignUpRoleSelection() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center p-4"><div className="container mx-auto max-w-6xl text-center font-bold">Loading…</div></div>}>
+      <SignUpRoleSelectionInner />
+    </Suspense>
   );
 }

@@ -1,8 +1,15 @@
 'use client';
 
 import { SignUp } from '@clerk/nextjs';
+import { Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 
-export default function MentorSignUpPage() {
+function MentorSignUpInner() {
+  const searchParams = useSearchParams();
+  const returnTo = searchParams.get("returnTo") || "";
+  const safeReturnTo =
+    returnTo.startsWith("/") && !returnTo.startsWith("//") ? returnTo : "";
+
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
@@ -19,10 +26,22 @@ export default function MentorSignUpPage() {
               card: "bg-white shadow-lg rounded-lg",
             },
           }}
-          afterSignUpUrl="/onboarding/auto-role?role=mentor"
-          signInUrl="/sign-in"
+          afterSignUpUrl={
+            safeReturnTo
+              ? `/onboarding/auto-role?role=mentor&returnTo=${encodeURIComponent(safeReturnTo)}`
+              : "/onboarding/auto-role?role=mentor"
+          }
+          signInUrl={safeReturnTo ? `/sign-in?returnTo=${encodeURIComponent(safeReturnTo)}` : "/sign-in"}
         />
       </div>
     </div>
+  );
+}
+
+export default function MentorSignUpPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center p-4"><div className="w-full max-w-md text-center font-bold">Loading…</div></div>}>
+      <MentorSignUpInner />
+    </Suspense>
   );
 }

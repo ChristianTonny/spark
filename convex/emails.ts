@@ -18,6 +18,13 @@ export const sendEmail = internalAction({
     const apiUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
     const webhookSecret = process.env.CONVEX_WEBHOOK_SECRET;
 
+    // In production, require webhook secret to be present so the API route can validate requests
+    if (process.env.NODE_ENV === "production" && !webhookSecret) {
+      const error = "CONVEX_WEBHOOK_SECRET is not set (required in production)";
+      console.error(error);
+      return { success: false, error };
+    }
+
     try {
       const response = await fetch(`${apiUrl}/api/emails/send`, {
         method: "POST",

@@ -14,6 +14,7 @@ interface BookingModalProps {
   onClose: () => void;
   mentorId: Id<"users">;
   mentorName: string;
+  isMentorApproved?: boolean;
   careers?: Array<{ _id: string; title: string }>;
 }
 
@@ -29,6 +30,7 @@ export function BookingModal({
   onClose,
   mentorId,
   mentorName,
+  isMentorApproved = true,
   careers = [],
 }: BookingModalProps) {
   const { toast } = useToast();
@@ -182,6 +184,18 @@ export function BookingModal({
 
           {/* Content */}
           <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+            {/* Approval gating */}
+            {!isMentorApproved && (
+              <div className="border-3 border-black p-4 sm:p-5 bg-yellow-50">
+                <p className="font-black uppercase text-sm sm:text-base">
+                  Mentor pending approval
+                </p>
+                <p className="text-xs sm:text-sm mt-1 font-bold text-gray-700">
+                  This mentor is not approved yet, so booking is temporarily unavailable.
+                </p>
+              </div>
+            )}
+
             {/* Time Slot Picker */}
             {availableSlots === undefined ? (
               <div className="border-3 border-black p-6 sm:p-8 bg-white text-center">
@@ -194,6 +208,15 @@ export function BookingModal({
               <div className="border-3 border-black p-6 sm:p-8 bg-red-50 text-center">
                 <p className="font-bold text-red-600 uppercase text-sm sm:text-base">Error loading slots</p>
                 <p className="text-xs sm:text-sm mt-2">Please try again later</p>
+              </div>
+            ) : !isMentorApproved ? (
+              <div className="border-3 border-black p-6 sm:p-8 bg-white text-center">
+                <p className="font-bold uppercase text-sm sm:text-base">
+                  Booking unavailable
+                </p>
+                <p className="text-xs sm:text-sm mt-2">
+                  This mentor needs approval before students can book sessions.
+                </p>
               </div>
             ) : (
               <TimeSlotPicker
@@ -252,7 +275,7 @@ export function BookingModal({
           <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 p-4 sm:p-6 border-t-3 border-black">
             <button
               onClick={handleSubmit}
-              disabled={!selectedSlot || isSubmitting}
+              disabled={!isMentorApproved || !selectedSlot || isSubmitting}
               className="flex-1 min-h-[48px] px-6 py-3 bg-brutal-blue text-white font-bold uppercase text-sm sm:text-base border-3 border-black shadow-brutal hover:shadow-brutal-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
               {isSubmitting ? "Sending Request..." : "Send Booking Request"}

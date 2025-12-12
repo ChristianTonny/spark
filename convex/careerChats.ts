@@ -229,6 +229,11 @@ export const createBookingRequest = mutation({
       throw new Error("Professional profile not found");
     }
 
+    // Require mentor approval before allowing students to request bookings
+    if (professional.isApproved !== true) {
+      throw new Error("This mentor is not approved yet. Please check back soon.");
+    }
+
     // Check if slot is still available
     const existingBooking = await ctx.db
       .query("careerChats")

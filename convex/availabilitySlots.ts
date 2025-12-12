@@ -131,6 +131,11 @@ export const getAvailableSlots = query({
       return [];
     }
 
+    // Only show bookable slots for approved mentors
+    if (professional.isApproved !== true) {
+      return [];
+    }
+
     // Get existing bookings for this mentor in the date range
     const existingBookings = await ctx.db
       .query("careerChats")

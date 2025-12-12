@@ -1,14 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, ArrowRight, Check } from 'lucide-react';
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { Spinner } from '@/components/loading-skeleton';
+import { useConvexAuth } from '@/lib/hooks/useConvexAuth';
 
 export default function AssessmentQuestionsPage() {
   const router = useRouter();
+  const { user, isLoading: authLoading } = useConvexAuth();
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
@@ -57,6 +59,48 @@ export default function AssessmentQuestionsPage() {
   const questions = assessment.questions;
   const totalQuestions = questions.length;
   const progress = ((currentQuestion + 1) / totalQuestions) * 100;
+
+  // Resume a pending assessment save after sign-in
+  useEffect(() => {
+    if (authLoading || !user) return;
+    if (typeof window === "undefined") return;
+    if (isSaving) return;
+
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("resume") !== "1") return;
+
+    const pendingRaw = window.localStorage.getItem("pending_assessment_result");
+    if (!pendingRaw) return;
+
+    try {
+      const pending = JSON.parse(pendingRaw) as {
+        assessmentId: string;
+        answers: Record<string, number>;
+        careerMatches: any[];
+        scores?: any;
+      };
+
+      // Clear before attempting save (avoid loops)
+      window.localStorage.removeItem("pending_assessment_result");
+      setIsSaving(true);
+
+      saveResult({
+        assessmentId: pending.assessmentId as any,
+        answers: pending.answers,
+        careerMatches: pending.careerMatches as any,
+        scores: pending.scores,
+      })
+        .then((result) => {
+          router.replace(`/assessment/results?id=${result.resultId}`);
+        })
+        .catch((error) => {
+          console.error("Failed to save pending assessment result:", error);
+          setIsSaving(false);
+        });
+    } catch {
+      window.localStorage.removeItem("pending_assessment_result");
+    }
+  }, [authLoading, user, isSaving, router, saveResult]);
 
   const handleOptionSelect = (optionIndex: number) => {
     setSelectedOption(optionIndex);
@@ -112,6 +156,23 @@ export default function AssessmentQuestionsPage() {
             environment: studentProfile.environment,
             topRIASEC: getTop3RIASEC(studentProfile.riasec),
           };
+
+          // If not signed in, ask user to sign in to save results
+          if (!user) {
+            if (typeof window !== "undefined") {
+              window.localStorage.setItem(
+                "pending_assessment_result",
+                JSON.stringify({
+                  assessmentId: assessment._id,
+                  answers: updatedAnswers,
+                  careerMatches,
+                  scores,
+                })
+              );
+            }
+            router.push("/sign-in?returnTo=/assessment/questions?resume=1");
+            return;
+          }
 
           const result = await saveResult({
             assessmentId: assessment._id,
