@@ -1,9 +1,9 @@
 'use client';
 
-import { Suspense, useState } from 'react';
+import { Suspense, useMemo, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Sparkles, ArrowRight, Bookmark, RotateCcw, ChevronDown } from 'lucide-react';
+import { Sparkles, ArrowRight, Bookmark, RotateCcw, ChevronDown, ChevronUp } from 'lucide-react';
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { Spinner } from '@/components/loading-skeleton';
@@ -19,27 +19,12 @@ function AssessmentResultsContent() {
   const { user, isLoading: authLoading } = useConvexAuth();
   const toast = useToast();
   const [showAllMatches, setShowAllMatches] = useState(false);
+  const [showStrengthDetails, setShowStrengthDetails] = useState(false);
 
   // Fetch all results for current user (only if authenticated)
   const allResults = useQuery(api.assessments.getResults, user ? {} : "skip");
   const bookmarkedIds = useQuery(api.savedCareers.getIds, user ? {} : "skip");
   const toggleBookmark = useMutation(api.savedCareers.toggle);
-
-  // Get mentors for top matched careers (top 3)
-  const topCareerIds = allResults && allResults.length > 0
-    ? allResults[0].careerMatches.slice(0, 3).map(m => m.careerId).filter(Boolean) as any[]
-    : [];
-
-  const relevantMentors = useQuery(
-    api.professionals.getByCareerIds,
-    topCareerIds.length > 0 ? { careerIds: topCareerIds } : "skip"
-  );
-
-  // Get schools for top matched careers
-  const topMatchSchools = useQuery(
-    api.careers.getSchoolsForCareers,
-    topCareerIds.length > 0 ? { careerIds: topCareerIds } : "skip"
-  );
 
   // Handle bookmark toggle
   const handleBookmark = async (e: React.MouseEvent, careerId: string, careerTitle: string) => {
@@ -77,6 +62,25 @@ function AssessmentResultsContent() {
       currentResult = allResults[0];
     }
   }
+
+  // Get mentors/schools for the CURRENT result (top 3 careers)
+  const topCareerIds = useMemo(() => {
+    if (!currentResult) return [];
+    return currentResult.careerMatches
+      .slice(0, 3)
+      .map((m: any) => m.careerId)
+      .filter(Boolean) as any[];
+  }, [currentResult]);
+
+  const relevantMentors = useQuery(
+    api.professionals.getByCareerIds,
+    topCareerIds.length > 0 ? { careerIds: topCareerIds } : "skip"
+  );
+
+  const topMatchSchools = useQuery(
+    api.careers.getSchoolsForCareers,
+    topCareerIds.length > 0 ? { careerIds: topCareerIds } : "skip"
+  );
 
   const isLoading = authLoading || (user && allResults === undefined);
 
@@ -139,6 +143,12 @@ function AssessmentResultsContent() {
   };
 
   const strengths = generateStrengthsNarrative();
+  const strengthsSummary = strengths
+    ? strengths
+        .slice(0, 3)
+        .map((s) => s.title.replace(/^[^A-Za-z0-9]+/, "").trim())
+        .join(" • ")
+    : null;
 
   // Show loading state
   if (isLoading) {
@@ -172,171 +182,195 @@ function AssessmentResultsContent() {
     );
   }
 
+  const top1 = displayMatches[0];
+  const top2 = displayMatches[1];
+  const top3 = displayMatches[2];
+
+  const toggleShowAll = () => setShowAllMatches((v) => !v);
+
   return (
-    <div className="min-h-screen bg-background py-12 px-4">
-      <div className="container mx-auto max-w-5xl">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-accent border-3 border-black shadow-brutal mb-6">
-            <Sparkles className="w-12 h-12 text-black" />
+    <div className="min-h-screen bg-background py-10 px-4">
+      <div className="container mx-auto max-w-5xl space-y-8">
+        {/* Minimal header */}
+        <div className="flex items-start justify-between gap-6">
+          <div>
+            <p className="text-xs font-black uppercase text-gray-600 mb-2 flex items-center gap-2">
+              <Sparkles className="w-4 h-4" />
+              Results
+            </p>
+            <h1 className="text-4xl md:text-5xl font-black uppercase leading-tight">
+              Your Top Match
+            </h1>
+            <p className="text-base md:text-lg font-bold text-gray-700 mt-2">
+              Focus on the next 1–2 steps. Everything else is optional.
+            </p>
           </div>
-          <h1 className="text-5xl md:text-7xl font-black mb-4 uppercase">
-            Your Career Matches!
-          </h1>
-          <p className="text-2xl font-bold text-gray-700">
-            Here are your top {displayMatches.length} career recommendations
-          </p>
+          <div className="hidden md:block">
+            <Link href="/assessment">
+              <button className="px-5 py-3 bg-white text-black font-bold uppercase border-3 border-black shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all flex items-center gap-2">
+                <RotateCcw className="w-4 h-4" />
+                Retake
+              </button>
+            </Link>
+          </div>
         </div>
 
-        {/* Results Grid */}
-        <div className="space-y-6 mb-12">
-          {displayMatches.slice(0, showAllMatches ? undefined : 10).map((match, index) => {
-            const { career, matchScore, reasons } = match;
+        {/* Top match hero */}
+        {top1?.career && (
+          <div className="bg-white border-3 border-black shadow-brutal-lg p-6 md:p-8">
+            <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
+              <div className="min-w-0">
+                <h2 className="text-3xl md:text-4xl font-black mb-2">{top1.career.title}</h2>
+                <p className="text-base md:text-lg font-bold text-gray-700 mb-4">
+                  {top1.career.shortDescription}
+                </p>
 
-            if (!career) return null;
+                {top1.reasons && top1.reasons.length > 0 && (
+                  <ul className="space-y-1 mb-5">
+                    {top1.reasons.slice(0, 3).map((reason: string, idx: number) => (
+                      <li key={idx} className="text-sm text-gray-700 font-bold flex items-start gap-2">
+                        <span className="text-brutal-green">✓</span>
+                        {reason}
+                      </li>
+                    ))}
+                  </ul>
+                )}
 
-            const rankColors = [
-              'bg-accent', // 1st - yellow
-              'bg-primary', // 2nd - orange
-              'bg-secondary', // 3rd - blue
-              'bg-gray-700', // 4th
-              'bg-gray-600', // 5th
-              'bg-gray-500', // 6th+
-            ];
+                <div className="flex flex-wrap gap-3">
+                  <Link href={`/careers/${top1.career._id}`}>
+                    <button className="px-6 py-3 bg-black text-white font-bold uppercase text-sm border-3 border-black shadow-brutal-sm hover:shadow-brutal hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all flex items-center gap-2">
+                      View Career
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
+                  </Link>
+                  <button
+                    onClick={(e) => handleBookmark(e, top1.career!._id, top1.career!.title)}
+                    className={`px-6 py-3 font-bold uppercase text-sm border-3 border-black shadow-brutal-sm hover:shadow-brutal hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all flex items-center gap-2 ${
+                      bookmarkedIds?.includes(top1.career._id) ? 'bg-brutal-yellow text-black' : 'bg-white text-black'
+                    }`}
+                  >
+                    <Bookmark className={`w-4 h-4 ${bookmarkedIds?.includes(top1.career._id) ? 'fill-current' : ''}`} />
+                    {bookmarkedIds?.includes(top1.career._id) ? 'Saved' : 'Save'}
+                  </button>
+                </div>
+              </div>
 
-            const colorIndex = Math.min(index, rankColors.length - 1);
+              <div className="flex-shrink-0">
+                <div className="text-center p-4 bg-primary border-3 border-black">
+                  <div className="text-4xl font-black text-white mb-1">{top1.matchScore}%</div>
+                  <div className="text-xs font-black uppercase text-white">Match</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
-            return (
-              <div
-                key={career._id}
-                className="bg-white border-3 border-black shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all"
-              >
-                <div className="p-6 md:p-8">
-                  <div className="flex flex-col md:flex-row gap-6">
-                    {/* Rank Badge */}
-                    <div className="flex-shrink-0">
-                      <div
-                        className={`w-16 h-16 ${rankColors[colorIndex]} border-3 border-black flex items-center justify-center`}
-                      >
-                        <span className={`text-3xl font-black ${index === 0 || index === 2 ? 'text-black' : 'text-white'}`}>
-                          #{index + 1}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Content */}
-                    <div className="flex-1">
-                      <div className="flex flex-col md:flex-row md:items-start md:justify-between mb-4">
-                        <div>
-                          <h3 className="text-3xl font-black mb-2">{career.title}</h3>
-                          <p className="text-lg font-bold text-gray-700 mb-3">
-                            {career.shortDescription}
-                          </p>
-                          <div className="flex flex-wrap gap-2 mb-4">
-                            <span className="px-3 py-1 bg-background text-xs font-black uppercase border-2 border-black">
-                              {career.category}
-                            </span>
-                            <span className="px-3 py-1 bg-background text-xs font-black uppercase border-2 border-black">
-                              {(career.salaryMin / 1000000).toFixed(1)}M - {(career.salaryMax / 1000000).toFixed(1)}M RWF
-                            </span>
-                            {career.costAnalysis && (
-                              <span className="px-3 py-1 bg-brutal-blue text-white text-xs font-black uppercase border-2 border-black">
-                                Entry: {(career.costAnalysis.totalCostMin / 1000000).toFixed(1)}M+
-                              </span>
-                            )}
-                          </div>
-
-                          {/* Match Reasons */}
-                          {reasons && reasons.length > 0 && (
-                            <div className="mb-4">
-                              <p className="text-xs font-black uppercase text-gray-600 mb-2">Why this matches:</p>
-                              <ul className="space-y-1">
-                                {reasons.map((reason, idx) => (
-                                  <li key={idx} className="text-sm text-gray-700 font-bold flex items-start gap-2">
-                                    <span className="text-brutal-green">✓</span>
-                                    {reason}
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Match Score */}
-                        <div className="flex-shrink-0 md:ml-6">
-                          <div className="text-center p-4 bg-primary border-3 border-black">
-                            <div className="text-4xl font-black text-white mb-1">
-                              {matchScore}%
-                            </div>
-                            <div className="text-xs font-black uppercase text-white">
-                              Match
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Actions */}
-                      <div className="flex flex-wrap gap-3">
-                        <Link href={`/careers/${career._id}`}>
-                          <button className="px-6 py-3 bg-black text-white font-bold uppercase text-sm border-3 border-black shadow-brutal-sm hover:shadow-brutal hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all flex items-center gap-2">
-                            Learn More
-                            <ArrowRight className="w-4 h-4" />
-                          </button>
-                        </Link>
-                        <button
-                          onClick={(e) => handleBookmark(e, career._id, career.title)}
-                          className={`px-6 py-3 font-bold uppercase text-sm border-3 border-black shadow-brutal-sm hover:shadow-brutal hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all flex items-center gap-2 ${
-                            bookmarkedIds?.includes(career._id)
-                              ? 'bg-brutal-yellow text-black'
-                              : 'bg-white text-black'
-                          }`}
-                        >
-                          <Bookmark className={`w-4 h-4 ${bookmarkedIds?.includes(career._id) ? 'fill-current' : ''}`} />
-                          {bookmarkedIds?.includes(career._id) ? 'Saved' : 'Save Career'}
-                        </button>
-                      </div>
-                    </div>
+        {/* Next options */}
+        {(top2?.career || top3?.career) && (
+          <div className="grid md:grid-cols-2 gap-6">
+            {[top2, top3].filter(Boolean).map((m: any, idx: number) => (
+              <div key={m.career._id} className="bg-white border-3 border-black shadow-brutal p-6">
+                <p className="text-xs font-black uppercase text-gray-600 mb-2">Option #{idx + 2}</p>
+                <h3 className="text-2xl font-black mb-2">{m.career.title}</h3>
+                <p className="text-sm font-bold text-gray-700 mb-4 line-clamp-2">{m.career.shortDescription}</p>
+                <div className="flex items-center justify-between gap-3">
+                  <Link href={`/careers/${m.career._id}`}>
+                    <button className="px-4 py-2 bg-black text-white font-bold uppercase text-xs border-2 border-black hover:shadow-brutal transition-all">
+                      View →
+                    </button>
+                  </Link>
+                  <div className="px-3 py-2 bg-background border-2 border-black font-black text-sm">
+                    {m.matchScore}%
                   </div>
                 </div>
               </div>
-            );
-          })}
-          
-          {/* Show More Button */}
-          {!showAllMatches && displayMatches.length > 10 && (
-            <div className="text-center">
+            ))}
+          </div>
+        )}
+
+        {/* Strengths (minimal) */}
+        {strengths && strengths.length > 0 && (
+          <div className="bg-white border-3 border-black shadow-brutal p-6 md:p-8">
+            <div className="flex items-start justify-between gap-6">
+              <div>
+                <h2 className="text-2xl md:text-3xl font-black uppercase mb-2">Strengths Snapshot</h2>
+                <p className="text-sm font-bold text-gray-700">
+                  {strengthsSummary || "Your strengths are being calculated."}
+                </p>
+              </div>
               <button
-                onClick={() => setShowAllMatches(true)}
-                className="px-8 py-4 bg-accent text-black font-bold uppercase border-3 border-black shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all flex items-center gap-2 mx-auto"
+                onClick={() => setShowStrengthDetails((v) => !v)}
+                className="px-4 py-2 bg-white border-2 border-black shadow-brutal-sm hover:shadow-brutal transition-all font-bold text-xs uppercase"
               >
-                Show All {displayMatches.length} Matches
-                <ChevronDown className="w-5 h-5" />
+                {showStrengthDetails ? "Hide details" : "See details"}
               </button>
             </div>
-          )}
-        </div>
 
-        {/* Your Strengths Section */}
-        {strengths && strengths.length > 0 && (
-          <div className="bg-white border-3 border-black shadow-brutal p-8 mb-8">
-            <h2 className="text-3xl font-black mb-6 uppercase">Your Top Strengths</h2>
-            <p className="text-lg font-bold text-gray-700 mb-6">
-              Based on your assessment, here&apos;s what makes you unique:
-            </p>
-            <div className="space-y-6">
-              {strengths.map((strength, index) => (
-                <div key={index} className="border-2 border-black p-6 bg-background">
-                  <h3 className="text-2xl font-black mb-3">{strength.title}</h3>
-                  <p className="text-base font-bold text-gray-700 mb-3">
-                    {strength.description}
-                  </p>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-black text-gray-600 uppercase">Best fit careers:</span>
-                    <span className="text-sm font-bold text-primary">{strength.careers}</span>
+            {showStrengthDetails && (
+              <div className="mt-6 space-y-4">
+                {strengths.map((strength, index) => (
+                  <div key={index} className="border-2 border-black p-5 bg-background">
+                    <h3 className="text-lg md:text-xl font-black mb-2">{strength.title}</h3>
+                    <p className="text-sm font-bold text-gray-700">{strength.description}</p>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* All matches (toggle) */}
+        {displayMatches.length > 10 && (
+          <div className="bg-white border-3 border-black shadow-brutal p-6 md:p-8">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <h2 className="text-2xl md:text-3xl font-black uppercase">All Matches</h2>
+                <p className="text-sm font-bold text-gray-700 mt-1">
+                  You have {displayMatches.length} matches. Keep it simple—use this only if needed.
+                </p>
+              </div>
+              <button
+                onClick={toggleShowAll}
+                className="px-5 py-3 bg-accent text-black font-bold uppercase border-3 border-black shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all flex items-center gap-2"
+              >
+                {showAllMatches ? `Show Top 10` : `Show All ${displayMatches.length}`}
+                {showAllMatches ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+              </button>
             </div>
+
+            {showAllMatches && (
+              <div className="mt-6 space-y-4">
+                {displayMatches.slice(0, 25).map((match: any, index: number) => {
+                  const { career, matchScore } = match;
+                  if (!career) return null;
+                  return (
+                    <Link key={career._id} href={`/careers/${career._id}`}>
+                      <div className="border-2 border-black p-4 bg-white hover:shadow-brutal transition-all flex items-center justify-between gap-4">
+                        <div className="min-w-0">
+                          <p className="text-xs font-black uppercase text-gray-600 mb-1">#{index + 1}</p>
+                          <p className="font-black text-base truncate">{career.title}</p>
+                          <p className="text-xs font-bold text-gray-600 truncate">{career.category}</p>
+                        </div>
+                        <div className="flex items-center gap-3 flex-shrink-0">
+                          <div className="px-3 py-2 bg-background border-2 border-black font-black text-sm">
+                            {matchScore}%
+                          </div>
+                          <ArrowRight className="w-4 h-4" />
+                        </div>
+                      </div>
+                    </Link>
+                  );
+                })}
+                <div className="pt-2 text-center">
+                  <button
+                    onClick={toggleShowAll}
+                    className="px-6 py-3 bg-white border-2 border-black shadow-brutal-sm hover:shadow-brutal transition-all font-bold text-sm uppercase inline-flex items-center gap-2"
+                  >
+                    Collapse to Top 10 <ChevronUp className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -450,11 +484,11 @@ function AssessmentResultsContent() {
         )}
 
         {/* Next Steps Section */}
-        {displayMatches.length > 0 && displayMatches[0].career && (
+        {top1?.career && (
           <div className="bg-white border-3 border-black shadow-brutal p-8 mb-8">
             <h2 className="text-3xl font-black mb-6 uppercase">Your Next Steps</h2>
             <p className="text-lg font-bold text-gray-700 mb-6">
-              Based on your top match ({displayMatches[0].career.title}), here&apos;s what you should do next:
+              Based on your top match ({top1.career.title}), here&apos;s what you should do next:
             </p>
             <div className="grid md:grid-cols-2 gap-6">
               <div className="border-2 border-black p-6">
@@ -467,7 +501,7 @@ function AssessmentResultsContent() {
                 <p className="text-sm font-bold text-gray-700 mb-3">
                   Read the detailed career guide to understand day-to-day work, required education, and career progression.
                 </p>
-                <Link href={`/careers/${displayMatches[0].career._id}`}>
+                <Link href={`/careers/${top1.career._id}`}>
                   <button className="px-4 py-2 bg-black text-white font-bold text-sm border-2 border-black hover:shadow-brutal transition-all">
                     View Career Guide →
                   </button>
@@ -518,9 +552,11 @@ function AssessmentResultsContent() {
                 <p className="text-sm font-bold text-gray-700 mb-3">
                   Begin building skills relevant to your top careers through online courses and projects.
                 </p>
-                <button className="px-4 py-2 bg-gray-200 text-gray-600 font-bold text-sm border-2 border-black cursor-not-allowed" disabled>
-                  Coming Soon
-                </button>
+                <Link href={`/learn?careerId=${encodeURIComponent(top1.career._id)}`}>
+                  <button className="px-4 py-2 bg-black text-white font-bold text-sm border-2 border-black hover:shadow-brutal transition-all">
+                    Start Learning →
+                  </button>
+                </Link>
               </div>
             </div>
           </div>

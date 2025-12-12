@@ -1,4 +1,4 @@
-import { query, mutation } from "./_generated/server";
+import { query, mutation, internalMutation } from "./_generated/server";
 import { v } from "convex/values";
 
 // Get schools for a specific career
@@ -325,6 +325,49 @@ export const getAnalytics = query({
         ? ((totalInquiries / totalClicks) * 100).toFixed(2)
         : "0",
       topPerforming,
+    };
+  },
+});
+
+/**
+ * Admin data fix: Make ALU the only featured partner and remove University of Rwanda from featured.
+ *
+ * Run from Convex dashboard / internal mutation runner when needed.
+ */
+export const setFeaturedPartnersForAssessment = internalMutation({
+  args: {},
+  handler: async (ctx) => {
+    const schools = await ctx.db.query("schools").collect();
+
+    const aluSchools = schools.filter(
+      (s) =>
+        typeof s.name === "string" &&
+        (s.name.includes("African Leadership University") || s.name.includes("ALU"))
+    );
+
+    const urSchools = schools.filter(
+      (s) => typeof s.name === "string" && s.name.includes("University of Rwanda")
+    );
+
+    for (const s of aluSchools) {
+      await ctx.db.patch(s._id, {
+        partnershipTier: "featured" as any,
+        featured: true,
+        updatedAt: Date.now(),
+      });
+    }
+
+    for (const s of urSchools) {
+      await ctx.db.patch(s._id, {
+        partnershipTier: "partner" as any,
+        featured: false,
+        updatedAt: Date.now(),
+      });
+    }
+
+    return {
+      updatedALU: aluSchools.length,
+      updatedUR: urSchools.length,
     };
   },
 });

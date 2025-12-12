@@ -103,7 +103,11 @@ export function SchoolRecommendations({
             <div className="h-1 w-8 bg-brutal-orange"></div>
             <p className="text-sm font-black uppercase text-gray-600">Featured Partners</p>
           </div>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div
+            className={`grid gap-6 ${
+              featuredSchools.length === 1 ? "grid-cols-1" : "grid-cols-1 lg:grid-cols-2"
+            }`}
+          >
             {featuredSchools.map((school) => (
               <SchoolCard
                 key={school._id}
