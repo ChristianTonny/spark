@@ -21,45 +21,6 @@ export default function AssessmentQuestionsPage() {
   const allCareers = useQuery(api.careers.list);
   const saveResult = useMutation(api.assessments.saveResult);
 
-  if (assessments === undefined || allCareers === undefined) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <Spinner size="lg" />
-          <p className="mt-4 text-xl font-bold">Loading assessment...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!assessments || assessments.length === 0) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <div className="text-center">
-          <p className="text-xl font-bold text-gray-700">No assessments available</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!allCareers || allCareers.length === 0) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <div className="text-center">
-          <p className="text-xl font-bold text-gray-700">No careers available</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Use the assessment with the most questions (should be the 12-question RIASEC one)
-  const assessment = assessments.reduce((latest, current) => 
-    current.questionCount > latest.questionCount ? current : latest
-  );
-  const questions = assessment.questions;
-  const totalQuestions = questions.length;
-  const progress = ((currentQuestion + 1) / totalQuestions) * 100;
-
   // Resume a pending assessment save after sign-in
   useEffect(() => {
     if (authLoading || !user) return;
@@ -101,6 +62,45 @@ export default function AssessmentQuestionsPage() {
       window.localStorage.removeItem("pending_assessment_result");
     }
   }, [authLoading, user, isSaving, router, saveResult]);
+
+  if (assessments === undefined || allCareers === undefined) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <Spinner size="lg" />
+          <p className="mt-4 text-xl font-bold">Loading assessment...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!assessments || assessments.length === 0) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <div className="text-center">
+          <p className="text-xl font-bold text-gray-700">No assessments available</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!allCareers || allCareers.length === 0) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <div className="text-center">
+          <p className="text-xl font-bold text-gray-700">No careers available</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Use the assessment with the most questions (should be the 12-question RIASEC one)
+  const assessment = assessments.reduce((latest, current) =>
+    current.questionCount > latest.questionCount ? current : latest
+  );
+  const questions = assessment.questions;
+  const totalQuestions = questions.length;
+  const progress = ((currentQuestion + 1) / totalQuestions) * 100;
 
   const handleOptionSelect = (optionIndex: number) => {
     setSelectedOption(optionIndex);

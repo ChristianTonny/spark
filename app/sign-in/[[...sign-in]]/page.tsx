@@ -2,8 +2,9 @@
 
 import { SignIn } from "@clerk/nextjs";
 import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 
-export default function SignInPage() {
+function SignInInner() {
   const searchParams = useSearchParams();
   const returnTo = searchParams.get("returnTo") || "";
 
@@ -43,5 +44,19 @@ export default function SignInPage() {
         />
       </div>
     </div>
+  );
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+          <div className="w-full max-w-md text-center font-bold">Loading…</div>
+        </div>
+      }
+    >
+      <SignInInner />
+    </Suspense>
   );
 }
