@@ -170,7 +170,9 @@ export default function AssessmentQuestionsPage() {
                 })
               );
             }
-            router.push("/sign-in?returnTo=/assessment/questions?resume=1");
+            router.push(
+              `/sign-in?returnTo=${encodeURIComponent("/assessment/questions?resume=1")}`
+            );
             return;
           }
 
