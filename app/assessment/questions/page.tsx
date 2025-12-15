@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { ArrowLeft, ArrowRight, Check } from 'lucide-react';
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
@@ -65,10 +66,10 @@ export default function AssessmentQuestionsPage() {
 
   if (assessments === undefined || allCareers === undefined) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen bg-[#FAFAF9] flex items-center justify-center">
         <div className="text-center">
           <Spinner size="lg" />
-          <p className="mt-4 text-xl font-bold">Loading assessment...</p>
+          <p className="mt-4 text-lg font-medium text-gray-700">Loading assessment...</p>
         </div>
       </div>
     );
@@ -76,9 +77,9 @@ export default function AssessmentQuestionsPage() {
 
   if (!assessments || assessments.length === 0) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <div className="min-h-screen bg-[#FAFAF9] flex items-center justify-center p-4">
         <div className="text-center">
-          <p className="text-xl font-bold text-gray-700">No assessments available</p>
+          <p className="text-lg font-medium text-gray-700">No assessments available</p>
         </div>
       </div>
     );
@@ -86,9 +87,9 @@ export default function AssessmentQuestionsPage() {
 
   if (!allCareers || allCareers.length === 0) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <div className="min-h-screen bg-[#FAFAF9] flex items-center justify-center p-4">
         <div className="text-center">
-          <p className="text-xl font-bold text-gray-700">No careers available</p>
+          <p className="text-lg font-medium text-gray-700">No careers available</p>
         </div>
       </div>
     );
@@ -207,31 +208,36 @@ export default function AssessmentQuestionsPage() {
   const question = questions[currentQuestion];
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-2xl">
-        {/* Progress Bar */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-semibold text-gray-500 tracking-wider uppercase">
+    <div className="min-h-screen bg-[#FAFAF9] flex flex-col">
+      {/* Header with progress */}
+      <div className="border-b border-gray-200 bg-white">
+        <div className="max-w-2xl mx-auto px-4 py-4">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-sm font-medium text-gray-500">
               Question {currentQuestion + 1} of {totalQuestions}
             </span>
-            <span className="text-xs font-semibold text-gray-500 tracking-wider uppercase">
-              {Math.round(progress)}% Complete
+            <span className="text-sm font-medium text-gray-500">
+              {Math.round(progress)}%
             </span>
           </div>
-          <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+          <div className="w-full h-1 bg-gray-100 rounded-full overflow-hidden">
             <div
-              className="h-full bg-gray-900 transition-all duration-500 ease-out rounded-full"
+              className="h-full bg-gray-900 transition-all duration-300 ease-out rounded-full"
               style={{ width: `${progress}%` }}
             />
           </div>
         </div>
+      </div>
 
-        {/* Question Card */}
-        <div className="bg-white border border-gray-200 shadow-xl shadow-gray-200/40 rounded-2xl p-8 md:p-10 mb-8 transition-all duration-300">
-          <h2 className="text-2xl md:text-3xl font-bold mb-8 text-gray-900 leading-snug">
-            {question.text}
-          </h2>
+      {/* Question content */}
+      <div className="flex-1 flex items-center justify-center p-4">
+        <div className="w-full max-w-2xl">
+          {/* Question */}
+          <div className="mb-10">
+            <h2 className="text-2xl md:text-3xl font-semibold text-gray-900 leading-snug">
+              {question.text}
+            </h2>
+          </div>
 
           {/* Options - Multiple Choice */}
           {question.type === 'multiple_choice' && question.options && (
@@ -240,13 +246,13 @@ export default function AssessmentQuestionsPage() {
                 <button
                   key={index}
                   onClick={() => handleOptionSelect(index)}
-                  className={`w-full p-5 text-left font-medium text-lg border rounded-xl transition-all duration-200 group relative overflow-hidden ${
+                  className={`w-full p-5 text-left font-medium text-base rounded-lg border-2 transition-all ${
                     selectedOption === index
-                      ? 'bg-gray-900 text-white border-gray-900 shadow-lg transform scale-[1.01]'
-                      : 'bg-white text-gray-700 border-gray-200 hover:border-gray-400 hover:bg-gray-50'
+                      ? 'border-gray-900 bg-gray-900 text-white'
+                      : 'border-gray-200 bg-white hover:border-gray-300 text-gray-700'
                   }`}
                 >
-                  <div className="flex items-center justify-between relative z-10">
+                  <div className="flex items-center justify-between">
                     <span>{option}</span>
                     {selectedOption === index && (
                       <Check className="w-5 h-5 flex-shrink-0 ml-4" />
@@ -259,67 +265,67 @@ export default function AssessmentQuestionsPage() {
 
           {/* Options - Likert Scale */}
           {question.type === 'scale' && (
-            <div className="space-y-8">
-              <div className="flex justify-between text-sm font-semibold text-gray-500">
-                <span>{question.scaleLabels?.min}</span>
-                <span>{question.scaleLabels?.max}</span>
+            <div className="space-y-6">
+              <div className="flex justify-between text-sm font-medium text-gray-500">
+                <span>{question.scaleLabels?.min || 'Strongly Disagree'}</span>
+                <span>{question.scaleLabels?.max || 'Strongly Agree'}</span>
               </div>
-              <div className="flex gap-2 md:gap-4 justify-between">
+              <div className="flex gap-3 justify-center">
                 {[0, 1, 2, 3, 4].map((value) => (
                   <button
                     key={value}
                     onClick={() => handleOptionSelect(value)}
-                    className={`w-12 h-12 md:w-16 md:h-16 rounded-full font-bold text-xl border transition-all duration-200 flex items-center justify-center ${
+                    className={`w-14 h-14 md:w-16 md:h-16 font-semibold text-xl rounded-lg border-2 transition-all ${
                       selectedOption === value
-                        ? 'bg-gray-900 text-white border-gray-900 shadow-lg transform scale-110'
-                        : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400 hover:bg-gray-50'
+                        ? 'border-gray-900 bg-gray-900 text-white'
+                        : 'border-gray-200 bg-white hover:border-gray-300 text-gray-700'
                     }`}
                   >
                     {value + 1}
                   </button>
                 ))}
               </div>
-              <div className="flex justify-between text-xs text-gray-400 font-medium px-2">
-                <span>Strongly Disagree</span>
-                <span>Strongly Agree</span>
-              </div>
             </div>
           )}
+
+          {/* Navigation */}
+          <div className="flex gap-3 mt-10">
+            <button
+              onClick={handleBack}
+              className="px-5 py-3 font-medium text-gray-600 hover:text-gray-900 transition-colors flex items-center gap-2"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back
+            </button>
+
+            <button
+              onClick={handleNext}
+              disabled={selectedOption === null}
+              className="flex-1 px-6 py-3 bg-gray-900 text-white font-semibold rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              {currentQuestion < totalQuestions - 1 ? 'Continue' : 'See Results'}
+              {currentQuestion < totalQuestions - 1 ? (
+                <ArrowRight className="w-4 h-4" />
+              ) : (
+                <Check className="w-4 h-4" />
+              )}
+            </button>
+          </div>
+
+          {/* Tip */}
+          <p className="text-center text-sm text-gray-500 mt-8">
+            Choose the answer that feels most like you
+          </p>
         </div>
-
-        {/* Navigation Buttons */}
-        <div className="flex items-center justify-between gap-4">
-          <button
-            onClick={handleBack}
-            className="px-6 py-3 text-gray-600 font-semibold hover:text-black transition-colors flex items-center gap-2 rounded-lg hover:bg-gray-100"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back
-          </button>
-
-          <button
-            onClick={handleNext}
-            disabled={selectedOption === null}
-            className="px-8 py-3 bg-gray-900 text-white font-bold rounded-full shadow-lg hover:bg-black hover:shadow-xl hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none disabled:transform-none flex items-center gap-2"
-          >
-            {currentQuestion < totalQuestions - 1 ? 'Next' : 'Finish'}
-            {currentQuestion < totalQuestions - 1 ? (
-              <ArrowRight className="w-4 h-4" />
-            ) : (
-              <Check className="w-4 h-4" />
-            )}
-          </button>
-        </div>
-
       </div>
 
       {/* Saving Overlay */}
       {isSaving && (
-        <div className="fixed inset-0 bg-white/90 backdrop-blur-sm flex items-center justify-center z-50 transition-all duration-500">
+        <div className="fixed inset-0 bg-white/90 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="text-center p-8">
             <Spinner size="lg" />
-            <h3 className="mt-6 text-2xl font-bold text-gray-900">Analyzing responses...</h3>
-            <p className="text-gray-500 mt-2 font-medium">Finding your perfect career matches</p>
+            <p className="mt-4 text-xl font-semibold text-gray-900">Analyzing your responses...</p>
+            <p className="text-gray-600 mt-1">Finding your career matches</p>
           </div>
         </div>
       )}

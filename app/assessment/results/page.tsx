@@ -3,14 +3,13 @@
 import { Suspense, useMemo, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Sparkles, ArrowRight, Bookmark, RotateCcw, ChevronDown, ChevronUp, ArrowLeft, Check } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Bookmark, RotateCcw, ChevronDown, ChevronUp, Star } from 'lucide-react';
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { Spinner } from '@/components/loading-skeleton';
 import { useConvexAuth } from '@/lib/hooks/useConvexAuth';
 import { useToast } from '@/lib/use-toast';
 import { ToastContainer } from '@/components/toast-container';
-import { SchoolRecommendations } from '@/components/SchoolRecommendations';
 
 function AssessmentResultsContent() {
   const searchParams = useSearchParams();
@@ -106,36 +105,36 @@ function AssessmentResultsContent() {
       .slice(0, 3)
       .map(([type]) => type);
 
-    const strengthsMap: Record<string, { title: string; description: string; careers: string }> = {
+    const strengthsMap: Record<string, { title: string; shortTitle: string; description: string }> = {
       realistic: {
-        title: "🔧 Hands-On Problem Solver",
-        description: "You excel at practical, tangible work. You like building, fixing, and working with tools or equipment. Your mechanical aptitude and preference for concrete results make you effective in hands-on roles.",
-        careers: "Engineering, Construction, Manufacturing, IT Support"
+        title: "Hands-On Problem Solver",
+        shortTitle: "Practical",
+        description: "You excel at practical, tangible work. Building, fixing, and working with tools or equipment comes naturally to you."
       },
       investigative: {
-        title: "🔬 Analytical Thinker",
-        description: "You excel at breaking down complex problems logically. Research, data analysis, and systematic thinking come naturally to you. You enjoy understanding how things work at a deep level.",
-        careers: "Data Analyst, Researcher, Scientist, Software Developer"
+        title: "Analytical Thinker",
+        shortTitle: "Analytical",
+        description: "You excel at breaking down complex problems. Research and systematic thinking are your strengths."
       },
       artistic: {
-        title: "🎨 Creative Innovator",
-        description: "You excel at creative and original thinking. Design, artistic expression, and innovative solutions are your strengths. You bring fresh perspectives and aesthetic sensibility to your work.",
-        careers: "Designer, Writer, Artist, Content Creator, Marketing"
+        title: "Creative Innovator",
+        shortTitle: "Creative",
+        description: "You bring fresh perspectives and original thinking. Design and artistic expression are your strengths."
       },
       social: {
-        title: "🤝 People Champion",
-        description: "You excel at helping and working with people. Teaching, mentoring, and supporting others energizes you. Your empathy and communication skills make you effective in people-focused roles.",
-        careers: "Teacher, Counselor, Healthcare, Human Resources"
+        title: "People Champion",
+        shortTitle: "People-Focused",
+        description: "You excel at helping and connecting with others. Empathy and communication are your strengths."
       },
       enterprising: {
-        title: "💼 Strategic Leader",
-        description: "You excel at leading and influencing others. Taking initiative, making decisions, and driving projects forward are your strengths. Your entrepreneurial mindset helps you spot opportunities.",
-        careers: "Manager, Entrepreneur, Sales, Business Development"
+        title: "Strategic Leader",
+        shortTitle: "Leadership",
+        description: "You excel at leading and influencing. Taking initiative and driving projects forward are your strengths."
       },
       conventional: {
-        title: "📊 Systematic Organizer",
-        description: "You excel at structure and organization. Detail-oriented work, processes, and systems are your forte. Your conscientiousness and reliability make you excellent at maintaining order.",
-        careers: "Accountant, Administrator, Project Manager, Analyst"
+        title: "Systematic Organizer",
+        shortTitle: "Organized",
+        description: "You excel at structure and detail-oriented work. Processes and systems are your forte."
       },
     };
 
@@ -143,21 +142,14 @@ function AssessmentResultsContent() {
   };
 
   const strengths = generateStrengthsNarrative();
-  const strengthsSummary = strengths
-    ? strengths
-        .slice(0, 3)
-        .map((s) => s.title.replace(/^[^A-Za-z0-9]+/, "").trim())
-        .join(" • ")
-    : null;
 
   // Show loading state
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen bg-[#FAFAF9] flex items-center justify-center">
         <div className="text-center">
           <Spinner size="lg" />
-          <p className="mt-4 text-xl font-bold">Loading results...</p>
-          <p className="text-gray-600 font-medium">Finding your career matches</p>
+          <p className="mt-4 text-lg font-medium text-gray-700">Loading results...</p>
         </div>
       </div>
     );
@@ -166,14 +158,14 @@ function AssessmentResultsContent() {
   // Show empty state if no results
   if (!currentResult || displayMatches.length === 0) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <div className="min-h-screen bg-[#FAFAF9] flex items-center justify-center p-4">
         <div className="text-center max-w-md">
-          <h2 className="text-2xl font-black mb-4">No Results Found</h2>
-          <p className="text-gray-700 font-bold mb-6">
+          <h2 className="text-2xl font-semibold text-gray-900 mb-3">No Results Found</h2>
+          <p className="text-gray-600 mb-6">
             Complete the assessment to see your career matches.
           </p>
           <Link href="/assessment">
-            <button className="px-6 py-3 bg-primary text-white font-bold uppercase border-3 border-black shadow-brutal hover:shadow-brutal-lg transition-all">
+            <button className="px-6 py-3 bg-gray-900 text-white font-semibold rounded-lg hover:bg-gray-800 transition-colors">
               Take Assessment
             </button>
           </Link>
@@ -188,263 +180,226 @@ function AssessmentResultsContent() {
 
   const toggleShowAll = () => setShowAllMatches((v) => !v);
 
+  // Filter schools to ALU only
+  const aluSchools = topMatchSchools?.filter(
+    (s) =>
+      typeof s.name === "string" &&
+      (s.name.includes("African Leadership University") || s.name.includes("ALU"))
+  ) || [];
+
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 md:px-8">
-      <div className="container mx-auto max-w-5xl space-y-12">
-        {/* Navigation & Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-4">
-            <Link 
-              href="/dashboard/student" 
-              className="inline-flex items-center text-sm font-semibold text-gray-500 hover:text-black transition-colors"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Dashboard
-            </Link>
-            <div>
-              <h1 className="text-3xl md:text-5xl font-bold text-gray-900 tracking-tight">
-                Your Top Match
-              </h1>
-              <p className="text-lg text-gray-600 mt-2 font-medium max-w-2xl">
-                Based on your interests and personality, this career path is your strongest fit.
-              </p>
+    <div className="min-h-screen bg-[#FAFAF9]">
+      {/* Header */}
+      <div className="border-b border-gray-200 bg-white">
+        <div className="max-w-4xl mx-auto px-4 py-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => router.back()}
+                className="p-2 -ml-2 text-gray-500 hover:text-gray-900 transition-colors"
+                aria-label="Go back"
+              >
+                <ArrowLeft className="w-5 h-5" />
+              </button>
+              <h1 className="text-2xl font-semibold text-gray-900">Your Results</h1>
             </div>
-          </div>
-          <div>
             <Link href="/assessment">
-              <button className="px-6 py-3 bg-white text-gray-900 font-bold border border-gray-200 rounded-full hover:bg-gray-50 hover:border-gray-300 transition-all flex items-center gap-2 shadow-sm">
+              <button className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 border border-gray-300 rounded-lg hover:border-gray-400 transition-colors flex items-center gap-2">
                 <RotateCcw className="w-4 h-4" />
-                Retake Assessment
+                Retake
               </button>
             </Link>
           </div>
         </div>
+      </div>
 
-        {/* Top match hero */}
+      <div className="max-w-4xl mx-auto px-4 py-8 space-y-8">
+        {/* Top Match Hero */}
         {top1?.career && (
-          <div className="bg-white border border-gray-200 shadow-xl shadow-gray-200/40 rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-gray-200/50">
-            <div className="p-8 md:p-10 flex flex-col md:flex-row gap-8 md:gap-12">
-              <div className="flex-1 min-w-0 space-y-6">
-                <div>
-                  <div className="inline-flex items-center px-3 py-1 rounded-full bg-green-50 text-green-700 text-sm font-bold mb-4 border border-green-100">
-                    #1 Recommendation
-                  </div>
-                  <h2 className="text-4xl font-bold text-gray-900 mb-3">{top1.career.title}</h2>
-                  <p className="text-xl text-gray-600 leading-relaxed font-medium">
-                    {top1.career.shortDescription}
-                  </p>
+          <section className="bg-white rounded-xl border border-gray-200 p-6 md:p-8 shadow-sm">
+            <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-3 mb-3">
+                  <span className="text-sm font-medium text-gray-500 uppercase tracking-wide">
+                    Top Match
+                  </span>
+                  <span className="px-2.5 py-1 bg-emerald-50 text-emerald-700 text-sm font-semibold rounded-full">
+                    {top1.matchScore}% fit
+                  </span>
                 </div>
+                <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
+                  {top1.career.title}
+                </h2>
+                <p className="text-gray-600 mb-5 leading-relaxed">
+                  {top1.career.shortDescription}
+                </p>
 
                 {top1.reasons && top1.reasons.length > 0 && (
-                  <div className="bg-gray-50 rounded-xl p-6 border border-gray-100">
-                    <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wide mb-3">Why it fits you</h3>
-                    <ul className="space-y-3">
-                      {top1.reasons.slice(0, 3).map((reason: string, idx: number) => (
-                        <li key={idx} className="text-base text-gray-700 font-medium flex items-start gap-3">
-                          <div className="mt-1 w-5 h-5 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                            <Check className="w-3 h-3 text-green-600" strokeWidth={3} />
-                          </div>
-                          {reason}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
+                  <ul className="space-y-2 mb-6">
+                    {top1.reasons.slice(0, 3).map((reason: string, idx: number) => (
+                      <li key={idx} className="text-sm text-gray-700 flex items-start gap-2">
+                        <span className="text-emerald-600 mt-0.5">✓</span>
+                        {reason}
+                      </li>
+                    ))}
+                  </ul>
                 )}
 
-                <div className="flex flex-wrap gap-4 pt-2">
+                <div className="flex flex-wrap gap-3">
                   <Link href={`/careers/${top1.career._id}`}>
-                    <button className="px-8 py-4 bg-gray-900 text-white font-bold text-lg rounded-xl shadow-lg hover:bg-black hover:-translate-y-1 transition-all flex items-center gap-2">
-                      View Career Guide
-                      <ArrowRight className="w-5 h-5" />
+                    <button className="px-5 py-2.5 bg-gray-900 text-white font-medium rounded-lg hover:bg-gray-800 transition-colors flex items-center gap-2">
+                      View Career
+                      <ArrowRight className="w-4 h-4" />
                     </button>
                   </Link>
                   <button
                     onClick={(e) => handleBookmark(e, top1.career!._id, top1.career!.title)}
-                    className={`px-8 py-4 font-bold text-lg rounded-xl border-2 transition-all flex items-center gap-2 ${
-                      bookmarkedIds?.includes(top1.career._id) 
-                        ? 'bg-yellow-50 border-yellow-400 text-yellow-800' 
-                        : 'bg-white border-gray-200 text-gray-700 hover:border-gray-400 hover:bg-gray-50'
+                    className={`px-5 py-2.5 font-medium rounded-lg border transition-colors flex items-center gap-2 ${
+                      bookmarkedIds?.includes(top1.career._id)
+                        ? 'bg-amber-50 text-amber-700 border-amber-200'
+                        : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
                     }`}
                   >
-                    <Bookmark className={`w-5 h-5 ${bookmarkedIds?.includes(top1.career._id) ? 'fill-current' : ''}`} />
-                    {bookmarkedIds?.includes(top1.career._id) ? 'Saved' : 'Save for Later'}
+                    <Bookmark className={`w-4 h-4 ${bookmarkedIds?.includes(top1.career._id) ? 'fill-current' : ''}`} />
+                    {bookmarkedIds?.includes(top1.career._id) ? 'Saved' : 'Save'}
                   </button>
                 </div>
               </div>
+            </div>
+          </section>
+        )}
 
-              <div className="flex-shrink-0 md:w-64">
-                <div className="bg-gray-900 text-white rounded-2xl p-6 text-center shadow-lg relative overflow-hidden group">
-                  <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
-                    <Sparkles className="w-24 h-24" />
-                  </div>
-                  <div className="relative z-10">
-                    <div className="text-6xl font-black tracking-tighter mb-2">{top1.matchScore}%</div>
-                    <div className="text-sm font-bold uppercase tracking-widest text-gray-300">Match Score</div>
-                    <div className="mt-4 pt-4 border-t border-gray-700">
-                      <p className="text-sm text-gray-300 font-medium">
-                        Strong alignment with your interests & personality
-                      </p>
+        {/* Other Top Matches */}
+        {(top2?.career || top3?.career) && (
+          <section>
+            <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-4">
+              Also Strong Matches
+            </h3>
+            <div className="grid md:grid-cols-2 gap-4">
+              {[top2, top3].filter(Boolean).map((m: any) => (
+                <Link key={m.career._id} href={`/careers/${m.career._id}`}>
+                  <div className="bg-white rounded-xl border border-gray-200 p-5 hover:border-gray-300 hover:shadow-sm transition-all cursor-pointer">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="min-w-0 flex-1">
+                        <h4 className="font-semibold text-gray-900 mb-1">{m.career.title}</h4>
+                        <p className="text-sm text-gray-600 line-clamp-2">{m.career.shortDescription}</p>
+                      </div>
+                      <span className="px-2.5 py-1 bg-gray-100 text-gray-700 text-sm font-medium rounded-full flex-shrink-0">
+                        {m.matchScore}%
+                      </span>
                     </div>
                   </div>
-                </div>
-                
-                {/* Secondary CTA area */}
-                <div className="mt-4 p-4 bg-blue-50 rounded-xl border border-blue-100 text-center">
-                  <p className="text-sm font-bold text-blue-900 mb-2">Ready to start?</p>
-                  <Link href={`/learn?careerId=${encodeURIComponent(top1.career._id)}`}>
-                    <button className="w-full py-2 bg-blue-600 text-white font-bold rounded-lg text-sm hover:bg-blue-700 transition-colors">
-                      Start Learning Path
-                    </button>
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Next options */}
-        {(top2?.career || top3?.career) && (
-          <div className="grid md:grid-cols-2 gap-6">
-            {[top2, top3].filter(Boolean).map((m: any, idx: number) => (
-              <div key={m.career._id} className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
-                <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <span className="text-xs font-bold uppercase text-gray-500 tracking-wider">Option #{idx + 2}</span>
-                    <h3 className="text-xl font-bold text-gray-900 mt-1">{m.career.title}</h3>
-                  </div>
-                  <div className="px-3 py-1 bg-gray-100 rounded-lg font-bold text-sm text-gray-700">
-                    {m.matchScore}%
-                  </div>
-                </div>
-                <p className="text-gray-600 font-medium mb-6 line-clamp-2 h-12">
-                  {m.career.shortDescription}
-                </p>
-                <div className="flex items-center justify-between border-t border-gray-100 pt-4">
-                   <span className="text-sm font-semibold text-gray-500">{m.career.category}</span>
-                   <Link href={`/careers/${m.career._id}`}>
-                    <button className="text-blue-600 font-bold text-sm hover:text-blue-800 transition-colors flex items-center gap-1">
-                      View Details <ArrowRight className="w-4 h-4" />
-                    </button>
-                  </Link>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Strengths (minimal) */}
-        {strengths && strengths.length > 0 && (
-          <div className="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm">
-            <div className="flex items-center justify-between mb-8">
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900">Your Strengths Snapshot</h2>
-                <p className="text-gray-600 font-medium mt-1">
-                  Key traits that drive your career matches
-                </p>
-              </div>
-            </div>
-
-            <div className="grid md:grid-cols-3 gap-6">
-              {strengths.map((strength, index) => (
-                <div key={index} className="bg-gray-50 rounded-xl p-6 border border-gray-100">
-                  <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm mb-4 text-xl">
-                    {strength.title.split(' ')[0]}
-                  </div>
-                  <h3 className="text-lg font-bold text-gray-900 mb-2">
-                    {strength.title.replace(/^[^A-Za-z0-9]+/, "").trim()}
-                  </h3>
-                  <p className="text-sm text-gray-600 leading-relaxed font-medium">
-                    {strength.description}
-                  </p>
-                </div>
+                </Link>
               ))}
             </div>
-          </div>
+          </section>
         )}
 
-        {/* All matches (toggle) */}
+        {/* Strengths Snapshot */}
+        {strengths && strengths.length > 0 && (
+          <section className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">Your Strengths</h3>
+              <button
+                onClick={() => setShowStrengthDetails((v) => !v)}
+                className="text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors"
+              >
+                {showStrengthDetails ? 'Hide details' : 'See details'}
+              </button>
+            </div>
+            
+            {!showStrengthDetails ? (
+              <div className="flex flex-wrap gap-2">
+                {strengths.map((s, i) => (
+                  <span key={i} className="px-3 py-1.5 bg-gray-100 text-gray-700 text-sm font-medium rounded-full">
+                    {s.shortTitle}
+                  </span>
+                ))}
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {strengths.map((s, i) => (
+                  <div key={i} className="pb-4 border-b border-gray-100 last:border-0 last:pb-0">
+                    <h4 className="font-medium text-gray-900 mb-1">{s.title}</h4>
+                    <p className="text-sm text-gray-600">{s.description}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+        )}
+
+        {/* All Matches */}
         {displayMatches.length > 3 && (
-          <div className="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+          <section className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+            <div className="flex items-center justify-between mb-4">
               <div>
-                <h2 className="text-2xl font-bold text-gray-900">All Career Matches</h2>
-                <p className="text-gray-600 font-medium mt-1">
-                  Explore other possibilities ranked by fit
-                </p>
+                <h3 className="text-lg font-semibold text-gray-900">All Matches</h3>
+                <p className="text-sm text-gray-500 mt-0.5">{displayMatches.length} careers matched</p>
               </div>
               <button
                 onClick={toggleShowAll}
-                className="px-5 py-2.5 bg-gray-100 text-gray-900 font-bold rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-2 text-sm"
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-2"
               >
-                {showAllMatches ? `Show Top 10 Only` : `View All ${displayMatches.length} Matches`}
+                {showAllMatches ? 'Show Less' : 'View All'}
                 {showAllMatches ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
               </button>
             </div>
 
-            {showAllMatches ? (
-              <div className="grid gap-3 animate-in fade-in slide-in-from-top-4 duration-500">
-                {displayMatches.slice(3, 25).map((match: any, index: number) => {
-                  const { career, matchScore } = match;
-                  if (!career) return null;
-                  return (
-                    <Link key={career._id} href={`/careers/${career._id}`}>
-                      <div className="group border border-gray-100 rounded-xl p-4 bg-white hover:border-gray-300 hover:shadow-md transition-all flex items-center justify-between gap-4">
-                        <div className="flex items-center gap-4 min-w-0">
-                          <span className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-500 group-hover:bg-gray-900 group-hover:text-white transition-colors">
-                            #{index + 4}
-                          </span>
-                          <div className="min-w-0">
-                            <p className="font-bold text-gray-900 truncate">{career.title}</p>
-                            <p className="text-xs font-medium text-gray-500 truncate">{career.category}</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-4 flex-shrink-0">
-                          <span className="font-bold text-sm text-gray-700 bg-gray-50 px-3 py-1 rounded-md">
-                            {matchScore}% Match
-                          </span>
-                          <ArrowRight className="w-4 h-4 text-gray-300 group-hover:text-gray-900 transition-colors" />
-                        </div>
+            {/* Compact list */}
+            <div className="space-y-1">
+              {(showAllMatches ? displayMatches : displayMatches.slice(0, 6)).map((match: any, index: number) => {
+                const { career, matchScore } = match;
+                if (!career) return null;
+                return (
+                  <Link key={career._id} href={`/careers/${career._id}`}>
+                    <div className="flex items-center justify-between p-3 -mx-2 rounded-lg hover:bg-gray-50 transition-colors">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <span className="text-sm font-medium text-gray-400 w-5">{index + 1}</span>
+                        <span className="font-medium text-gray-900 truncate">{career.title}</span>
                       </div>
-                    </Link>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="text-center py-8 bg-gray-50 rounded-xl border border-dashed border-gray-200">
-                <p className="text-gray-500 font-medium mb-4">
-                  We found {displayMatches.length - 3} more careers that match your profile.
-                </p>
+                      <div className="flex items-center gap-3 flex-shrink-0">
+                        <span className="text-sm font-medium text-gray-500">{matchScore}%</span>
+                        <ArrowRight className="w-4 h-4 text-gray-400" />
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+
+            {showAllMatches && displayMatches.length > 10 && (
+              <div className="pt-4 mt-4 border-t border-gray-100 text-center">
                 <button
                   onClick={toggleShowAll}
-                  className="px-5 py-2 bg-white border border-gray-300 text-gray-700 font-bold rounded-lg hover:bg-gray-50 transition-colors text-sm shadow-sm"
+                  className="text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors"
                 >
-                  Expand Full List
+                  Show less
                 </button>
               </div>
             )}
-          </div>
+          </section>
         )}
 
-        {/* Mentors & Schools - Side by Side on Desktop */}
-        <div className="grid lg:grid-cols-2 gap-8">
-            
-            {/* Relevant Mentors Section */}
-            {relevantMentors && relevantMentors.length > 0 && (
-              <div className="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm h-full">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-bold text-gray-900">Talk to Professionals</h2>
-                  <Link href="/mentors" className="text-sm font-bold text-blue-600 hover:underline">
-                    View All
-                  </Link>
-                </div>
+        {/* Mentors Section */}
+        {relevantMentors && relevantMentors.length > 0 && (
+          <section className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+            <div className="flex items-center justify-between mb-5">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">Talk to Professionals</h3>
+                <p className="text-sm text-gray-500 mt-0.5">Mentors in your matched careers</p>
+              </div>
+              <Link href="/mentors" className="text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">
+                View all →
+              </Link>
+            </div>
 
-                <div className="space-y-4">
-                  {relevantMentors.slice(0, 3).map((mentor) => (
-                    <div
-                      key={mentor._id}
-                      className="border border-gray-100 rounded-xl p-4 hover:border-gray-300 hover:bg-gray-50 transition-all flex items-start gap-4"
-                    >
-                      <div className="w-12 h-12 rounded-full bg-gray-200 overflow-hidden flex-shrink-0">
+            <div className="grid md:grid-cols-3 gap-4">
+              {relevantMentors.slice(0, 3).map((mentor) => (
+                <Link key={mentor._id} href={`/mentors/${mentor.userId}`}>
+                  <div className="p-4 rounded-lg border border-gray-200 hover:border-gray-300 hover:shadow-sm transition-all cursor-pointer">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0 overflow-hidden">
                         {mentor.avatar ? (
                           <img
                             src={mentor.avatar}
@@ -452,80 +407,136 @@ function AssessmentResultsContent() {
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center font-bold text-gray-500">
+                          <span className="font-semibold text-gray-600">
                             {mentor.firstName?.charAt(0) || '?'}
-                          </div>
+                          </span>
                         )}
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <h3 className="font-bold text-gray-900 truncate">
-                              {mentor.firstName} {mentor.lastName}
-                            </h3>
-                            <p className="text-xs font-medium text-gray-600 truncate">
-                              {mentor.jobTitle} {mentor.company && `at ${mentor.company}`}
-                            </p>
-                          </div>
-                          <div className="flex items-center gap-1 text-xs font-bold bg-yellow-50 text-yellow-700 px-2 py-1 rounded">
-                            <span className="text-yellow-500">★</span> {mentor.rating || 5.0}
-                          </div>
-                        </div>
-                        <Link href={`/mentors/${mentor.userId}`}>
-                          <button className="mt-3 text-xs font-bold text-gray-900 border border-gray-300 rounded px-3 py-1.5 hover:bg-gray-900 hover:text-white transition-colors">
-                            Book Session
-                          </button>
-                        </Link>
+                      <div className="min-w-0">
+                        <h4 className="font-medium text-gray-900 truncate">
+                          {mentor.firstName} {mentor.lastName}
+                        </h4>
+                        <p className="text-xs text-gray-500 truncate">{mentor.jobTitle}</p>
                       </div>
                     </div>
-                  ))}
+
+                    <div className="flex items-center gap-2 text-xs text-gray-500">
+                      <Star className="w-3 h-3 text-amber-500 fill-amber-500" />
+                      <span className="font-medium">{mentor.rating || 5.0}</span>
+                      <span>•</span>
+                      <span>{mentor.chatsCompleted || 0} sessions</span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Featured Partner School */}
+        {aluSchools.length > 0 && (
+          <section className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl border border-orange-200 p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <span className="px-2.5 py-1 bg-orange-100 text-orange-700 text-xs font-semibold rounded-full uppercase tracking-wide">
+                Featured Partner
+              </span>
+            </div>
+            
+            {aluSchools.slice(0, 1).map((school) => (
+              <div key={school._id}>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">{school.name}</h3>
+                <p className="text-gray-700 mb-4 text-sm leading-relaxed">
+                  {school.description || "A leading institution offering programs aligned with your career matches."}
+                </p>
+                <div className="flex flex-wrap gap-3">
+                  {school.website && (
+                    <a href={school.website} target="_blank" rel="noopener noreferrer">
+                      <button className="px-4 py-2 bg-orange-600 text-white font-medium text-sm rounded-lg hover:bg-orange-700 transition-colors">
+                        Visit Website
+                      </button>
+                    </a>
+                  )}
+                  <Link href={`/careers?school=${school._id}`}>
+                    <button className="px-4 py-2 bg-white text-gray-700 font-medium text-sm rounded-lg border border-gray-300 hover:border-gray-400 transition-colors">
+                      View Programs
+                    </button>
+                  </Link>
                 </div>
               </div>
-            )}
+            ))}
+          </section>
+        )}
 
-            {/* School Recommendations */}
-            {topMatchSchools && topMatchSchools.length > 0 && (
-              <div className="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm h-full">
-                <SchoolRecommendations
-                  schools={topMatchSchools.filter(
-                    (s) =>
-                      typeof s.name === "string" &&
-                      (s.name.includes("African Leadership University") ||
-                        s.name.includes("ALU"))
-                  )}
-                  title="Featured Partner"
-                  maxDisplay={1}
-                  showViewAll={false}
-                />
-                <p className="mt-4 text-sm text-gray-500 font-medium">
-                  Verified institution offering programs for your top matches.
-                </p>
-              </div>
-            )}
-        </div>
-
-        {/* Bottom CTA */}
-        <div className="bg-gray-900 rounded-2xl p-8 md:p-12 text-center text-white relative overflow-hidden">
-          <div className="relative z-10 max-w-2xl mx-auto">
-            <h2 className="text-2xl md:text-3xl font-bold mb-4">Ready to take the next step?</h2>
-            <p className="text-gray-300 mb-8 font-medium">
-              Explore our full database of careers, schools, and mentors.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/careers">
-                <button className="px-8 py-3 bg-white text-gray-900 font-bold rounded-full hover:bg-gray-100 transition-colors">
-                  Browse All Careers
-                </button>
+        {/* Next Steps - Simplified */}
+        {top1?.career && (
+          <section className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+            <h3 className="text-lg font-semibold text-gray-900 mb-5">Your Next Steps</h3>
+            <div className="grid md:grid-cols-2 gap-4">
+              <Link href={`/careers/${top1.career._id}`}>
+                <div className="p-4 rounded-lg border border-gray-200 hover:border-gray-300 hover:shadow-sm transition-all cursor-pointer group">
+                  <div className="flex items-center gap-3 mb-2">
+                    <span className="w-7 h-7 bg-gray-100 rounded-full flex items-center justify-center text-sm font-semibold text-gray-600">1</span>
+                    <span className="font-medium text-gray-900">Research this career</span>
+                  </div>
+                  <p className="text-sm text-gray-600 pl-10">Read the detailed career guide</p>
+                </div>
               </Link>
-              <Link href="/dashboard/student">
-                <button className="px-8 py-3 bg-transparent border border-gray-600 text-white font-bold rounded-full hover:bg-gray-800 transition-colors">
-                  Go to Dashboard
-                </button>
+
+              <Link href={`/careers/compare?ids=${displayMatches.slice(0, 3).map(m => m.career?._id).filter(Boolean).join(',')}`}>
+                <div className="p-4 rounded-lg border border-gray-200 hover:border-gray-300 hover:shadow-sm transition-all cursor-pointer group">
+                  <div className="flex items-center gap-3 mb-2">
+                    <span className="w-7 h-7 bg-gray-100 rounded-full flex items-center justify-center text-sm font-semibold text-gray-600">2</span>
+                    <span className="font-medium text-gray-900">Compare your top 3</span>
+                  </div>
+                  <p className="text-sm text-gray-600 pl-10">See differences side-by-side</p>
+                </div>
+              </Link>
+
+              <Link href="/mentors">
+                <div className="p-4 rounded-lg border border-gray-200 hover:border-gray-300 hover:shadow-sm transition-all cursor-pointer group">
+                  <div className="flex items-center gap-3 mb-2">
+                    <span className="w-7 h-7 bg-gray-100 rounded-full flex items-center justify-center text-sm font-semibold text-gray-600">3</span>
+                    <span className="font-medium text-gray-900">Talk to a professional</span>
+                  </div>
+                  <p className="text-sm text-gray-600 pl-10">Get real-world insights</p>
+                </div>
+              </Link>
+
+              <Link href={`/learn?careerId=${encodeURIComponent(top1.career._id)}`}>
+                <div className="p-4 rounded-lg border border-gray-200 hover:border-gray-300 hover:shadow-sm transition-all cursor-pointer group">
+                  <div className="flex items-center gap-3 mb-2">
+                    <span className="w-7 h-7 bg-gray-100 rounded-full flex items-center justify-center text-sm font-semibold text-gray-600">4</span>
+                    <span className="font-medium text-gray-900">Start learning</span>
+                  </div>
+                  <p className="text-sm text-gray-600 pl-10">Build relevant skills</p>
+                </div>
               </Link>
             </div>
-          </div>
+          </section>
+        )}
+
+        {/* Footer Actions */}
+        <div className="flex flex-col sm:flex-row gap-3 pt-4">
+          <Link href="/assessment" className="flex-1">
+            <button className="w-full px-6 py-3 font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:border-gray-400 transition-colors flex items-center justify-center gap-2">
+              <RotateCcw className="w-4 h-4" />
+              Retake Assessment
+            </button>
+          </Link>
+          <Link href="/careers" className="flex-1">
+            <button className="w-full px-6 py-3 font-medium text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors flex items-center justify-center gap-2">
+              Browse All Careers
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </Link>
         </div>
 
+        {/* Back Link */}
+        <div className="text-center py-8">
+          <Link href="/dashboard/student" className="text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">
+            ← Back to Dashboard
+          </Link>
+        </div>
       </div>
 
       {/* Toast Notifications */}
@@ -537,10 +548,10 @@ function AssessmentResultsContent() {
 export default function AssessmentResultsPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen bg-[#FAFAF9] flex items-center justify-center">
         <div className="text-center">
           <Spinner size="lg" />
-          <p className="mt-4 text-xl font-bold">Loading results...</p>
+          <p className="mt-4 text-lg font-medium text-gray-700">Loading results...</p>
         </div>
       </div>
     }>
