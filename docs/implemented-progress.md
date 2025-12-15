@@ -1,4 +1,4 @@
-# Implemented Progress (for handoff)
+# Implemented Progress (handoff)
 
 This document summarizes what has been implemented on the current working branch compared to `main`, and how to verify it quickly.
 

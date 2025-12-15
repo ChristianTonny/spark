@@ -69,7 +69,7 @@ export default function Navigation() {
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-10 h-10 bg-brutal-orange border-3 border-brutal-border shadow-brutal-sm group-hover:shadow-brutal transition-all flex items-center justify-center">
+            <div className="w-10 h-10 bg-brutal-orange border-2 border-brutal-border shadow-brutal-sm group-hover:shadow-brutal transition-all flex items-center justify-center">
               <span className="text-white font-black text-xl">O</span>
             </div>
             <span className="text-lg sm:text-xl font-black text-brutal-text">OpportunityMap</span>

@@ -3,13 +3,15 @@
 import { Suspense, useMemo, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowRight, ArrowLeft, Bookmark, RotateCcw, ChevronDown, ChevronUp, Star } from 'lucide-react';
+import { Sparkles, ArrowRight, Bookmark, RotateCcw, ChevronDown, ChevronUp } from 'lucide-react';
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { Spinner } from '@/components/loading-skeleton';
 import { useConvexAuth } from '@/lib/hooks/useConvexAuth';
 import { useToast } from '@/lib/use-toast';
 import { ToastContainer } from '@/components/toast-container';
+import { SchoolRecommendations } from '@/components/SchoolRecommendations';
+import { SimpleModal } from '@/components/SimpleModal';
 
 function AssessmentResultsContent() {
   const searchParams = useSearchParams();
@@ -86,10 +88,10 @@ function AssessmentResultsContent() {
   // Prepare display matches from Convex result
   const displayMatches = currentResult
     ? currentResult.careerMatches.map(m => ({
-        career: m.career,
-        matchScore: Math.round(m.matchPercentage),
-        reasons: m.matchReasons,
-      })).filter(m => m.career !== null)
+      career: m.career,
+      matchScore: Math.round(m.matchPercentage),
+      reasons: m.matchReasons,
+    })).filter(m => m.career !== null)
     : [];
 
   // Get assessment scores for strengths narrative
@@ -105,36 +107,36 @@ function AssessmentResultsContent() {
       .slice(0, 3)
       .map(([type]) => type);
 
-    const strengthsMap: Record<string, { title: string; shortTitle: string; description: string }> = {
+    const strengthsMap: Record<string, { title: string; description: string; careers: string }> = {
       realistic: {
-        title: "Hands-On Problem Solver",
-        shortTitle: "Practical",
-        description: "You excel at practical, tangible work. Building, fixing, and working with tools or equipment comes naturally to you."
+        title: "🔧 Hands-On Problem Solver",
+        description: "You excel at practical, tangible work. You like building, fixing, and working with tools or equipment. Your mechanical aptitude and preference for concrete results make you effective in hands-on roles.",
+        careers: "Engineering, Construction, Manufacturing, IT Support"
       },
       investigative: {
-        title: "Analytical Thinker",
-        shortTitle: "Analytical",
-        description: "You excel at breaking down complex problems. Research and systematic thinking are your strengths."
+        title: "🔬 Analytical Thinker",
+        description: "You excel at breaking down complex problems logically. Research, data analysis, and systematic thinking come naturally to you. You enjoy understanding how things work at a deep level.",
+        careers: "Data Analyst, Researcher, Scientist, Software Developer"
       },
       artistic: {
-        title: "Creative Innovator",
-        shortTitle: "Creative",
-        description: "You bring fresh perspectives and original thinking. Design and artistic expression are your strengths."
+        title: "🎨 Creative Innovator",
+        description: "You excel at creative and original thinking. Design, artistic expression, and innovative solutions are your strengths. You bring fresh perspectives and aesthetic sensibility to your work.",
+        careers: "Designer, Writer, Artist, Content Creator, Marketing"
       },
       social: {
-        title: "People Champion",
-        shortTitle: "People-Focused",
-        description: "You excel at helping and connecting with others. Empathy and communication are your strengths."
+        title: "🤝 People Champion",
+        description: "You excel at helping and working with people. Teaching, mentoring, and supporting others energizes you. Your empathy and communication skills make you effective in people-focused roles.",
+        careers: "Teacher, Counselor, Healthcare, Human Resources"
       },
       enterprising: {
-        title: "Strategic Leader",
-        shortTitle: "Leadership",
-        description: "You excel at leading and influencing. Taking initiative and driving projects forward are your strengths."
+        title: "💼 Strategic Leader",
+        description: "You excel at leading and influencing others. Taking initiative, making decisions, and driving projects forward are your strengths. Your entrepreneurial mindset helps you spot opportunities.",
+        careers: "Manager, Entrepreneur, Sales, Business Development"
       },
       conventional: {
-        title: "Systematic Organizer",
-        shortTitle: "Organized",
-        description: "You excel at structure and detail-oriented work. Processes and systems are your forte."
+        title: "📊 Systematic Organizer",
+        description: "You excel at structure and organization. Detail-oriented work, processes, and systems are your forte. Your conscientiousness and reliability make you excellent at maintaining order.",
+        careers: "Accountant, Administrator, Project Manager, Analyst"
       },
     };
 
@@ -142,14 +144,21 @@ function AssessmentResultsContent() {
   };
 
   const strengths = generateStrengthsNarrative();
+  const strengthsSummary = strengths
+    ? strengths
+      .slice(0, 3)
+      .map((s) => s.title.replace(/^[^A-Za-z0-9]+/, "").trim())
+      .join(" • ")
+    : null;
 
   // Show loading state
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#FAFAF9] flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <Spinner size="lg" />
-          <p className="mt-4 text-lg font-medium text-gray-700">Loading results...</p>
+          <p className="mt-4 text-xl font-bold">Loading results...</p>
+          <p className="text-gray-600 font-medium">Finding your career matches</p>
         </div>
       </div>
     );
@@ -158,14 +167,14 @@ function AssessmentResultsContent() {
   // Show empty state if no results
   if (!currentResult || displayMatches.length === 0) {
     return (
-      <div className="min-h-screen bg-[#FAFAF9] flex items-center justify-center p-4">
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <div className="text-center max-w-md">
-          <h2 className="text-2xl font-semibold text-gray-900 mb-3">No Results Found</h2>
-          <p className="text-gray-600 mb-6">
+          <h2 className="text-2xl font-black mb-4">No Results Found</h2>
+          <p className="text-gray-700 font-bold mb-6">
             Complete the assessment to see your career matches.
           </p>
           <Link href="/assessment">
-            <button className="px-6 py-3 bg-gray-900 text-white font-semibold rounded-lg hover:bg-gray-800 transition-colors">
+            <button className="px-6 py-3 bg-primary text-white font-bold uppercase border-3 border-black shadow-brutal hover:shadow-brutal-lg transition-all">
               Take Assessment
             </button>
           </Link>
@@ -180,65 +189,48 @@ function AssessmentResultsContent() {
 
   const toggleShowAll = () => setShowAllMatches((v) => !v);
 
-  // Filter schools to ALU only
-  const aluSchools = topMatchSchools?.filter(
-    (s) =>
-      typeof s.name === "string" &&
-      (s.name.includes("African Leadership University") || s.name.includes("ALU"))
-  ) || [];
-
   return (
-    <div className="min-h-screen bg-[#FAFAF9]">
-      {/* Header */}
-      <div className="border-b border-gray-200 bg-white">
-        <div className="max-w-4xl mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => router.back()}
-                className="p-2 -ml-2 text-gray-500 hover:text-gray-900 transition-colors"
-                aria-label="Go back"
-              >
-                <ArrowLeft className="w-5 h-5" />
-              </button>
-              <h1 className="text-2xl font-semibold text-gray-900">Your Results</h1>
-            </div>
+    <div className="min-h-screen bg-background py-10 px-4">
+      <div className="container mx-auto max-w-5xl space-y-8">
+        {/* Minimal header */}
+        <div className="flex items-start justify-between gap-6">
+          <div>
+            <p className="text-xs font-black uppercase text-gray-600 mb-2 flex items-center gap-2">
+              <Sparkles className="w-4 h-4" />
+              Results
+            </p>
+            <h1 className="text-4xl md:text-5xl font-black uppercase leading-tight">
+              You'd Be Great At This
+            </h1>
+            <p className="text-base md:text-lg font-bold text-gray-700 mt-2">
+              Here's what fits — and what to do next.
+            </p>
+          </div>
+          <div className="hidden md:block">
             <Link href="/assessment">
-              <button className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 border border-gray-300 rounded-lg hover:border-gray-400 transition-colors flex items-center gap-2">
-                <RotateCcw className="w-4 h-4" />
+              <button className="px-3 py-2 bg-white text-black font-bold uppercase text-sm border-2 border-black shadow-brutal-sm hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all flex items-center gap-2">
+                <RotateCcw className="w-3 h-3" />
                 Retake
               </button>
             </Link>
           </div>
         </div>
-      </div>
 
-      <div className="max-w-4xl mx-auto px-4 py-8 space-y-8">
-        {/* Top Match Hero */}
+        {/* Top match hero */}
         {top1?.career && (
-          <section className="bg-white rounded-xl border border-gray-200 p-6 md:p-8 shadow-sm">
+          <div className="bg-white border-3 border-black p-6 md:p-8 hover:shadow-brutal transition-all">
             <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-3 mb-3">
-                  <span className="text-sm font-medium text-gray-500 uppercase tracking-wide">
-                    Top Match
-                  </span>
-                  <span className="px-2.5 py-1 bg-emerald-50 text-emerald-700 text-sm font-semibold rounded-full">
-                    {top1.matchScore}% fit
-                  </span>
-                </div>
-                <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
-                  {top1.career.title}
-                </h2>
-                <p className="text-gray-600 mb-5 leading-relaxed">
+              <div className="min-w-0">
+                <h2 className="text-3xl md:text-4xl font-black mb-2">{top1.career.title}</h2>
+                <p className="text-base md:text-lg font-bold text-gray-700 mb-4">
                   {top1.career.shortDescription}
                 </p>
 
                 {top1.reasons && top1.reasons.length > 0 && (
-                  <ul className="space-y-2 mb-6">
-                    {top1.reasons.slice(0, 3).map((reason: string, idx: number) => (
-                      <li key={idx} className="text-sm text-gray-700 flex items-start gap-2">
-                        <span className="text-emerald-600 mt-0.5">✓</span>
+                  <ul className="space-y-1 mb-5">
+                    {top1.reasons.slice(0, 2).map((reason: string, idx: number) => (
+                      <li key={idx} className="text-sm text-gray-700 font-bold flex items-start gap-2">
+                        <span className="text-brutal-green">✓</span>
                         {reason}
                       </li>
                     ))}
@@ -247,293 +239,311 @@ function AssessmentResultsContent() {
 
                 <div className="flex flex-wrap gap-3">
                   <Link href={`/careers/${top1.career._id}`}>
-                    <button className="px-5 py-2.5 bg-gray-900 text-white font-medium rounded-lg hover:bg-gray-800 transition-colors flex items-center gap-2">
+                    <button className="px-6 py-3 bg-black text-white font-bold uppercase text-sm border-3 border-black shadow-brutal-sm hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all flex items-center gap-2">
                       View Career
                       <ArrowRight className="w-4 h-4" />
                     </button>
                   </Link>
                   <button
                     onClick={(e) => handleBookmark(e, top1.career!._id, top1.career!.title)}
-                    className={`px-5 py-2.5 font-medium rounded-lg border transition-colors flex items-center gap-2 ${
-                      bookmarkedIds?.includes(top1.career._id)
-                        ? 'bg-amber-50 text-amber-700 border-amber-200'
-                        : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
-                    }`}
+                    className={`px-6 py-3 font-bold uppercase text-sm border-3 border-black shadow-brutal-sm hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all flex items-center gap-2 ${bookmarkedIds?.includes(top1.career._id) ? 'bg-brutal-yellow text-black' : 'bg-white text-black'
+                      }`}
                   >
                     <Bookmark className={`w-4 h-4 ${bookmarkedIds?.includes(top1.career._id) ? 'fill-current' : ''}`} />
                     {bookmarkedIds?.includes(top1.career._id) ? 'Saved' : 'Save'}
                   </button>
                 </div>
               </div>
+
+              <div className="flex-shrink-0">
+                <div className="text-center p-4 bg-primary border-3 border-black">
+                  <div className="text-4xl font-black text-white mb-1">{top1.matchScore}%</div>
+                  <div className="text-xs font-black uppercase text-white">Match</div>
+                </div>
+              </div>
             </div>
-          </section>
+          </div>
         )}
 
-        {/* Other Top Matches */}
+        {/* Next options */}
         {(top2?.career || top3?.career) && (
-          <section>
-            <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-4">
-              Also Strong Matches
-            </h3>
-            <div className="grid md:grid-cols-2 gap-4">
-              {[top2, top3].filter(Boolean).map((m: any) => (
-                <Link key={m.career._id} href={`/careers/${m.career._id}`}>
-                  <div className="bg-white rounded-xl border border-gray-200 p-5 hover:border-gray-300 hover:shadow-sm transition-all cursor-pointer">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="min-w-0 flex-1">
-                        <h4 className="font-semibold text-gray-900 mb-1">{m.career.title}</h4>
-                        <p className="text-sm text-gray-600 line-clamp-2">{m.career.shortDescription}</p>
-                      </div>
-                      <span className="px-2.5 py-1 bg-gray-100 text-gray-700 text-sm font-medium rounded-full flex-shrink-0">
-                        {m.matchScore}%
-                      </span>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* Strengths Snapshot */}
-        {strengths && strengths.length > 0 && (
-          <section className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">Your Strengths</h3>
-              <button
-                onClick={() => setShowStrengthDetails((v) => !v)}
-                className="text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors"
-              >
-                {showStrengthDetails ? 'Hide details' : 'See details'}
-              </button>
-            </div>
-            
-            {!showStrengthDetails ? (
-              <div className="flex flex-wrap gap-2">
-                {strengths.map((s, i) => (
-                  <span key={i} className="px-3 py-1.5 bg-gray-100 text-gray-700 text-sm font-medium rounded-full">
-                    {s.shortTitle}
-                  </span>
-                ))}
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {strengths.map((s, i) => (
-                  <div key={i} className="pb-4 border-b border-gray-100 last:border-0 last:pb-0">
-                    <h4 className="font-medium text-gray-900 mb-1">{s.title}</h4>
-                    <p className="text-sm text-gray-600">{s.description}</p>
-                  </div>
-                ))}
-              </div>
-            )}
-          </section>
-        )}
-
-        {/* All Matches */}
-        {displayMatches.length > 3 && (
-          <section className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900">All Matches</h3>
-                <p className="text-sm text-gray-500 mt-0.5">{displayMatches.length} careers matched</p>
-              </div>
-              <button
-                onClick={toggleShowAll}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-2"
-              >
-                {showAllMatches ? 'Show Less' : 'View All'}
-                {showAllMatches ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-              </button>
-            </div>
-
-            {/* Compact list */}
-            <div className="space-y-1">
-              {(showAllMatches ? displayMatches : displayMatches.slice(0, 6)).map((match: any, index: number) => {
-                const { career, matchScore } = match;
-                if (!career) return null;
-                return (
-                  <Link key={career._id} href={`/careers/${career._id}`}>
-                    <div className="flex items-center justify-between p-3 -mx-2 rounded-lg hover:bg-gray-50 transition-colors">
-                      <div className="flex items-center gap-3 min-w-0">
-                        <span className="text-sm font-medium text-gray-400 w-5">{index + 1}</span>
-                        <span className="font-medium text-gray-900 truncate">{career.title}</span>
-                      </div>
-                      <div className="flex items-center gap-3 flex-shrink-0">
-                        <span className="text-sm font-medium text-gray-500">{matchScore}%</span>
-                        <ArrowRight className="w-4 h-4 text-gray-400" />
-                      </div>
-                    </div>
-                  </Link>
-                );
-              })}
-            </div>
-
-            {showAllMatches && displayMatches.length > 10 && (
-              <div className="pt-4 mt-4 border-t border-gray-100 text-center">
-                <button
-                  onClick={toggleShowAll}
-                  className="text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors"
-                >
-                  Show less
-                </button>
-              </div>
-            )}
-          </section>
-        )}
-
-        {/* Mentors Section */}
-        {relevantMentors && relevantMentors.length > 0 && (
-          <section className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-            <div className="flex items-center justify-between mb-5">
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900">Talk to Professionals</h3>
-                <p className="text-sm text-gray-500 mt-0.5">Mentors in your matched careers</p>
-              </div>
-              <Link href="/mentors" className="text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">
-                View all →
-              </Link>
-            </div>
-
-            <div className="grid md:grid-cols-3 gap-4">
-              {relevantMentors.slice(0, 3).map((mentor) => (
-                <Link key={mentor._id} href={`/mentors/${mentor.userId}`}>
-                  <div className="p-4 rounded-lg border border-gray-200 hover:border-gray-300 hover:shadow-sm transition-all cursor-pointer">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0 overflow-hidden">
-                        {mentor.avatar ? (
-                          <img
-                            src={mentor.avatar}
-                            alt={`${mentor.firstName} ${mentor.lastName}`}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <span className="font-semibold text-gray-600">
-                            {mentor.firstName?.charAt(0) || '?'}
-                          </span>
-                        )}
-                      </div>
-                      <div className="min-w-0">
-                        <h4 className="font-medium text-gray-900 truncate">
-                          {mentor.firstName} {mentor.lastName}
-                        </h4>
-                        <p className="text-xs text-gray-500 truncate">{mentor.jobTitle}</p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2 text-xs text-gray-500">
-                      <Star className="w-3 h-3 text-amber-500 fill-amber-500" />
-                      <span className="font-medium">{mentor.rating || 5.0}</span>
-                      <span>•</span>
-                      <span>{mentor.chatsCompleted || 0} sessions</span>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* Featured Partner School */}
-        {aluSchools.length > 0 && (
-          <section className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl border border-orange-200 p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <span className="px-2.5 py-1 bg-orange-100 text-orange-700 text-xs font-semibold rounded-full uppercase tracking-wide">
-                Featured Partner
-              </span>
-            </div>
-            
-            {aluSchools.slice(0, 1).map((school) => (
-              <div key={school._id}>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">{school.name}</h3>
-                <p className="text-gray-700 mb-4 text-sm leading-relaxed">
-                  {school.description || "A leading institution offering programs aligned with your career matches."}
-                </p>
-                <div className="flex flex-wrap gap-3">
-                  {school.website && (
-                    <a href={school.website} target="_blank" rel="noopener noreferrer">
-                      <button className="px-4 py-2 bg-orange-600 text-white font-medium text-sm rounded-lg hover:bg-orange-700 transition-colors">
-                        Visit Website
-                      </button>
-                    </a>
-                  )}
-                  <Link href={`/careers?school=${school._id}`}>
-                    <button className="px-4 py-2 bg-white text-gray-700 font-medium text-sm rounded-lg border border-gray-300 hover:border-gray-400 transition-colors">
-                      View Programs
+          <div className="grid md:grid-cols-2 gap-6">
+            {[top2, top3].filter(Boolean).map((m: any, idx: number) => (
+              <div key={m.career._id} className="bg-white border-3 border-black p-6 hover:shadow-brutal transition-all flex flex-col">
+                <p className="text-xs font-black uppercase text-gray-600 mb-2">Option #{idx + 2}</p>
+                <h3 className="text-2xl font-black mb-2">{m.career.title}</h3>
+                <p className="text-sm font-bold text-gray-700 mb-4 line-clamp-2 flex-grow">{m.career.shortDescription}</p>
+                <div className="flex items-center justify-between gap-3 mt-auto">
+                  <Link href={`/careers/${m.career._id}`}>
+                    <button className="px-4 py-2 bg-black text-white font-bold uppercase text-xs border-2 border-black hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all">
+                      View →
                     </button>
                   </Link>
+                  <div className="px-3 py-2 bg-background border-2 border-black font-black text-sm">
+                    {m.matchScore}%
+                  </div>
                 </div>
               </div>
             ))}
-          </section>
+          </div>
+        )}
+        {/* Explore More Section - Combined Strengths + All Matches */}
+        {(strengths?.length > 0 || displayMatches.length > 10) && (
+          <div className="bg-white border-3 border-black p-6 md:p-8 hover:shadow-brutal transition-all">
+            <h2 className="text-2xl md:text-3xl font-black uppercase mb-4">Explore More</h2>
+
+            <div className="grid md:grid-cols-2 gap-4">
+              {/* Strengths */}
+              {strengths && strengths.length > 0 && (
+                <div className="border-2 border-black p-4">
+                  <div className="flex items-center justify-between gap-3 mb-2">
+                    <h3 className="text-base font-black">Your Strengths</h3>
+                    <button
+                      onClick={() => setShowStrengthDetails(true)}
+                      className="px-3 py-1 bg-white border-2 border-black shadow-brutal-sm hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all font-bold text-xs"
+                    >
+                      See Details
+                    </button>
+                  </div>
+                  <p className="text-sm font-bold text-gray-600 line-clamp-2">
+                    {strengthsSummary || "Your strengths are being calculated."}
+                  </p>
+                </div>
+              )}
+
+              {/* All Matches */}
+              {displayMatches.length > 10 && (
+                <div className="border-2 border-black p-4">
+                  <div className="flex items-center justify-between gap-3 mb-2">
+                    <h3 className="text-base font-black">All Matches</h3>
+                    <button
+                      onClick={() => setShowAllMatches(true)}
+                      className="px-3 py-1 bg-brutal-blue text-white border-2 border-black shadow-brutal-sm hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all font-bold text-xs flex items-center gap-1"
+                    >
+                      Show {displayMatches.length}
+                      <ChevronDown className="w-3 h-3" />
+                    </button>
+                  </div>
+                  <p className="text-sm font-bold text-gray-600">
+                    {displayMatches.length} career matches found
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
         )}
 
-        {/* Next Steps - Simplified */}
-        {top1?.career && (
-          <section className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-            <h3 className="text-lg font-semibold text-gray-900 mb-5">Your Next Steps</h3>
-            <div className="grid md:grid-cols-2 gap-4">
-              <Link href={`/careers/${top1.career._id}`}>
-                <div className="p-4 rounded-lg border border-gray-200 hover:border-gray-300 hover:shadow-sm transition-all cursor-pointer group">
-                  <div className="flex items-center gap-3 mb-2">
-                    <span className="w-7 h-7 bg-gray-100 rounded-full flex items-center justify-center text-sm font-semibold text-gray-600">1</span>
-                    <span className="font-medium text-gray-900">Research this career</span>
-                  </div>
-                  <p className="text-sm text-gray-600 pl-10">Read the detailed career guide</p>
-                </div>
-              </Link>
+        {/* Strengths Modal */}
+        <SimpleModal
+          isOpen={showStrengthDetails}
+          onClose={() => setShowStrengthDetails(false)}
+          title="Your Strengths"
+        >
+          <div className="space-y-3">
+            {strengths?.map((strength, index) => (
+              <div key={index} className="border-2 border-black p-4 bg-background">
+                <h4 className="text-base font-black mb-1">{strength.title}</h4>
+                <p className="text-sm font-bold text-gray-700">{strength.description}</p>
+              </div>
+            ))}
+          </div>
+        </SimpleModal>
 
-              <Link href={`/careers/compare?ids=${displayMatches.slice(0, 3).map(m => m.career?._id).filter(Boolean).join(',')}`}>
-                <div className="p-4 rounded-lg border border-gray-200 hover:border-gray-300 hover:shadow-sm transition-all cursor-pointer group">
-                  <div className="flex items-center gap-3 mb-2">
-                    <span className="w-7 h-7 bg-gray-100 rounded-full flex items-center justify-center text-sm font-semibold text-gray-600">2</span>
-                    <span className="font-medium text-gray-900">Compare your top 3</span>
-                  </div>
-                  <p className="text-sm text-gray-600 pl-10">See differences side-by-side</p>
-                </div>
-              </Link>
+        {/* All Matches Modal */}
+        <SimpleModal
+          isOpen={showAllMatches}
+          onClose={() => setShowAllMatches(false)}
+          title={`All ${displayMatches.length} Matches`}
+        >
+          <div className="grid gap-3">
+            {displayMatches.slice(0, 25).map((match: any, index: number) => {
+              const { career, matchScore } = match;
+              if (!career) return null;
 
+              // Top 3 get special styling
+              const isTop3 = index < 3;
+              const rankColors = ['bg-brutal-yellow', 'bg-brutal-blue-light', 'bg-brutal-blue-secondary'];
+
+              return (
+                <Link key={career._id} href={`/careers/${career._id}`} onClick={() => setShowAllMatches(false)}>
+                  <div className={`border-2 border-black p-4 bg-white hover:shadow-brutal hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all flex items-center gap-4 ${isTop3 ? 'border-3' : ''}`}>
+                    {/* Rank */}
+                    <div className={`w-10 h-10 flex-shrink-0 flex items-center justify-center border-2 border-black font-black text-lg ${isTop3 ? rankColors[index] : 'bg-background'}`}>
+                      {index + 1}
+                    </div>
+
+                    {/* Career Info */}
+                    <div className="flex-1 min-w-0">
+                      <p className="font-black text-base md:text-lg truncate">{career.title}</p>
+                      <p className="text-xs font-bold text-gray-600 truncate">{career.category}</p>
+                    </div>
+
+                    {/* Match Score */}
+                    <div className="flex items-center gap-3 flex-shrink-0">
+                      <div className={`px-3 py-2 border-2 border-black font-black text-sm ${matchScore >= 80 ? 'bg-brutal-green text-black' : matchScore >= 60 ? 'bg-brutal-yellow text-black' : 'bg-background'}`}>
+                        {matchScore}%
+                      </div>
+                      <ArrowRight className="w-4 h-4" />
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </SimpleModal>
+
+        {/* Relevant Mentors Section */}
+        {relevantMentors && relevantMentors.length > 0 && (
+          <div className="bg-white border-3 border-black p-6 md:p-8 mb-8 hover:shadow-brutal transition-all">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-2xl md:text-3xl font-black uppercase mb-2">Talk to Professionals</h2>
+                <p className="text-gray-700 font-medium">
+                  Connect with mentors who work in your top matched careers
+                </p>
+              </div>
               <Link href="/mentors">
-                <div className="p-4 rounded-lg border border-gray-200 hover:border-gray-300 hover:shadow-sm transition-all cursor-pointer group">
-                  <div className="flex items-center gap-3 mb-2">
-                    <span className="w-7 h-7 bg-gray-100 rounded-full flex items-center justify-center text-sm font-semibold text-gray-600">3</span>
-                    <span className="font-medium text-gray-900">Talk to a professional</span>
-                  </div>
-                  <p className="text-sm text-gray-600 pl-10">Get real-world insights</p>
-                </div>
-              </Link>
-
-              <Link href={`/learn?careerId=${encodeURIComponent(top1.career._id)}`}>
-                <div className="p-4 rounded-lg border border-gray-200 hover:border-gray-300 hover:shadow-sm transition-all cursor-pointer group">
-                  <div className="flex items-center gap-3 mb-2">
-                    <span className="w-7 h-7 bg-gray-100 rounded-full flex items-center justify-center text-sm font-semibold text-gray-600">4</span>
-                    <span className="font-medium text-gray-900">Start learning</span>
-                  </div>
-                  <p className="text-sm text-gray-600 pl-10">Build relevant skills</p>
-                </div>
+                <button className="px-4 py-2 bg-white border-2 border-black shadow-brutal-sm hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all font-bold text-sm hidden md:block">
+                  View All →
+                </button>
               </Link>
             </div>
-          </section>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+              {relevantMentors.slice(0, 2).map((mentor) => (
+                <div
+                  key={mentor._id}
+                  className="border-2 border-black p-4 hover:shadow-brutal transition-all"
+                >
+                  <div className="flex items-start gap-3 mb-3">
+                    <div className="w-12 h-12 border-2 border-black bg-brutal-yellow flex items-center justify-center flex-shrink-0">
+                      {mentor.avatar ? (
+                        <img
+                          src={mentor.avatar}
+                          alt={`${mentor.firstName} ${mentor.lastName}`}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <span className="font-black text-lg">
+                          {mentor.firstName?.charAt(0) || '?'}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-black text-base mb-1 truncate">
+                        {mentor.firstName} {mentor.lastName}
+                      </h3>
+                      <p className="text-xs font-bold text-gray-600 truncate">
+                        {mentor.jobTitle}
+                      </p>
+                      {mentor.company && (
+                        <p className="text-xs font-medium text-gray-500 truncate">
+                          at {mentor.company}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  {mentor.bio && (
+                    <p className="text-xs text-gray-700 mb-3 line-clamp-2">
+                      {mentor.bio}
+                    </p>
+                  )}
+
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="flex items-center gap-1">
+                      <Sparkles className="w-3 h-3 text-yellow-500" />
+                      <span className="text-xs font-bold">{mentor.rating || 5.0}</span>
+                    </div>
+                    <span className="text-xs text-gray-600">
+                      ({mentor.chatsCompleted || 0} chats)
+                    </span>
+                    {mentor.yearsExperience && (
+                      <>
+                        <span className="text-xs text-gray-400">•</span>
+                        <span className="text-xs font-medium text-gray-600">
+                          {mentor.yearsExperience}+ yrs
+                        </span>
+                      </>
+                    )}
+                  </div>
+
+                  <Link href={`/mentors/${mentor.userId}`}>
+                    <button className="w-full px-4 py-2 bg-brutal-orange text-white font-bold uppercase text-xs border-2 border-black shadow-brutal-sm hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all">
+                      Book 60-min Session
+                    </button>
+                  </Link>
+                </div>
+              ))}
+            </div>
+
+            <Link href="/mentors" className="block md:hidden mt-4">
+              <button className="w-full px-4 py-2 bg-white border-2 border-black shadow-brutal-sm hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all font-bold text-sm">
+                View All Mentors →
+              </button>
+            </Link>
+          </div>
         )}
 
-        {/* Footer Actions */}
-        <div className="flex flex-col sm:flex-row gap-3 pt-4">
-          <Link href="/assessment" className="flex-1">
-            <button className="w-full px-6 py-3 font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:border-gray-400 transition-colors flex items-center justify-center gap-2">
-              <RotateCcw className="w-4 h-4" />
-              Retake Assessment
-            </button>
-          </Link>
-          <Link href="/careers" className="flex-1">
-            <button className="w-full px-6 py-3 font-medium text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors flex items-center justify-center gap-2">
-              Browse All Careers
-              <ArrowRight className="w-4 h-4" />
-            </button>
-          </Link>
-        </div>
+        {/* School Recommendations for Top Matches (ALU only for now) */}
+        {topMatchSchools && topMatchSchools.length > 0 && (
+          <div className="bg-white border-3 border-black p-6 md:p-8 mb-8">
+            <SchoolRecommendations
+              schools={topMatchSchools.filter(
+                (s) =>
+                  typeof s.name === "string" &&
+                  (s.name.includes("African Leadership University") ||
+                    s.name.includes("ALU"))
+              )}
+              title="Recommended Schools for Your Top Matches"
+              maxDisplay={1}
+            />
+          </div>
+        )}
+
+        {/* What Now Section */}
+        {top1?.career && (
+          <div className="bg-white border-3 border-black p-6 md:p-8 mb-8 hover:shadow-brutal transition-all">
+            <h2 className="text-2xl md:text-3xl font-black mb-4 uppercase">What Now?</h2>
+            <div className="grid md:grid-cols-2 gap-4 md:gap-6">
+              <div className="border-2 border-black p-4 flex flex-col">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-6 h-6 bg-accent border-2 border-black flex items-center justify-center text-sm font-black">1</div>
+                  <h3 className="text-base font-black">Explore This Career</h3>
+                </div>
+                <p className="text-sm font-bold text-gray-700 mb-3 flex-grow">
+                  See what this job is actually like — daily work, skills, salaries.
+                </p>
+                <Link href={`/careers/${top1.career._id}`} className="mt-auto">
+                  <button className="px-3 py-2 bg-accent text-black font-bold text-xs border-2 border-black hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all">
+                    View Career →
+                  </button>
+                </Link>
+              </div>
+
+              <div className="border-2 border-black p-4 flex flex-col">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-6 h-6 bg-primary border-2 border-black flex items-center justify-center text-sm font-black text-white">2</div>
+                  <h3 className="text-base font-black">Talk to Someone Who Does This</h3>
+                </div>
+                <p className="text-sm font-bold text-gray-700 mb-3 flex-grow">
+                  Ask a real professional your questions.
+                </p>
+                <Link href="/mentors" className="mt-auto">
+                  <button className="px-3 py-2 bg-primary text-white font-bold text-xs border-2 border-black hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all">
+                    Find Mentors →
+                  </button>
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
+
+
 
         {/* Back Link */}
-        <div className="text-center py-8">
-          <Link href="/dashboard/student" className="text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">
+        <div className="text-center mt-8">
+          <Link href="/dashboard/student" className="text-lg font-bold text-gray-600 hover:text-black">
             ← Back to Dashboard
           </Link>
         </div>
@@ -548,10 +558,10 @@ function AssessmentResultsContent() {
 export default function AssessmentResultsPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-[#FAFAF9] flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <Spinner size="lg" />
-          <p className="mt-4 text-lg font-medium text-gray-700">Loading results...</p>
+          <p className="mt-4 text-xl font-bold">Loading results...</p>
         </div>
       </div>
     }>

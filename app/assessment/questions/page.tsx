@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import { ArrowLeft, ArrowRight, Check } from 'lucide-react';
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
@@ -66,10 +65,10 @@ export default function AssessmentQuestionsPage() {
 
   if (assessments === undefined || allCareers === undefined) {
     return (
-      <div className="min-h-screen bg-[#FAFAF9] flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <Spinner size="lg" />
-          <p className="mt-4 text-lg font-medium text-gray-700">Loading assessment...</p>
+          <p className="mt-4 text-xl font-bold">Loading assessment...</p>
         </div>
       </div>
     );
@@ -77,9 +76,9 @@ export default function AssessmentQuestionsPage() {
 
   if (!assessments || assessments.length === 0) {
     return (
-      <div className="min-h-screen bg-[#FAFAF9] flex items-center justify-center p-4">
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <div className="text-center">
-          <p className="text-lg font-medium text-gray-700">No assessments available</p>
+          <p className="text-xl font-bold text-gray-700">No assessments available</p>
         </div>
       </div>
     );
@@ -87,9 +86,9 @@ export default function AssessmentQuestionsPage() {
 
   if (!allCareers || allCareers.length === 0) {
     return (
-      <div className="min-h-screen bg-[#FAFAF9] flex items-center justify-center p-4">
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <div className="text-center">
-          <p className="text-lg font-medium text-gray-700">No careers available</p>
+          <p className="text-xl font-bold text-gray-700">No careers available</p>
         </div>
       </div>
     );
@@ -208,54 +207,49 @@ export default function AssessmentQuestionsPage() {
   const question = questions[currentQuestion];
 
   return (
-    <div className="min-h-screen bg-[#FAFAF9] flex flex-col">
-      {/* Header with progress */}
-      <div className="border-b border-gray-200 bg-white">
-        <div className="max-w-2xl mx-auto px-4 py-4">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <div className="w-full max-w-3xl">
+        {/* Progress Bar */}
+        <div className="mb-8">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-sm font-medium text-gray-500">
+            <span className="text-sm font-black uppercase text-gray-600">
               Question {currentQuestion + 1} of {totalQuestions}
             </span>
-            <span className="text-sm font-medium text-gray-500">
-              {Math.round(progress)}%
+            <span className="text-sm font-black uppercase text-gray-600">
+              {Math.round(progress)}% Complete
             </span>
           </div>
-          <div className="w-full h-1 bg-gray-100 rounded-full overflow-hidden">
+          <div className="w-full h-4 bg-white border-3 border-black overflow-hidden">
             <div
-              className="h-full bg-gray-900 transition-all duration-300 ease-out rounded-full"
+              className="h-full bg-primary transition-all duration-300 ease-out border-r-3 border-black"
               style={{ width: `${progress}%` }}
             />
           </div>
         </div>
-      </div>
 
-      {/* Question content */}
-      <div className="flex-1 flex items-center justify-center p-4">
-        <div className="w-full max-w-2xl">
-          {/* Question */}
-          <div className="mb-10">
-            <h2 className="text-2xl md:text-3xl font-semibold text-gray-900 leading-snug">
-              {question.text}
-            </h2>
-          </div>
+        {/* Question Card */}
+        <div className="bg-white border-3 border-black shadow-brutal-lg p-8 md:p-12 mb-6">
+          <h2 className="text-3xl md:text-4xl font-black mb-8 leading-tight">
+            {question.text}
+          </h2>
 
           {/* Options - Multiple Choice */}
           {question.type === 'multiple_choice' && question.options && (
-            <div className="space-y-3">
+            <div className="space-y-4">
               {question.options.map((option, index) => (
                 <button
                   key={index}
                   onClick={() => handleOptionSelect(index)}
-                  className={`w-full p-5 text-left font-medium text-base rounded-lg border-2 transition-all ${
+                  className={`w-full p-6 text-left font-bold text-lg border-3 border-black transition-all ${
                     selectedOption === index
-                      ? 'border-gray-900 bg-gray-900 text-white'
-                      : 'border-gray-200 bg-white hover:border-gray-300 text-gray-700'
+                      ? 'bg-primary text-white shadow-brutal-lg translate-x-[-4px] translate-y-[-4px]'
+                      : 'bg-white hover:shadow-brutal hover:translate-x-[-2px] hover:translate-y-[-2px]'
                   }`}
                 >
                   <div className="flex items-center justify-between">
                     <span>{option}</span>
                     {selectedOption === index && (
-                      <Check className="w-5 h-5 flex-shrink-0 ml-4" />
+                      <Check className="w-6 h-6 flex-shrink-0 ml-4" />
                     )}
                   </div>
                 </button>
@@ -266,66 +260,69 @@ export default function AssessmentQuestionsPage() {
           {/* Options - Likert Scale */}
           {question.type === 'scale' && (
             <div className="space-y-6">
-              <div className="flex justify-between text-sm font-medium text-gray-500">
-                <span>{question.scaleLabels?.min || 'Strongly Disagree'}</span>
-                <span>{question.scaleLabels?.max || 'Strongly Agree'}</span>
+              <div className="flex justify-between text-sm font-bold text-gray-600 mb-2">
+                <span>{question.scaleLabels?.min}</span>
+                <span>{question.scaleLabels?.max}</span>
               </div>
               <div className="flex gap-3 justify-center">
                 {[0, 1, 2, 3, 4].map((value) => (
                   <button
                     key={value}
                     onClick={() => handleOptionSelect(value)}
-                    className={`w-14 h-14 md:w-16 md:h-16 font-semibold text-xl rounded-lg border-2 transition-all ${
+                    className={`w-16 h-16 md:w-20 md:h-20 font-black text-2xl border-3 border-black transition-all ${
                       selectedOption === value
-                        ? 'border-gray-900 bg-gray-900 text-white'
-                        : 'border-gray-200 bg-white hover:border-gray-300 text-gray-700'
+                        ? 'bg-primary text-white shadow-brutal-lg translate-x-[-4px] translate-y-[-4px]'
+                        : 'bg-white hover:shadow-brutal hover:translate-x-[-2px] hover:translate-y-[-2px]'
                     }`}
                   >
                     {value + 1}
                   </button>
                 ))}
               </div>
+              <div className="text-center text-sm font-bold text-gray-600 mt-4">
+                1 = Strongly Disagree &nbsp;•&nbsp; 5 = Strongly Agree
+              </div>
             </div>
           )}
-
-          {/* Navigation */}
-          <div className="flex gap-3 mt-10">
-            <button
-              onClick={handleBack}
-              className="px-5 py-3 font-medium text-gray-600 hover:text-gray-900 transition-colors flex items-center gap-2"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Back
-            </button>
-
-            <button
-              onClick={handleNext}
-              disabled={selectedOption === null}
-              className="flex-1 px-6 py-3 bg-gray-900 text-white font-semibold rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-            >
-              {currentQuestion < totalQuestions - 1 ? 'Continue' : 'See Results'}
-              {currentQuestion < totalQuestions - 1 ? (
-                <ArrowRight className="w-4 h-4" />
-              ) : (
-                <Check className="w-4 h-4" />
-              )}
-            </button>
-          </div>
-
-          {/* Tip */}
-          <p className="text-center text-sm text-gray-500 mt-8">
-            Choose the answer that feels most like you
-          </p>
         </div>
+
+        {/* Navigation Buttons */}
+        <div className="flex gap-4">
+          <button
+            onClick={handleBack}
+            className="px-6 py-4 bg-white text-black font-bold uppercase border-3 border-black shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all flex items-center gap-2"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            Back
+          </button>
+
+          <button
+            onClick={handleNext}
+            disabled={selectedOption === null}
+            className="flex-1 px-6 py-4 bg-primary text-white font-bold uppercase border-3 border-black shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-brutal disabled:hover:translate-x-0 disabled:hover:translate-y-0 flex items-center justify-center gap-2"
+          >
+            {currentQuestion < totalQuestions - 1 ? 'Next Question' : 'See Results'}
+            {currentQuestion < totalQuestions - 1 ? (
+              <ArrowRight className="w-5 h-5" />
+            ) : (
+              <Check className="w-5 h-5" />
+            )}
+          </button>
+        </div>
+
+        {/* Hint */}
+        <p className="text-center text-sm font-bold text-gray-600 mt-6">
+          💡 Tip: Choose the answer that best describes you - there are no wrong answers!
+        </p>
       </div>
 
       {/* Saving Overlay */}
       {isSaving && (
-        <div className="fixed inset-0 bg-white/90 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="text-center p-8">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white border-3 border-black shadow-brutal-lg p-8 text-center">
             <Spinner size="lg" />
-            <p className="mt-4 text-xl font-semibold text-gray-900">Analyzing your responses...</p>
-            <p className="text-gray-600 mt-1">Finding your career matches</p>
+            <p className="mt-4 text-xl font-bold">Analyzing your responses...</p>
+            <p className="text-gray-600 font-medium">Finding your perfect career matches</p>
           </div>
         </div>
       )}

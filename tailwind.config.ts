@@ -53,7 +53,9 @@ const config: Config = {
         },
         // OpportunityMap Neobrutalist Colors
         'brutal-orange': '#FF6B35',
-        'brutal-blue': '#004E89',
+        'brutal-blue': '#0752D8',      // Primary blue (updated)
+        'brutal-blue-secondary': '#478DE2',  // Secondary blue
+        'brutal-blue-light': '#77B1F1',      // Light blue
         'brutal-yellow': '#F7FD04',
         'brutal-green': '#06FFA5',
         'brutal-pink': '#FF006E',

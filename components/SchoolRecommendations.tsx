@@ -38,8 +38,8 @@ interface SchoolRecommendationsProps {
   showViewAll?: boolean;
 }
 
-export function SchoolRecommendations({ 
-  schools, 
+export function SchoolRecommendations({
+  schools,
   title = "Recommended Schools",
   careerId,
   maxDisplay = 6,
@@ -54,20 +54,20 @@ export function SchoolRecommendations({
     // Priority 0: ALU always first
     const isALU_A = a.name.includes("African Leadership University") || a.name.includes("ALU");
     const isALU_B = b.name.includes("African Leadership University") || b.name.includes("ALU");
-    
+
     if (isALU_A && !isALU_B) return -1;
     if (!isALU_A && isALU_B) return 1;
-    
+
     // Priority 1: Partnership tier
     const tierOrder = { featured: 0, partner: 1, listed: 2 };
     const aTier = tierOrder[a.partnershipTier];
     const bTier = tierOrder[b.partnershipTier];
-    
+
     if (aTier !== bTier) return aTier - bTier;
-    
+
     // Priority 2: Featured flag
     if (a.featured !== b.featured) return b.featured ? 1 : -1;
-    
+
     // Priority 3: Click count (popularity)
     return b.clickCount - a.clickCount;
   });
@@ -104,9 +104,8 @@ export function SchoolRecommendations({
             <p className="text-sm font-black uppercase text-gray-600">Featured Partners</p>
           </div>
           <div
-            className={`grid gap-6 ${
-              featuredSchools.length === 1 ? "grid-cols-1" : "grid-cols-1 lg:grid-cols-2"
-            }`}
+            className={`grid gap-6 ${featuredSchools.length === 1 ? "grid-cols-1" : "grid-cols-1 lg:grid-cols-2"
+              }`}
           >
             {featuredSchools.map((school) => (
               <SchoolCard
@@ -152,15 +151,13 @@ export function SchoolRecommendations({
           </Link>
         </div>
       )}
-
-      {/* Info Box */}
-      <div className="p-4 bg-brutal-yellow/20 border-2 border-brutal-yellow">
-        <p className="text-sm font-bold text-gray-700">
-          💡 <strong>Note:</strong> Featured partners are institutions we've verified to offer quality education. 
-          Click "Visit Website" to learn more about admission requirements and application processes.
-        </p>
-      </div>
     </div>
   );
 }
 
+// TODO: When adding new schools, update the Convex database with:
+// 1. School details (name, type, location, description)
+// 2. Programs offered (name, duration, tuition, linked careerIds)
+// 3. Partnership tier: "featured" | "partner" | "listed"
+// 4. Website URL for CTA
+// Schools are automatically sorted: ALU first, then by tier, then by click count
