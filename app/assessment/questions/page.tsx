@@ -207,49 +207,49 @@ export default function AssessmentQuestionsPage() {
   const question = questions[currentQuestion];
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <div className="w-full max-w-3xl">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <div className="w-full max-w-2xl">
         {/* Progress Bar */}
         <div className="mb-8">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-sm font-black uppercase text-gray-600">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-semibold text-gray-500 tracking-wider uppercase">
               Question {currentQuestion + 1} of {totalQuestions}
             </span>
-            <span className="text-sm font-black uppercase text-gray-600">
+            <span className="text-xs font-semibold text-gray-500 tracking-wider uppercase">
               {Math.round(progress)}% Complete
             </span>
           </div>
-          <div className="w-full h-4 bg-white border-3 border-black overflow-hidden">
+          <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
             <div
-              className="h-full bg-primary transition-all duration-300 ease-out border-r-3 border-black"
+              className="h-full bg-gray-900 transition-all duration-500 ease-out rounded-full"
               style={{ width: `${progress}%` }}
             />
           </div>
         </div>
 
         {/* Question Card */}
-        <div className="bg-white border-3 border-black shadow-brutal-lg p-8 md:p-12 mb-6">
-          <h2 className="text-3xl md:text-4xl font-black mb-8 leading-tight">
+        <div className="bg-white border border-gray-200 shadow-xl shadow-gray-200/40 rounded-2xl p-8 md:p-10 mb-8 transition-all duration-300">
+          <h2 className="text-2xl md:text-3xl font-bold mb-8 text-gray-900 leading-snug">
             {question.text}
           </h2>
 
           {/* Options - Multiple Choice */}
           {question.type === 'multiple_choice' && question.options && (
-            <div className="space-y-4">
+            <div className="space-y-3">
               {question.options.map((option, index) => (
                 <button
                   key={index}
                   onClick={() => handleOptionSelect(index)}
-                  className={`w-full p-6 text-left font-bold text-lg border-3 border-black transition-all ${
+                  className={`w-full p-5 text-left font-medium text-lg border rounded-xl transition-all duration-200 group relative overflow-hidden ${
                     selectedOption === index
-                      ? 'bg-primary text-white shadow-brutal-lg translate-x-[-4px] translate-y-[-4px]'
-                      : 'bg-white hover:shadow-brutal hover:translate-x-[-2px] hover:translate-y-[-2px]'
+                      ? 'bg-gray-900 text-white border-gray-900 shadow-lg transform scale-[1.01]'
+                      : 'bg-white text-gray-700 border-gray-200 hover:border-gray-400 hover:bg-gray-50'
                   }`}
                 >
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between relative z-10">
                     <span>{option}</span>
                     {selectedOption === index && (
-                      <Check className="w-6 h-6 flex-shrink-0 ml-4" />
+                      <Check className="w-5 h-5 flex-shrink-0 ml-4" />
                     )}
                   </div>
                 </button>
@@ -259,70 +259,67 @@ export default function AssessmentQuestionsPage() {
 
           {/* Options - Likert Scale */}
           {question.type === 'scale' && (
-            <div className="space-y-6">
-              <div className="flex justify-between text-sm font-bold text-gray-600 mb-2">
+            <div className="space-y-8">
+              <div className="flex justify-between text-sm font-semibold text-gray-500">
                 <span>{question.scaleLabels?.min}</span>
                 <span>{question.scaleLabels?.max}</span>
               </div>
-              <div className="flex gap-3 justify-center">
+              <div className="flex gap-2 md:gap-4 justify-between">
                 {[0, 1, 2, 3, 4].map((value) => (
                   <button
                     key={value}
                     onClick={() => handleOptionSelect(value)}
-                    className={`w-16 h-16 md:w-20 md:h-20 font-black text-2xl border-3 border-black transition-all ${
+                    className={`w-12 h-12 md:w-16 md:h-16 rounded-full font-bold text-xl border transition-all duration-200 flex items-center justify-center ${
                       selectedOption === value
-                        ? 'bg-primary text-white shadow-brutal-lg translate-x-[-4px] translate-y-[-4px]'
-                        : 'bg-white hover:shadow-brutal hover:translate-x-[-2px] hover:translate-y-[-2px]'
+                        ? 'bg-gray-900 text-white border-gray-900 shadow-lg transform scale-110'
+                        : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400 hover:bg-gray-50'
                     }`}
                   >
                     {value + 1}
                   </button>
                 ))}
               </div>
-              <div className="text-center text-sm font-bold text-gray-600 mt-4">
-                1 = Strongly Disagree &nbsp;•&nbsp; 5 = Strongly Agree
+              <div className="flex justify-between text-xs text-gray-400 font-medium px-2">
+                <span>Strongly Disagree</span>
+                <span>Strongly Agree</span>
               </div>
             </div>
           )}
         </div>
 
         {/* Navigation Buttons */}
-        <div className="flex gap-4">
+        <div className="flex items-center justify-between gap-4">
           <button
             onClick={handleBack}
-            className="px-6 py-4 bg-white text-black font-bold uppercase border-3 border-black shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all flex items-center gap-2"
+            className="px-6 py-3 text-gray-600 font-semibold hover:text-black transition-colors flex items-center gap-2 rounded-lg hover:bg-gray-100"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="w-4 h-4" />
             Back
           </button>
 
           <button
             onClick={handleNext}
             disabled={selectedOption === null}
-            className="flex-1 px-6 py-4 bg-primary text-white font-bold uppercase border-3 border-black shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-brutal disabled:hover:translate-x-0 disabled:hover:translate-y-0 flex items-center justify-center gap-2"
+            className="px-8 py-3 bg-gray-900 text-white font-bold rounded-full shadow-lg hover:bg-black hover:shadow-xl hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none disabled:transform-none flex items-center gap-2"
           >
-            {currentQuestion < totalQuestions - 1 ? 'Next Question' : 'See Results'}
+            {currentQuestion < totalQuestions - 1 ? 'Next' : 'Finish'}
             {currentQuestion < totalQuestions - 1 ? (
-              <ArrowRight className="w-5 h-5" />
+              <ArrowRight className="w-4 h-4" />
             ) : (
-              <Check className="w-5 h-5" />
+              <Check className="w-4 h-4" />
             )}
           </button>
         </div>
 
-        {/* Hint */}
-        <p className="text-center text-sm font-bold text-gray-600 mt-6">
-          💡 Tip: Choose the answer that best describes you - there are no wrong answers!
-        </p>
       </div>
 
       {/* Saving Overlay */}
       {isSaving && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white border-3 border-black shadow-brutal-lg p-8 text-center">
+        <div className="fixed inset-0 bg-white/90 backdrop-blur-sm flex items-center justify-center z-50 transition-all duration-500">
+          <div className="text-center p-8">
             <Spinner size="lg" />
-            <p className="mt-4 text-xl font-bold">Analyzing your responses...</p>
-            <p className="text-gray-600 font-medium">Finding your perfect career matches</p>
+            <h3 className="mt-6 text-2xl font-bold text-gray-900">Analyzing responses...</h3>
+            <p className="text-gray-500 mt-2 font-medium">Finding your perfect career matches</p>
           </div>
         </div>
       )}
