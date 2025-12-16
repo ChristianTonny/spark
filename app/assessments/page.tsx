@@ -3,29 +3,55 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowRight, History, Eye, Trash2 } from 'lucide-react';
+import { ArrowRight, History, Eye, Trash2, Play, RotateCcw, AlertTriangle } from 'lucide-react';
 import { formatAssessmentDate } from '@/lib/date-utils';
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { AssessmentResultSkeleton } from '@/components/loading-skeleton';
 import { useConvexAuth } from '@/lib/hooks/useConvexAuth';
+import { useToast } from '@/lib/use-toast';
+import { ToastContainer } from '@/components/toast-container';
 
 export default function AssessmentsPage() {
   const router = useRouter();
   const { user, isLoading: authLoading } = useConvexAuth();
+  const { toasts, success, error, removeToast } = useToast();
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
-  // Fetch assessment results from Convex (only if user is authenticated)
+  // Fetch assessment results and pending assessment from Convex
   const previousResults = useQuery(api.assessments.getResults, user ? {} : "skip");
+  const pendingAssessment = useQuery(api.assessments.getPending, user ? {} : "skip");
 
   const deleteResult = useMutation(api.assessments.deleteResult);
 
   // Loading if user auth is loading OR if results query is loading
   const isLoadingHistory = authLoading || (user && previousResults === undefined);
 
-  const handleDelete = async (resultId: string) => {
-    if (confirm('Are you sure you want to delete this assessment result?')) {
-      await deleteResult({ resultId: resultId as any });
+  // Determine button state: Resume (pending) > Try Again (has results) > Start Now (new)
+  const getButtonConfig = () => {
+    if (pendingAssessment) {
+      return { text: 'Resume', icon: Play };
     }
+    if (previousResults && previousResults.length > 0) {
+      return { text: 'Try Again', icon: RotateCcw };
+    }
+    return { text: 'Start Now', icon: ArrowRight };
+  };
+  const buttonConfig = getButtonConfig();
+
+  const handleDeleteClick = (resultId: string) => {
+    setDeleteConfirm(resultId);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteConfirm) return;
+    try {
+      await deleteResult({ resultId: deleteConfirm as any });
+      success('Assessment result deleted');
+    } catch (err) {
+      error('Failed to delete result');
+    }
+    setDeleteConfirm(null);
   };
   return (
     <div className="min-h-screen bg-background py-6 sm:py-8 md:py-12 px-4">
@@ -74,8 +100,8 @@ export default function AssessmentsPage() {
               className="px-10 py-4 bg-black text-white font-black uppercase text-base sm:text-lg border-2 border-black hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all flex items-center gap-3"
               style={{ boxShadow: '4px 4px 0px 0px #FFFFFF' }}
             >
-              {previousResults && previousResults.length > 0 ? 'Try Again' : 'Start Now'}
-              <ArrowRight className="w-6 h-6" />
+              {buttonConfig.text}
+              <buttonConfig.icon className="w-6 h-6" />
             </button>
           </Link>
         </div>
@@ -139,7 +165,7 @@ export default function AssessmentsPage() {
                             View Results
                           </button>
                           <button
-                            onClick={() => handleDelete(result._id)}
+                            onClick={() => handleDeleteClick(result._id)}
                             className="px-4 py-2 bg-white border-2 border-black shadow-brutal-sm hover:translate-x-[-1px] hover:translate-y-[-1px] hover:bg-red-50 transition-all"
                             title="Delete result"
                           >
@@ -177,6 +203,40 @@ export default function AssessmentsPage() {
           </Link>
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {deleteConfirm && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white border-3 border-black p-6 max-w-sm w-full">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 bg-red-100 border-2 border-black flex items-center justify-center">
+                <AlertTriangle className="w-5 h-5 text-red-600" />
+              </div>
+              <h3 className="text-xl font-black">Delete Result?</h3>
+            </div>
+            <p className="text-gray-700 mb-6">
+              This will permanently delete this assessment result. This action cannot be undone.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setDeleteConfirm(null)}
+                className="flex-1 px-4 py-3 bg-white text-black font-bold uppercase border-3 border-black shadow-brutal hover:shadow-brutal-lg transition-all"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteConfirm}
+                className="flex-1 px-4 py-3 bg-red-600 text-white font-bold uppercase border-3 border-black shadow-brutal hover:shadow-brutal-lg transition-all"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Toast notifications */}
+      <ToastContainer toasts={toasts} onClose={removeToast} />
     </div>
   );
 }
