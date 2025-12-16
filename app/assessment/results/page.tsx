@@ -3,7 +3,7 @@
 import { Suspense, useMemo, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Sparkles, ArrowRight, Bookmark, RotateCcw, ChevronDown, ChevronUp } from 'lucide-react';
+import { Sparkles, ArrowRight, Bookmark, RotateCcw, ChevronDown, ChevronUp, Maximize2 } from 'lucide-react';
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { Spinner } from '@/components/loading-skeleton';
@@ -216,21 +216,24 @@ function AssessmentResultsContent() {
           </div>
         </div>
 
-        {/* Top match hero */}
+        {/* Top match hero - Gradient Design */}
         {top1?.career && (
-          <div className="bg-white border-3 border-black p-6 md:p-8 hover:shadow-brutal transition-all">
+          <div
+            className="border-3 border-black p-6 md:p-8 hover:shadow-brutal transition-all"
+            style={{ background: 'linear-gradient(135deg, #0752D8 0%, #478DE2 50%, #77B1F1 100%)' }}
+          >
             <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
               <div className="min-w-0">
-                <h2 className="text-3xl md:text-4xl font-black mb-2">{top1.career.title}</h2>
-                <p className="text-base md:text-lg font-bold text-gray-700 mb-4">
+                <h2 className="text-3xl md:text-4xl font-black mb-2 text-white">{top1.career.title}</h2>
+                <p className="text-base md:text-lg font-bold text-white/90 mb-4">
                   {top1.career.shortDescription}
                 </p>
 
                 {top1.reasons && top1.reasons.length > 0 && (
                   <ul className="space-y-1 mb-5">
                     {top1.reasons.slice(0, 2).map((reason: string, idx: number) => (
-                      <li key={idx} className="text-sm text-gray-700 font-bold flex items-start gap-2">
-                        <span className="text-brutal-green">✓</span>
+                      <li key={idx} className="text-sm text-white/90 font-bold flex items-start gap-2">
+                        <span className="text-white">✓</span>
                         {reason}
                       </li>
                     ))}
@@ -239,14 +242,17 @@ function AssessmentResultsContent() {
 
                 <div className="flex flex-wrap gap-3">
                   <Link href={`/careers/${top1.career._id}`}>
-                    <button className="px-6 py-3 bg-black text-white font-bold uppercase text-sm border-3 border-black shadow-brutal-sm hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all flex items-center gap-2">
+                    <button
+                      className="px-6 py-3 bg-black text-white font-bold uppercase text-sm border-2 border-black hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all flex items-center gap-2"
+                      style={{ boxShadow: '3px 3px 0px 0px rgba(255, 255, 255, 0.5)' }}
+                    >
                       View Career
                       <ArrowRight className="w-4 h-4" />
                     </button>
                   </Link>
                   <button
                     onClick={(e) => handleBookmark(e, top1.career!._id, top1.career!.title)}
-                    className={`px-6 py-3 font-bold uppercase text-sm border-3 border-black shadow-brutal-sm hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all flex items-center gap-2 ${bookmarkedIds?.includes(top1.career._id) ? 'bg-brutal-yellow text-black' : 'bg-white text-black'
+                    className={`px-6 py-3 font-bold uppercase text-sm border-2 border-black hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all flex items-center gap-2 ${bookmarkedIds?.includes(top1.career._id) ? 'bg-brutal-yellow text-black' : 'bg-white text-black'
                       }`}
                   >
                     <Bookmark className={`w-4 h-4 ${bookmarkedIds?.includes(top1.career._id) ? 'fill-current' : ''}`} />
@@ -256,9 +262,9 @@ function AssessmentResultsContent() {
               </div>
 
               <div className="flex-shrink-0">
-                <div className="text-center p-4 bg-primary border-3 border-black">
-                  <div className="text-4xl font-black text-white mb-1">{top1.matchScore}%</div>
-                  <div className="text-xs font-black uppercase text-white">Match</div>
+                <div className="text-center p-4 bg-white border-3 border-black">
+                  <div className="text-4xl font-black text-black mb-1">{top1.matchScore}%</div>
+                  <div className="text-xs font-black uppercase text-black">Match</div>
                 </div>
               </div>
             </div>
@@ -318,10 +324,9 @@ function AssessmentResultsContent() {
                     <h3 className="text-base font-black">All Matches</h3>
                     <button
                       onClick={() => setShowAllMatches(true)}
-                      className="px-3 py-1 bg-brutal-blue text-white border-2 border-black shadow-brutal-sm hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all font-bold text-xs flex items-center gap-1"
+                      className="px-3 py-1 bg-brutal-blue text-white border-2 border-black shadow-brutal-sm hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all font-bold text-xs"
                     >
                       Show {displayMatches.length}
-                      <ChevronDown className="w-3 h-3" />
                     </button>
                   </div>
                   <p className="text-sm font-bold text-gray-600">
@@ -341,7 +346,7 @@ function AssessmentResultsContent() {
         >
           <div className="space-y-3">
             {strengths?.map((strength, index) => (
-              <div key={index} className="border-2 border-black p-4 bg-background">
+              <div key={index} className="border-2 border-black p-4 bg-background hover:shadow-brutal hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all cursor-default">
                 <h4 className="text-base font-black mb-1">{strength.title}</h4>
                 <p className="text-sm font-bold text-gray-700">{strength.description}</p>
               </div>
@@ -355,35 +360,43 @@ function AssessmentResultsContent() {
           onClose={() => setShowAllMatches(false)}
           title={`All ${displayMatches.length} Matches`}
         >
-          <div className="grid gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {displayMatches.slice(0, 25).map((match: any, index: number) => {
               const { career, matchScore } = match;
               if (!career) return null;
 
-              // Top 3 get special styling
+              // Different subtle gradients based on rank tier
+              const getHeaderStyle = () => {
+                if (index === 0) return { background: 'linear-gradient(135deg, #0752D8 0%, #478DE2 100%)' };
+                if (index === 1) return { background: 'linear-gradient(135deg, #478DE2 0%, #77B1F1 100%)' };
+                if (index === 2) return { background: 'linear-gradient(135deg, #77B1F1 0%, #a8cffa 100%)' };
+                if (index < 10) return { background: '#f5f5f5' };
+                return { background: '#fafafa' };
+              };
+
               const isTop3 = index < 3;
-              const rankColors = ['bg-brutal-yellow', 'bg-brutal-blue-light', 'bg-brutal-blue-secondary'];
 
               return (
                 <Link key={career._id} href={`/careers/${career._id}`} onClick={() => setShowAllMatches(false)}>
-                  <div className={`border-2 border-black p-4 bg-white hover:shadow-brutal hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all flex items-center gap-4 ${isTop3 ? 'border-3' : ''}`}>
-                    {/* Rank */}
-                    <div className={`w-10 h-10 flex-shrink-0 flex items-center justify-center border-2 border-black font-black text-lg ${isTop3 ? rankColors[index] : 'bg-background'}`}>
-                      {index + 1}
-                    </div>
-
-                    {/* Career Info */}
-                    <div className="flex-1 min-w-0">
-                      <p className="font-black text-base md:text-lg truncate">{career.title}</p>
-                      <p className="text-xs font-bold text-gray-600 truncate">{career.category}</p>
-                    </div>
-
-                    {/* Match Score */}
-                    <div className="flex items-center gap-3 flex-shrink-0">
-                      <div className={`px-3 py-2 border-2 border-black font-black text-sm ${matchScore >= 80 ? 'bg-brutal-green text-black' : matchScore >= 60 ? 'bg-brutal-yellow text-black' : 'bg-background'}`}>
+                  <div className={`border-2 border-black bg-white hover:shadow-brutal hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all h-full ${isTop3 ? 'border-3' : ''}`}>
+                    {/* Card Header with subtle gradient */}
+                    <div
+                      className="flex items-center justify-between p-3 border-b-2 border-black"
+                      style={getHeaderStyle()}
+                    >
+                      <span className={`font-black text-sm ${isTop3 ? 'text-white' : 'text-gray-700'}`}>#{index + 1}</span>
+                      <span className={`px-2 py-1 border-2 border-black font-black text-xs ${matchScore >= 80 ? 'bg-white text-black' : matchScore >= 60 ? 'bg-brutal-yellow text-black' : 'bg-white text-black'}`}>
                         {matchScore}%
+                      </span>
+                    </div>
+
+                    {/* Card Body */}
+                    <div className="p-4">
+                      <h3 className="font-black text-lg mb-1 line-clamp-1">{career.title}</h3>
+                      <p className="text-xs font-bold text-gray-600 mb-3">{career.category}</p>
+                      <div className="flex items-center gap-1 text-brutal-blue font-bold text-xs">
+                        View Career <ArrowRight className="w-3 h-3" />
                       </div>
-                      <ArrowRight className="w-4 h-4" />
                     </div>
                   </div>
                 </Link>
@@ -483,61 +496,66 @@ function AssessmentResultsContent() {
               </button>
             </Link>
           </div>
-        )}
+        )
+        }
 
         {/* School Recommendations for Top Matches (ALU only for now) */}
-        {topMatchSchools && topMatchSchools.length > 0 && (
-          <div className="bg-white border-3 border-black p-6 md:p-8 mb-8">
-            <SchoolRecommendations
-              schools={topMatchSchools.filter(
-                (s) =>
-                  typeof s.name === "string" &&
-                  (s.name.includes("African Leadership University") ||
-                    s.name.includes("ALU"))
-              )}
-              title="Recommended Schools for Your Top Matches"
-              maxDisplay={1}
-            />
-          </div>
-        )}
+        {
+          topMatchSchools && topMatchSchools.length > 0 && (
+            <div className="bg-white border-3 border-black p-6 md:p-8 mb-8">
+              <SchoolRecommendations
+                schools={topMatchSchools.filter(
+                  (s) =>
+                    typeof s.name === "string" &&
+                    (s.name.includes("African Leadership University") ||
+                      s.name.includes("ALU"))
+                )}
+                title="Recommended Schools for Your Top Matches"
+                maxDisplay={1}
+              />
+            </div>
+          )
+        }
 
         {/* What Now Section */}
-        {top1?.career && (
-          <div className="bg-white border-3 border-black p-6 md:p-8 mb-8 hover:shadow-brutal transition-all">
-            <h2 className="text-2xl md:text-3xl font-black mb-4 uppercase">What Now?</h2>
-            <div className="grid md:grid-cols-2 gap-4 md:gap-6">
-              <div className="border-2 border-black p-4 flex flex-col">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="w-6 h-6 bg-accent border-2 border-black flex items-center justify-center text-sm font-black">1</div>
-                  <h3 className="text-base font-black">Explore This Career</h3>
+        {
+          top1?.career && (
+            <div className="bg-white border-3 border-black p-6 md:p-8 mb-8 hover:shadow-brutal transition-all">
+              <h2 className="text-2xl md:text-3xl font-black mb-4 uppercase">What Now?</h2>
+              <div className="grid md:grid-cols-2 gap-4 md:gap-6">
+                <div className="border-2 border-black p-4 flex flex-col">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-6 h-6 bg-accent border-2 border-black flex items-center justify-center text-sm font-black">1</div>
+                    <h3 className="text-base font-black">Explore This Career</h3>
+                  </div>
+                  <p className="text-sm font-bold text-gray-700 mb-3 flex-grow">
+                    See what this job is actually like — daily work, skills, salaries.
+                  </p>
+                  <Link href={`/careers/${top1.career._id}`} className="mt-auto">
+                    <button className="px-3 py-2 bg-accent text-black font-bold text-xs border-2 border-black hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all">
+                      View Career →
+                    </button>
+                  </Link>
                 </div>
-                <p className="text-sm font-bold text-gray-700 mb-3 flex-grow">
-                  See what this job is actually like — daily work, skills, salaries.
-                </p>
-                <Link href={`/careers/${top1.career._id}`} className="mt-auto">
-                  <button className="px-3 py-2 bg-accent text-black font-bold text-xs border-2 border-black hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all">
-                    View Career →
-                  </button>
-                </Link>
-              </div>
 
-              <div className="border-2 border-black p-4 flex flex-col">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="w-6 h-6 bg-primary border-2 border-black flex items-center justify-center text-sm font-black text-white">2</div>
-                  <h3 className="text-base font-black">Talk to Someone Who Does This</h3>
+                <div className="border-2 border-black p-4 flex flex-col">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-6 h-6 bg-primary border-2 border-black flex items-center justify-center text-sm font-black text-white">2</div>
+                    <h3 className="text-base font-black">Talk to Someone Who Does This</h3>
+                  </div>
+                  <p className="text-sm font-bold text-gray-700 mb-3 flex-grow">
+                    Ask a real professional your questions.
+                  </p>
+                  <Link href="/mentors" className="mt-auto">
+                    <button className="px-3 py-2 bg-primary text-white font-bold text-xs border-2 border-black hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all">
+                      Find Mentors →
+                    </button>
+                  </Link>
                 </div>
-                <p className="text-sm font-bold text-gray-700 mb-3 flex-grow">
-                  Ask a real professional your questions.
-                </p>
-                <Link href="/mentors" className="mt-auto">
-                  <button className="px-3 py-2 bg-primary text-white font-bold text-xs border-2 border-black hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all">
-                    Find Mentors →
-                  </button>
-                </Link>
               </div>
             </div>
-          </div>
-        )}
+          )
+        }
 
 
 
@@ -547,11 +565,11 @@ function AssessmentResultsContent() {
             ← Back to Dashboard
           </Link>
         </div>
-      </div>
+      </div >
 
       {/* Toast Notifications */}
-      <ToastContainer toasts={toast.toasts} onClose={toast.removeToast} />
-    </div>
+      < ToastContainer toasts={toast.toasts} onClose={toast.removeToast} />
+    </div >
   );
 }
 

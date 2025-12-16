@@ -51,18 +51,21 @@ const config: Config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        // OpportunityMap Neobrutalist Colors
-        'brutal-orange': '#FF6B35',
-        'brutal-blue': '#0752D8',      // Primary blue (updated)
-        'brutal-blue-secondary': '#478DE2',  // Secondary blue
-        'brutal-blue-light': '#77B1F1',      // Light blue
-        'brutal-yellow': '#F7FD04',
-        'brutal-green': '#06FFA5',
-        'brutal-pink': '#FF006E',
-        'brutal-purple': '#7209B7',
+        // OpportunityMap Color Palette (Final)
+        // PRIMARY COLORS
+        'brutal-orange': '#FF6B35',           // Primary accent, CTAs, branding
+        'brutal-blue': '#0752D8',             // Primary blue, success states
+        'brutal-blue-secondary': '#478DE2',   // Secondary blue
+        'brutal-blue-light': '#77B1F1',       // Light blue, backgrounds
+        'brutal-yellow': '#F7FD04',           // Warning, medium states
+        // LEGACY (being phased out)
+        'brutal-green': '#06FFA5',            // DEPRECATED - use brutal-blue instead
+        'brutal-pink': '#FF006E',             // DEPRECATED
+        'brutal-purple': '#7209B7',           // DEPRECATED
+        // NEUTRALS
         'brutal-bg': '#FFFEF2',
         'brutal-text': '#1A1A1A',
-        'brutal-border': '#000000',
+        'brutal-border': '#333333',
       },
       borderRadius: {
         lg: "var(--radius)",

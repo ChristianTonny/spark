@@ -45,22 +45,40 @@ export function SimpleModal({ isOpen, onClose, title, children }: SimpleModalPro
 
     return (
         <>
-            {/* Backdrop with blur */}
+            {/* Backdrop - 100% viewport coverage */}
             <div
-                className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
+                className="fixed z-[60] bg-black/60 backdrop-blur-sm"
+                style={{
+                    top: 0,
+                    left: 0,
+                    width: '100vw',
+                    height: '100vh',
+                    margin: 0,
+                    padding: 0
+                }}
                 onClick={onClose}
             />
 
-            {/* Fullscreen Modal */}
+            {/* Modal Container - clicking here closes modal */}
             <div
-                className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-8"
+                className="fixed z-[70] flex items-center justify-center"
+                style={{
+                    top: 0,
+                    left: 0,
+                    width: '100vw',
+                    height: '100vh',
+                    padding: '1rem'
+                }}
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby="modal-title"
+                onClick={onClose}
             >
+                {/* Modal Card - clicking here does NOT close modal */}
                 <div
                     ref={modalRef}
-                    className="bg-white border-3 border-black w-full max-w-3xl max-h-[90vh] overflow-hidden shadow-brutal-lg flex flex-col"
+                    className="bg-white border-3 border-black w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col"
+                    onClick={(e) => e.stopPropagation()}
                 >
                     {/* Header */}
                     <div className="flex items-center justify-between p-5 border-b-3 border-black bg-background">
@@ -68,7 +86,7 @@ export function SimpleModal({ isOpen, onClose, title, children }: SimpleModalPro
                         <button
                             onClick={onClose}
                             className="p-2 hover:bg-white border-2 border-black transition-colors"
-                            aria-label="Close modal"
+                            aria-label="Close modal (Esc)"
                         >
                             <X className="w-6 h-6" />
                         </button>
@@ -83,3 +101,4 @@ export function SimpleModal({ isOpen, onClose, title, children }: SimpleModalPro
         </>
     );
 }
+

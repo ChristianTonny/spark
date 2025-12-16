@@ -81,7 +81,7 @@ export function SchoolCard({ school, program, compact = false, showCTA = true }:
   };
 
   // Find relevant program
-  const relevantProgram = program 
+  const relevantProgram = program
     ? school.programsOffered.find(p => p.name.toLowerCase().includes(program.toLowerCase()))
     : school.programsOffered[0];
 
@@ -116,7 +116,7 @@ export function SchoolCard({ school, program, compact = false, showCTA = true }:
             <p className="text-xs font-bold text-gray-700 mb-1">{relevantProgram.name}</p>
             <div className="flex items-center justify-between text-xs">
               <span className="text-gray-600">{relevantProgram.duration}</span>
-              <span className="font-black text-brutal-green">
+              <span className="font-black text-brutal-blue">
                 {formatCurrency(relevantProgram.tuitionPerYear)}/year
               </span>
             </div>
@@ -176,8 +176,8 @@ export function SchoolCard({ school, program, compact = false, showCTA = true }:
 
         {/* Scholarship Info - Special highlight */}
         {school.scholarshipInfo && (
-          <div className="mb-4 p-3 bg-brutal-green/10 border-2 border-brutal-green">
-            <p className="text-xs font-black uppercase text-brutal-green mb-1 flex items-center gap-1">
+          <div className="mb-4 p-3 bg-brutal-orange/10 border-2 border-brutal-orange">
+            <p className="text-xs font-black uppercase text-brutal-orange mb-1 flex items-center gap-1">
               <Award className="w-4 h-4" />
               Scholarship Available
             </p>
@@ -218,7 +218,7 @@ export function SchoolCard({ school, program, compact = false, showCTA = true }:
                     <p className="font-bold text-gray-800">{prog.name}</p>
                     <p className="text-xs text-gray-600">{prog.duration}</p>
                   </div>
-                  <p className="font-black text-brutal-green ml-2">
+                  <p className="font-black text-brutal-blue ml-2">
                     {formatCurrency(prog.tuitionPerYear)}/yr
                   </p>
                 </div>

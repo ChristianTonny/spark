@@ -40,34 +40,42 @@ export default function AssessmentsPage() {
           </p>
         </div>
 
-        {/* Main Card */}
-        <div className="bg-white border-3 border-black p-6 sm:p-8 md:p-10 mb-6 sm:mb-8 hover:shadow-brutal transition-all">
+        {/* Main Card - Blue Gradient Design */}
+        <div
+          className="border-3 border-black p-8 sm:p-10 md:p-12 mb-6 sm:mb-8 hover:shadow-brutal transition-all"
+          style={{
+            background: 'linear-gradient(135deg, #0752D8 0%, #478DE2 50%, #77B1F1 100%)'
+          }}
+        >
           {/* Intro */}
-          <p className="text-base sm:text-lg font-bold text-gray-700 mb-6">
+          <p className="text-lg sm:text-xl font-bold text-white/90 mb-8 max-w-2xl">
             Find out which careers match your interests and strengths — based on research, not guesswork.
           </p>
 
-          {/* Features Row */}
-          <div className="flex flex-wrap items-center gap-4 sm:gap-6 mb-8 text-sm font-bold text-gray-600">
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 bg-accent border-2 border-black flex items-center justify-center text-xs font-black">✓</div>
-              <span>25 Questions</span>
+          {/* Features Row - Larger Icons */}
+          <div className="flex flex-wrap items-center gap-6 sm:gap-8 mb-10">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-white border-2 border-black flex items-center justify-center text-base font-black">✓</div>
+              <span className="text-white font-bold text-base">25 Questions</span>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 bg-secondary border-2 border-black flex items-center justify-center text-xs font-black">⏱</div>
-              <span>15 Minutes</span>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-brutal-yellow border-2 border-black flex items-center justify-center text-base font-black">⏱</div>
+              <span className="text-white font-bold text-base">15 Minutes</span>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 bg-primary border-2 border-black flex items-center justify-center text-xs font-black text-white">★</div>
-              <span>Your Top Matches</span>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-brutal-orange border-2 border-black flex items-center justify-center text-base font-black text-white">★</div>
+              <span className="text-white font-bold text-base">Your Top Matches</span>
             </div>
           </div>
 
-          {/* CTA Button */}
+          {/* CTA Button - Black with white shadow */}
           <Link href="/assessment/questions">
-            <button className="px-8 py-4 bg-primary text-white font-black uppercase text-base sm:text-lg border-3 border-black shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all flex items-center gap-3">
+            <button
+              className="px-10 py-4 bg-black text-white font-black uppercase text-base sm:text-lg border-2 border-black hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all flex items-center gap-3"
+              style={{ boxShadow: '4px 4px 0px 0px #FFFFFF' }}
+            >
               {previousResults && previousResults.length > 0 ? 'Try Again' : 'Start Now'}
-              <ArrowRight className="w-5 h-5" />
+              <ArrowRight className="w-6 h-6" />
             </button>
           </Link>
         </div>
@@ -110,7 +118,7 @@ export default function AssessmentsPage() {
                             <span className="text-sm font-bold text-gray-600">
                               {formatAssessmentDate(result.completedAt)}
                             </span>
-                            <span className="px-2 py-1 bg-brutal-green text-black text-xs font-bold border-2 border-black">
+                            <span className="px-2 py-1 bg-brutal-blue text-white text-xs font-bold border-2 border-black">
                               {Math.round(topMatch?.matchPercentage || 0)}% Match
                             </span>
                           </div>
