@@ -46,14 +46,14 @@ export const getResults = query({
               ...match,
               career: career && 'title' in career && 'category' in career && 'shortDescription' in career
                 ? {
-                    _id: career._id,
-                    title: career.title,
-                    category: career.category,
-                    shortDescription: career.shortDescription,
-                    salaryMin: career.salaryMin,
-                    salaryMax: career.salaryMax,
-                    costAnalysis: 'costAnalysis' in career ? career.costAnalysis : undefined
-                  }
+                  _id: career._id,
+                  title: career.title,
+                  category: career.category,
+                  shortDescription: career.shortDescription,
+                  salaryMin: career.salaryMin,
+                  salaryMax: career.salaryMax,
+                  costAnalysis: 'costAnalysis' in career ? career.costAnalysis : undefined
+                }
                 : null,
             };
           })
@@ -117,5 +117,95 @@ export const deleteResult = mutation({
 
     await ctx.db.delete(args.resultId);
     return { success: true };
+  },
+});
+
+// ===== SAVE & RESUME FUNCTIONALITY =====
+
+// Save or update pending assessment progress (auto-save on each answer)
+export const savePendingProgress = mutation({
+  args: {
+    assessmentId: v.id("assessments"),
+    answers: v.any(),
+    currentQuestion: v.number(),
+  },
+  handler: async (ctx, args) => {
+    const user = await getCurrentUserOrThrow(ctx);
+
+    // Check if pending assessment already exists
+    const existing = await ctx.db
+      .query("pendingAssessments")
+      .withIndex("by_user_and_assessment", (q) =>
+        q.eq("userId", user._id).eq("assessmentId", args.assessmentId)
+      )
+      .unique();
+
+    if (existing) {
+      // Update existing
+      await ctx.db.patch(existing._id, {
+        answers: args.answers,
+        currentQuestion: args.currentQuestion,
+        lastUpdatedAt: Date.now(),
+      });
+      return { pendingId: existing._id, action: "updated" };
+    } else {
+      // Create new
+      const pendingId = await ctx.db.insert("pendingAssessments", {
+        userId: user._id,
+        assessmentId: args.assessmentId,
+        answers: args.answers,
+        currentQuestion: args.currentQuestion,
+        startedAt: Date.now(),
+        lastUpdatedAt: Date.now(),
+      });
+      return { pendingId, action: "created" };
+    }
+  },
+});
+
+// Get pending assessment for current user (if any)
+export const getPending = query({
+  args: {},
+  handler: async (ctx) => {
+    const user = await getCurrentUser(ctx);
+    if (!user) return null;
+
+    const pending = await ctx.db
+      .query("pendingAssessments")
+      .withIndex("by_user", (q) => q.eq("userId", user._id))
+      .first();
+
+    if (!pending) return null;
+
+    // Get assessment details
+    const assessment = await ctx.db.get(pending.assessmentId);
+
+    return {
+      ...pending,
+      assessmentTitle: assessment?.title ?? "Assessment",
+      totalQuestions: assessment?.questionCount ?? 0,
+    };
+  },
+});
+
+// Clear pending assessment after completion or user chooses to start fresh
+export const clearPending = mutation({
+  args: { assessmentId: v.id("assessments") },
+  handler: async (ctx, args) => {
+    const user = await getCurrentUserOrThrow(ctx);
+
+    const pending = await ctx.db
+      .query("pendingAssessments")
+      .withIndex("by_user_and_assessment", (q) =>
+        q.eq("userId", user._id).eq("assessmentId", args.assessmentId)
+      )
+      .unique();
+
+    if (pending) {
+      await ctx.db.delete(pending._id);
+      return { deleted: true };
+    }
+
+    return { deleted: false };
   },
 });

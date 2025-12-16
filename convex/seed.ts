@@ -6,12 +6,12 @@ export const clearAssessments = internalMutation({
   handler: async (ctx) => {
     const assessments = await ctx.db.query("assessments").collect();
     let deleted = 0;
-    
+
     for (const assessment of assessments) {
       await ctx.db.delete(assessment._id);
       deleted++;
     }
-    
+
     return { deleted };
   },
 });
@@ -22,12 +22,12 @@ export const clearCareers = internalMutation({
   handler: async (ctx) => {
     const careers = await ctx.db.query("careers").collect();
     let deleted = 0;
-    
+
     for (const career of careers) {
       await ctx.db.delete(career._id);
       deleted++;
     }
-    
+
     return { deleted };
   },
 });
@@ -38,19 +38,19 @@ export const clearProfessionals = internalMutation({
   handler: async (ctx) => {
     const professionals = await ctx.db.query("professionals").collect();
     let deleted = 0;
-    
+
     // Only delete demo/seed professionals
     for (const prof of professionals) {
       const user = await ctx.db.get(prof.userId);
       if (user) {
         // Delete if it's a demo user (has demo identifiers) OR if email is from demo domain
-        const isDemoUser = 
-          user.clerkId?.startsWith('demo-clerk-mentor') || 
+        const isDemoUser =
+          user.clerkId?.startsWith('demo-clerk-mentor') ||
           user.tokenIdentifier?.startsWith('demo-token-mentor') ||
           user.email?.includes('@andela.com') ||
           user.email?.includes('@zipline.com') ||
           user.email?.includes('@mtn.com');
-        
+
         if (isDemoUser) {
           await ctx.db.delete(prof._id);
           // Also delete the associated user
@@ -1540,177 +1540,248 @@ export const refreshAssessments = internalMutation({
     // First, clear all existing assessments
     const assessments = await ctx.db.query("assessments").collect();
     let deleted = 0;
-    
+
     for (const assessment of assessments) {
       await ctx.db.delete(assessment._id);
       deleted++;
     }
 
-    // Create ONE clean 12-question RIASEC assessment
+    // Create skills-focused self-discovery assessment
     const assessmentId = await ctx.db.insert("assessments", {
-      type: "interests",
-      title: "Career Discovery Assessment",
-      description: "Discover careers that match your interests, skills, and goals using the RIASEC framework",
-      icon: "❤️",
-      duration: 5,
-      questionCount: 12,
+      type: "skills",
+      title: "Skills & Strengths Discovery",
+      description: "Discover your core skills, working style, and what energizes you — insights that apply across many careers",
+      icon: "✨",
+      duration: 8,
+      questionCount: 20,
       questions: [
-        // SECTION 1: INTERESTS (RIASEC) - Questions 1-8
+        // ===== SECTION 1: HOW YOU THINK (Cognitive Style) - Q1-Q4 =====
         {
           id: "q1",
-          text: "Which of these activities sounds most interesting to you?",
+          text: "When you need to make an important decision, you usually:",
           type: "multiple_choice",
           options: [
-            "Building or repairing things with your hands",
-            "Researching how things work",
-            "Creating art, music, or designs",
-            "Helping people solve their problems",
-            "Leading a team or starting a project",
-            "Organizing data and keeping records",
+            "Research thoroughly — gather all the facts first",
+            "Trust your gut — intuition guides you well",
+            "Talk it through — discuss with people you trust",
+            "List pros and cons — analyze systematically",
           ],
         },
         {
           id: "q2",
-          text: "You encounter a challenging problem. How do you prefer to solve it?",
+          text: "When learning something completely new, you prefer to:",
           type: "multiple_choice",
           options: [
-            "Try different solutions hands-on until something works",
-            "Research and analyze data to find the best solution",
-            "Think creatively and come up with innovative approaches",
-            "Ask others for advice and collaborate",
-            "Take charge and make quick decisions",
-            "Follow proven procedures and guidelines",
+            "Jump in and figure it out as you go",
+            "Watch tutorials or read instructions first",
+            "Learn alongside someone who knows it already",
+            "Understand the theory before practicing",
           ],
         },
         {
           id: "q3",
-          text: "Which work environment appeals to you most?",
+          text: "When a plan isn't working, you typically:",
           type: "multiple_choice",
           options: [
-            "Workshop or outdoor setting with tools and equipment",
-            "Laboratory or office with data and research",
-            "Creative studio with freedom to express ideas",
-            "Community setting helping and teaching others",
-            "Dynamic office with meetings and presentations",
-            "Structured office with clear processes",
+            "Try something completely different immediately",
+            "Analyze what went wrong before changing course",
+            "Ask others what they would do",
+            "Stick with it longer — it might still work",
           ],
         },
         {
           id: "q4",
-          text: "Which daily activity would you find most fulfilling?",
+          text: "When you explain an idea to someone, you tend to:",
           type: "multiple_choice",
           options: [
-            "Operating machinery or equipment",
-            "Analyzing data and finding patterns",
-            "Designing, writing, or creating content",
-            "Teaching or mentoring others",
-            "Presenting ideas and convincing people",
-            "Managing schedules and organizing tasks",
+            "Start with the big picture, then add details",
+            "Walk through it step by step",
+            "Use stories or examples to illustrate",
+            "Draw diagrams or use visuals",
           ],
         },
+
+        // ===== SECTION 2: HOW YOU WORK (Work Style) - Q5-Q8 =====
         {
           id: "q5",
-          text: "Which skill do you most enjoy using?",
+          text: "In a group project, you naturally tend to:",
           type: "multiple_choice",
           options: [
-            "Physical coordination and technical skills",
-            "Critical thinking and research skills",
-            "Creative and artistic skills",
-            "Communication and empathy",
-            "Leadership and persuasion",
-            "Attention to detail and organization",
+            "Take the lead and coordinate everyone",
+            "Focus deeply on your assigned part",
+            "Make sure the team works well together",
+            "Generate ideas and suggest new approaches",
           ],
         },
         {
           id: "q6",
-          text: "You're assigned a group project. What role do you naturally take?",
+          text: "You do your best work when:",
           type: "multiple_choice",
           options: [
-            "The builder - making the physical product",
-            "The researcher - gathering information",
-            "The designer - creating the visual/creative elements",
-            "The communicator - presenting and coordinating",
-            "The leader - organizing the team and delegating",
-            "The planner - tracking deadlines and details",
+            "Working independently with minimal interruptions",
+            "Collaborating closely with others",
+            "Having clear deadlines and structure",
+            "Having flexibility to work your own way",
           ],
         },
         {
           id: "q7",
-          text: "How do you prefer to learn new things?",
+          text: "When facing a tight deadline, you:",
           type: "multiple_choice",
           options: [
-            "Hands-on practice and experimentation",
-            "Reading, research, and independent study",
-            "Creative exploration and self-expression",
-            "Group discussions and collaborative learning",
-            "Leading projects and learning by doing",
-            "Step-by-step instructions and structured courses",
+            "Thrive under pressure — it motivates you",
+            "Get stressed but push through",
+            "Prefer to plan ahead and avoid last-minute rushes",
+            "Work best with someone else pushing you",
           ],
         },
         {
           id: "q8",
-          text: "You feel most accomplished when you:",
+          text: "Your ideal workspace would be:",
           type: "multiple_choice",
           options: [
-            "Build or fix something that works perfectly",
-            "Discover new information or solve a complex problem",
-            "Create something beautiful or original",
-            "Help someone overcome a challenge",
-            "Achieve a goal and lead others to success",
-            "Complete tasks efficiently and accurately",
+            "Quiet and private — minimal distractions",
+            "Busy and social — energy around you",
+            "Flexible — sometimes quiet, sometimes social",
+            "Structured — clear routines and expectations",
           ],
         },
-        // SECTION 2: VALUES & PRIORITIES - Questions 9-12
+
+        // ===== SECTION 3: WHAT ENERGIZES YOU (Motivation) - Q9-Q12 =====
         {
           id: "q9",
-          text: "What matters most to you in a career?",
+          text: "You feel most fulfilled when you:",
           type: "multiple_choice",
           options: [
-            "High salary and financial security",
-            "Making a positive impact on society",
-            "Creative freedom and self-expression",
-            "Work-life balance and personal time",
-            "Career growth and advancement opportunities",
-            "Job stability and clear expectations",
+            "Create something new that didn't exist before",
+            "Help someone overcome a challenge",
+            "Solve a difficult problem others couldn't",
+            "Organize chaos into something that works",
           ],
         },
         {
           id: "q10",
-          text: "Where do you see yourself in 10-15 years?",
+          text: "What would make you excited to start a Monday?",
           type: "multiple_choice",
           options: [
-            "Running my own business or being financially independent",
-            "Being an expert/specialist in my field",
-            "Creating work that inspires others",
-            "Leading a team or organization making a difference",
-            "Having a balanced life with time for family and hobbies",
-            "Holding a respected position in a stable organization",
+            "A creative project with room for innovation",
+            "Meetings with people you enjoy working with",
+            "A complex challenge that needs solving",
+            "Clear goals and tasks you can accomplish",
           ],
         },
         {
           id: "q11",
-          text: "What work pace suits you best?",
+          text: "Which type of recognition would mean most to you?",
           type: "multiple_choice",
           options: [
-            "Fast-paced with variety and new challenges daily",
-            "Moderate pace with focused deep work",
-            "Flexible pace where I control my schedule",
-            "Steady pace with regular routines",
-            "Intense bursts with clear deadlines",
-            "Predictable pace with minimal surprises",
+            "Being known as an innovator or creative thinker",
+            "Being appreciated for helping others succeed",
+            "Being respected as an expert in your field",
+            "Being trusted to get things done reliably",
           ],
         },
         {
           id: "q12",
-          text: "How do you prefer to work?",
+          text: "Outside of work/school, you're drawn to:",
           type: "multiple_choice",
           options: [
-            "Mostly alone with occasional collaboration",
-            "Independently but part of a larger team",
-            "In small teams (2-5 people)",
-            "In large teams with lots of interaction",
-            "Leading teams and managing people",
-            "Following clear procedures with minimal interaction",
+            "Creating things — art, music, writing, building",
+            "Connecting with people — community, relationships",
+            "Learning things — reading, courses, exploring",
+            "Organizing things — planning, systems, order",
+          ],
+        },
+
+        // ===== SECTION 4: YOUR VALUES (Priorities) - Q13-Q16 =====
+        {
+          id: "q13",
+          text: "If you had to choose ONE, which matters most?",
+          type: "multiple_choice",
+          options: [
+            "Financial security — being able to provide for yourself and family",
+            "Meaningful impact — knowing your work helps others",
+            "Personal growth — constantly learning and improving",
+            "Work-life balance — time for relationships and interests",
+          ],
+        },
+        {
+          id: "q14",
+          text: "Which risk would you be most willing to take?",
+          type: "multiple_choice",
+          options: [
+            "Starting your own business with no guaranteed income",
+            "Moving to a new city for a great opportunity",
+            "Leaving a stable job to pursue your passion",
+            "Taking on a challenging role you're not fully ready for",
+          ],
+        },
+        {
+          id: "q15",
+          text: "In 10 years, which would make you proudest?",
+          type: "multiple_choice",
+          options: [
+            "Building something successful from scratch",
+            "Being recognized as an expert in your field",
+            "Having helped many people improve their lives",
+            "Having a life with time for what truly matters to you",
+          ],
+        },
+        {
+          id: "q16",
+          text: "What bothers you most?",
+          type: "multiple_choice",
+          options: [
+            "Wasted potential — not being challenged enough",
+            "Unfairness — seeing people treated poorly",
+            "Disorganization — chaos and inefficiency",
+            "Isolation — working without meaningful connections",
+          ],
+        },
+
+        // ===== SECTION 5: FUTURE SKILLS & ADAPTABILITY - Q17-Q20 =====
+        {
+          id: "q17",
+          text: "When a new app or technology comes out, you:",
+          type: "multiple_choice",
+          options: [
+            "Try it immediately — you love exploring new tools",
+            "Wait for reviews and recommendations",
+            "Learn it only if you need it for something specific",
+            "Prefer sticking with what already works for you",
+          ],
+        },
+        {
+          id: "q18",
+          text: "How do you feel about AI and automation changing work?",
+          type: "multiple_choice",
+          options: [
+            "Excited — new tools to be more productive",
+            "Curious — interested to see how it evolves",
+            "Cautious — want to make sure humans stay central",
+            "Focused — already thinking about human skills AI can't replace",
+          ],
+        },
+        {
+          id: "q19",
+          text: "Which skill would you most want to master?",
+          type: "multiple_choice",
+          options: [
+            "Coding or technical skills — building with technology",
+            "Communication — writing, speaking, persuading",
+            "Data analysis — understanding numbers and trends",
+            "Leadership — inspiring and managing people",
+          ],
+        },
+        {
+          id: "q20",
+          text: "What's your approach to learning new skills?",
+          type: "multiple_choice",
+          options: [
+            "Deep dive — master one thing before moving to the next",
+            "Broad exploration — sample many things, specialize later",
+            "Just-in-time — learn exactly what you need when you need it",
+            "Social learning — find mentors and learn from others",
           ],
         },
       ],

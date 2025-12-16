@@ -308,13 +308,14 @@ export function calculateCareerMatch(
 }
 
 /**
- * Calculate RIASEC, values, Big Five, and work style scores from 25-question assessment
+ * Calculate skill profile from 20-question skills assessment
  *
  * Answer format: { [questionId]: optionIndex }
- * Questions 1-12: RIASEC interest questions (2 per type)
- * Questions 13-18: Work values (forced choice)
- * Questions 19-22: Big Five personality (Openness, Conscientiousness, Extraversion)
- * Questions 23-25: Work style scenarios
+ * Q1-Q4: How You Think (Cognitive Style)
+ * Q5-Q8: How You Work (Work Style)
+ * Q9-Q12: What Energizes You (Motivation)
+ * Q13-Q16: Your Values (Priorities)
+ * Q17-Q20: Future Skills & Adaptability
  */
 export function calculateProfileFromAnswers(answers: Record<string, number>): AssessmentProfile {
   // Initialize scores
@@ -351,7 +352,7 @@ export function calculateProfileFromAnswers(answers: Record<string, number>): As
   let teamSize: EnvironmentPreference['teamSize'] = 'small';
   let pace: EnvironmentPreference['pace'] = 'moderate';
 
-  // Scoring rules for 25-question assessment based on ASSESSMENT_RESEARCH.md
+  // New scoring rules for 20-question skills assessment
   const scoringRules: Record<string, Array<{
     riasec?: Partial<RIASECScore>;
     values?: Partial<ValueScore>;
@@ -359,178 +360,134 @@ export function calculateProfileFromAnswers(answers: Record<string, number>): As
     workStyle?: Partial<WorkStyleScore>;
     environment?: Partial<EnvironmentPreference>;
   }>> = {
-    // ===== RIASEC INTEREST QUESTIONS (Q1-Q12: 2 per type) =====
-    // Questions use Likert scale: 0=Strongly Disagree, 1=Disagree, 2=Neutral, 3=Agree, 4=Strongly Agree
-    // Q1-2: Realistic (hands-on, practical work)
-    'q1': [ // Likert: "I would enjoy repairing mechanical equipment or electronics"
-      { riasec: { realistic: 0 } },   // Strongly Disagree
-      { riasec: { realistic: 5 } },   // Disagree
-      { riasec: { realistic: 10 } },  // Neutral
-      { riasec: { realistic: 15 } },  // Agree
-      { riasec: { realistic: 20 } },  // Strongly Agree
+    // ===== SECTION 1: HOW YOU THINK (Cognitive Style) - Q1-Q4 =====
+    'q1': [ // Decision making style
+      { riasec: { investigative: 20 }, bigFive: { conscientiousness: 25 } },  // Research thoroughly
+      { riasec: { artistic: 15, enterprising: 10 }, bigFive: { openness: 25 } },  // Trust intuition
+      { riasec: { social: 20 }, bigFive: { extraversion: 25 } },  // Talk it through
+      { riasec: { conventional: 20 }, bigFive: { conscientiousness: 25 } },  // List pros/cons
     ],
-    'q2': [ // Likert: "I prefer outdoor work over desk work"
-      { riasec: { realistic: 0 } },
-      { riasec: { realistic: 5 } },
-      { riasec: { realistic: 10 } },
-      { riasec: { realistic: 15 } },
-      { riasec: { realistic: 20 } },
+    'q2': [ // Learning preference
+      { riasec: { realistic: 15, enterprising: 10 }, bigFive: { openness: 20 } },  // Jump in
+      { riasec: { investigative: 15 }, bigFive: { conscientiousness: 20 } },  // Tutorials first
+      { riasec: { social: 20 }, bigFive: { extraversion: 15 } },  // Learn with someone
+      { riasec: { investigative: 20 }, bigFive: { conscientiousness: 15 } },  // Theory first
     ],
-    
-    // Q3-4: Investigative (analytical, research)
-    'q3': [ // Likert: "I enjoy researching complex problems to find solutions"
-      { riasec: { investigative: 0 } },
-      { riasec: { investigative: 5 } },
-      { riasec: { investigative: 10 } },
-      { riasec: { investigative: 15 } },
-      { riasec: { investigative: 20 } },
+    'q3': [ // Adaptability
+      { riasec: { artistic: 15, enterprising: 10 }, bigFive: { openness: 25 } },  // Try different
+      { riasec: { investigative: 20 }, bigFive: { conscientiousness: 20 } },  // Analyze first
+      { riasec: { social: 20 }, bigFive: { extraversion: 15 } },  // Ask others
+      { riasec: { conventional: 15 }, values: { stability: 10 } },  // Stick with it
     ],
-    'q4': [ // Likert: "Reading scientific articles or research papers interests me"
-      { riasec: { investigative: 0 } },
-      { riasec: { investigative: 5 } },
-      { riasec: { investigative: 10 } },
-      { riasec: { investigative: 15 } },
-      { riasec: { investigative: 20 } },
-    ],
-    
-    // Q5-6: Artistic (creative, expressive)
-    'q5': [ // Likert: "I enjoy creating visual designs, artwork, or creative content"
-      { riasec: { artistic: 0 } },
-      { riasec: { artistic: 5 } },
-      { riasec: { artistic: 10 } },
-      { riasec: { artistic: 15 } },
-      { riasec: { artistic: 20 } },
-    ],
-    'q6': [ // Likert: "Writing stories, poetry, or creative content is enjoyable to me"
-      { riasec: { artistic: 0 } },
-      { riasec: { artistic: 5 } },
-      { riasec: { artistic: 10 } },
-      { riasec: { artistic: 15 } },
-      { riasec: { artistic: 20 } },
-    ],
-    
-    // Q7-8: Social (helping, teaching)
-    'q7': [ // Likert: "I find satisfaction in teaching or explaining concepts to others"
-      { riasec: { social: 0 } },
-      { riasec: { social: 5 } },
-      { riasec: { social: 10 } },
-      { riasec: { social: 15 } },
-      { riasec: { social: 20 } },
-    ],
-    'q8': [ // Likert: "Working in healthcare or counseling appeals to me"
-      { riasec: { social: 0 } },
-      { riasec: { social: 5 } },
-      { riasec: { social: 10 } },
-      { riasec: { social: 15 } },
-      { riasec: { social: 20 } },
-    ],
-    
-    // Q9-10: Enterprising (leadership, business)
-    'q9': [ // Likert: "I enjoy leading teams and making strategic decisions"
-      { riasec: { enterprising: 0 } },
-      { riasec: { enterprising: 5 } },
-      { riasec: { enterprising: 10 } },
-      { riasec: { enterprising: 15 } },
-      { riasec: { enterprising: 20 } },
-    ],
-    'q10': [ // Likert: "Selling products or services and persuading others sounds interesting"
-      { riasec: { enterprising: 0 } },
-      { riasec: { enterprising: 5 } },
-      { riasec: { enterprising: 10 } },
-      { riasec: { enterprising: 15 } },
-      { riasec: { enterprising: 20 } },
-    ],
-    
-    // Q11-12: Conventional (organized, detail-oriented)
-    'q11': [ // Likert: "I like organizing information, files, or data in systematic ways"
-      { riasec: { conventional: 0 } },
-      { riasec: { conventional: 5 } },
-      { riasec: { conventional: 10 } },
-      { riasec: { conventional: 15 } },
-      { riasec: { conventional: 20 } },
-    ],
-    'q12': [ // Likert: "Following established procedures and guidelines is important to me"
-      { riasec: { conventional: 0 } },
-      { riasec: { conventional: 5 } },
-      { riasec: { conventional: 10 } },
-      { riasec: { conventional: 15 } },
-      { riasec: { conventional: 20 } },
+    'q4': [ // Communication style
+      { riasec: { enterprising: 15 }, workStyle: { leadership: 15 } },  // Big picture
+      { riasec: { conventional: 15 }, bigFive: { conscientiousness: 15 } },  // Step by step
+      { riasec: { social: 15, artistic: 10 } },  // Stories
+      { riasec: { artistic: 20 } },  // Diagrams
     ],
 
-    // ===== WORK VALUES QUESTIONS (Q13-18: Forced choice) =====
-    'q13': [ // "Which matters more in a career?"
-      { values: { income: 15 } },      // High salary even if routine
-      { values: { impact: 15 } },      // Lower salary doing meaningful work
+    // ===== SECTION 2: HOW YOU WORK (Work Style) - Q5-Q8 =====
+    'q5': [ // Group role
+      { riasec: { enterprising: 25 }, workStyle: { leadership: 25 } },  // Take lead
+      { riasec: { investigative: 15 }, workStyle: { independence: 20 } },  // Focus on part
+      { riasec: { social: 25 }, workStyle: { collaboration: 25 } },  // Team harmony
+      { riasec: { artistic: 20 }, bigFive: { openness: 20 } },  // Generate ideas
     ],
-    'q14': [ // "Choose one:"
-      { values: { balance: 15 } },     // Work-life balance with steady income
-      { values: { growth: 15 } },      // Career advancement with longer hours
+    'q6': [ // Best work conditions
+      { workStyle: { independence: 25 }, environment: { teamSize: 'solo' } },  // Independent
+      { workStyle: { collaboration: 25 }, bigFive: { extraversion: 20 } },  // Collaborating
+      { riasec: { conventional: 15 }, environment: { pace: 'deadline-driven' } },  // Deadlines
+      { values: { autonomy: 15 }, environment: { pace: 'flexible' } },  // Flexibility
     ],
-    'q15': [ // "What's more important?"
-      { values: { autonomy: 15 } },    // Creative freedom and independence
-      { values: { stability: 15 } },   // Job security and predictability
+    'q7': [ // Deadline behavior
+      { riasec: { enterprising: 15 }, environment: { pace: 'intense' } },  // Thrive pressure
+      { bigFive: { conscientiousness: 10 } },  // Stressed but push
+      { environment: { pace: 'steady' }, bigFive: { conscientiousness: 20 } },  // Plan ahead
+      { workStyle: { collaboration: 15 }, bigFive: { extraversion: 10 } },  // Need push
     ],
-    'q16': [ // "Prefer:" 
-      { values: { impact: 10, growth: 5 } },    // Help individuals solve problems
-      { values: { income: 10, growth: 5 } },    // Build wealth through business
-    ],
-    'q17': [ // "Would you rather:"
-      { values: { autonomy: 10, balance: 5 } }, // Set your own schedule
-      { values: { stability: 10, income: 5 } }, // Reliable 9-5 with benefits
-    ],
-    'q18': [ // "Choose:"
-      { values: { growth: 10, impact: 5 } },    // Rapidly developing skills
-      { values: { balance: 10, stability: 5 } }, // Maintaining work-life harmony
-    ],
-
-    // ===== BIG FIVE PERSONALITY (Q19-22) =====
-    'q19': [ // Openness: "I enjoy exploring new ideas and trying unconventional approaches"
-      { bigFive: { openness: 0 } },
-      { bigFive: { openness: 25 } },
-      { bigFive: { openness: 50 } },
-      { bigFive: { openness: 75 } },
-      { bigFive: { openness: 100 } },
-    ],
-    'q20': [ // Conscientiousness: "I make detailed plans before starting projects"
-      { bigFive: { conscientiousness: 0 } },
-      { bigFive: { conscientiousness: 25 } },
-      { bigFive: { conscientiousness: 50 } },
-      { bigFive: { conscientiousness: 75 } },
-      { bigFive: { conscientiousness: 100 } },
-    ],
-    'q21': [ // Conscientiousness (reversed): "I often complete tasks at the last minute"
-      { bigFive: { conscientiousness: 100 } },  // Strongly Disagree = High C
-      { bigFive: { conscientiousness: 75 } },
-      { bigFive: { conscientiousness: 50 } },
-      { bigFive: { conscientiousness: 25 } },
-      { bigFive: { conscientiousness: 0 } },    // Strongly Agree = Low C
-    ],
-    'q22': [ // Extraversion: "I feel energized after spending time with large groups"
-      { bigFive: { extraversion: 0 } },
-      { bigFive: { extraversion: 25 } },
-      { bigFive: { extraversion: 50 } },
-      { bigFive: { extraversion: 75 } },
-      { bigFive: { extraversion: 100 } },
+    'q8': [ // Workspace preference
+      { workStyle: { independence: 20 }, environment: { teamSize: 'solo' } },  // Quiet
+      { bigFive: { extraversion: 25 }, environment: { teamSize: 'large' } },  // Busy
+      { environment: { teamSize: 'small' } },  // Flexible
+      { riasec: { conventional: 15 }, environment: { pace: 'predictable' } },  // Structured
     ],
 
-    // ===== WORK STYLE SCENARIOS (Q23-25) =====
-    'q23': [ // "Your group project is falling behind. You typically:"
-      { workStyle: { leadership: 25, collaboration: 5 }, riasec: { enterprising: 5 } },        // Take charge and delegate
-      { workStyle: { collaboration: 25, leadership: 5 }, riasec: { social: 5 } },              // Facilitate team discussion
-      { workStyle: { independence: 25 }, riasec: { realistic: 5 } },                           // Focus on your part
-      { workStyle: { collaboration: 15, leadership: 10 }, riasec: { social: 5 } },             // Help resolve conflicts
+    // ===== SECTION 3: WHAT ENERGIZES YOU (Motivation) - Q9-Q12 =====
+    'q9': [ // Fulfillment source
+      { riasec: { artistic: 25 }, bigFive: { openness: 20 } },  // Create new
+      { riasec: { social: 25 }, values: { impact: 15 } },  // Help others
+      { riasec: { investigative: 25 } },  // Solve problems
+      { riasec: { conventional: 20 } },  // Organize
     ],
-    'q24': [ // "When facing a complex problem, you prefer to:"
-      { workStyle: { independence: 20 }, riasec: { investigative: 5 }, bigFive: { openness: 10 } },     // Research thoroughly first
-      { workStyle: { independence: 15, collaboration: 5 }, riasec: { artistic: 5 } },                    // Try different approaches
-      { workStyle: { collaboration: 20 }, riasec: { social: 5 }, bigFive: { extraversion: 10 } },       // Discuss with others
-      { workStyle: { independence: 20 }, riasec: { investigative: 5, conventional: 3 } },                // Break into parts systematically
+    'q10': [ // Monday motivation
+      { riasec: { artistic: 20 }, values: { autonomy: 15 } },  // Creative project
+      { riasec: { social: 20 }, bigFive: { extraversion: 15 } },  // Meetings
+      { riasec: { investigative: 20 } },  // Complex challenge
+      { riasec: { conventional: 15 }, bigFive: { conscientiousness: 10 } },  // Clear goals
     ],
-    'q25': [ // "Which work environment sounds most appealing?"
-      { environment: { teamSize: 'independent', pace: 'predictable' }, riasec: { conventional: 5 } },    // Quiet office, clear tasks
-      { environment: { teamSize: 'large', pace: 'intense' }, riasec: { enterprising: 5 }, workStyle: { collaboration: 10 } },  // Dynamic, frequent collaboration
-      { environment: { teamSize: 'small', pace: 'moderate' }, workStyle: { collaboration: 10, independence: 10 } },             // Mix of independent and team work
-      { environment: { teamSize: 'solo', pace: 'flexible' }, riasec: { artistic: 5 }, workStyle: { independence: 15 } },       // Flexible remote work
+    'q11': [ // Recognition preference
+      { riasec: { artistic: 20 }, bigFive: { openness: 15 } },  // Innovator
+      { riasec: { social: 25 }, values: { impact: 15 } },  // Helping others
+      { riasec: { investigative: 25 }, values: { growth: 10 } },  // Expert
+      { riasec: { conventional: 20 }, values: { stability: 10 } },  // Reliable
+    ],
+    'q12': [ // Outside interests
+      { riasec: { artistic: 30 }, bigFive: { openness: 15 } },  // Creating
+      { riasec: { social: 30 }, bigFive: { extraversion: 15 } },  // Connecting
+      { riasec: { investigative: 30 } },  // Learning
+      { riasec: { conventional: 25 } },  // Organizing
+    ],
+
+    // ===== SECTION 4: YOUR VALUES (Priorities) - Q13-Q16 =====
+    'q13': [ // Top priority
+      { values: { income: 30, stability: 15 } },  // Financial security
+      { values: { impact: 30 }, riasec: { social: 10 } },  // Meaningful impact
+      { values: { growth: 30 }, bigFive: { openness: 10 } },  // Personal growth
+      { values: { balance: 30 } },  // Work-life balance
+    ],
+    'q14': [ // Risk tolerance
+      { riasec: { enterprising: 25 }, values: { autonomy: 15 } },  // Start business
+      { values: { growth: 20 }, bigFive: { openness: 15 } },  // Move cities
+      { values: { autonomy: 20 }, riasec: { artistic: 10 } },  // Pursue passion
+      { values: { growth: 25 }, riasec: { enterprising: 10 } },  // Challenging role
+    ],
+    'q15': [ // 10-year pride
+      { riasec: { enterprising: 25 }, values: { autonomy: 15 } },  // Build something
+      { riasec: { investigative: 25 }, values: { growth: 15 } },  // Expert
+      { riasec: { social: 25 }, values: { impact: 15 } },  // Helped many
+      { values: { balance: 30 } },  // Balanced life
+    ],
+    'q16': [ // What bothers you
+      { values: { growth: 20 }, riasec: { enterprising: 10 } },  // Wasted potential
+      { values: { impact: 20 }, riasec: { social: 15 } },  // Unfairness
+      { riasec: { conventional: 20 } },  // Disorganization
+      { riasec: { social: 20 }, bigFive: { extraversion: 10 } },  // Isolation
+    ],
+
+    // ===== SECTION 5: FUTURE SKILLS & ADAPTABILITY - Q17-Q20 =====
+    'q17': [ // Tech adoption
+      { bigFive: { openness: 30 }, riasec: { investigative: 15 } },  // Try immediately
+      { bigFive: { conscientiousness: 20 } },  // Wait for reviews
+      { values: { balance: 10 } },  // Only if needed
+      { riasec: { conventional: 15 }, values: { stability: 10 } },  // Stick with known
+    ],
+    'q18': [ // AI attitude
+      { bigFive: { openness: 25 }, riasec: { investigative: 10 } },  // Excited
+      { bigFive: { openness: 15 } },  // Curious
+      { riasec: { social: 15 }, values: { impact: 10 } },  // Cautious
+      { riasec: { investigative: 15 }, bigFive: { conscientiousness: 10 } },  // Focused human skills
+    ],
+    'q19': [ // Skill to master
+      { riasec: { investigative: 25, realistic: 15 } },  // Coding/technical
+      { riasec: { social: 20, artistic: 10 } },  // Communication
+      { riasec: { investigative: 25, conventional: 10 } },  // Data analysis
+      { riasec: { enterprising: 25 }, workStyle: { leadership: 15 } },  // Leadership
+    ],
+    'q20': [ // Learning approach
+      { bigFive: { conscientiousness: 25 }, riasec: { investigative: 10 } },  // Deep dive
+      { bigFive: { openness: 25 } },  // Broad exploration
+      { values: { balance: 10 } },  // Just-in-time
+      { riasec: { social: 20 }, bigFive: { extraversion: 15 } },  // Social learning
     ],
   };
 

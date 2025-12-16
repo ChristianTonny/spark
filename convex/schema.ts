@@ -417,6 +417,18 @@ export default defineSchema({
     .index("by_assessment", ["assessmentId"])
     .index("by_completion", ["completedAt"]),
 
+  // Pending (in-progress) assessments - for save & resume
+  pendingAssessments: defineTable({
+    userId: v.id("users"),
+    assessmentId: v.id("assessments"),
+    answers: v.any(),                // { [questionId]: optionIndex }
+    currentQuestion: v.number(),      // Index of current question (0-based)
+    startedAt: v.number(),
+    lastUpdatedAt: v.number(),
+  })
+    .index("by_user", ["userId"])
+    .index("by_user_and_assessment", ["userId", "assessmentId"]),
+
   // Saved careers (bookmarks)
   savedCareers: defineTable({
     studentId: v.string(),
@@ -663,7 +675,7 @@ export default defineSchema({
     website: v.optional(v.string()),
     contactEmail: v.optional(v.string()),
     contactPhone: v.optional(v.string()),
-    
+
     // Programs offered
     programsOffered: v.array(v.object({
       name: v.string(),
@@ -671,7 +683,7 @@ export default defineSchema({
       tuitionPerYear: v.number(),
       careerIds: v.array(v.id("careers")), // Which careers this program leads to
     })),
-    
+
     // Partnership status
     partnershipTier: v.union(
       v.literal("featured"),    // Pays for top placement
@@ -679,7 +691,7 @@ export default defineSchema({
       v.literal("listed")       // Free listing
     ),
     partnerSince: v.optional(v.number()),
-    
+
     // School info
     description: v.string(),
     logo: v.optional(v.string()),
@@ -687,15 +699,15 @@ export default defineSchema({
     establishedYear: v.optional(v.number()),
     studentCount: v.optional(v.number()),
     scholarshipInfo: v.optional(v.string()), // Information about available scholarships
-    
+
     // Metrics
     clickCount: v.number(),
     inquiryCount: v.number(),
-    
+
     // Display
     isActive: v.boolean(),
     featured: v.boolean(),      // Show in featured slots
-    
+
     createdAt: v.number(),
     updatedAt: v.number(),
   })
