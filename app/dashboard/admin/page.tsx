@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { CheckCircle, XCircle, Clock, ExternalLink, Mail, Phone, Linkedin, Briefcase, Calendar } from 'lucide-react';
-import { Spinner } from '@/components/loading-skeleton';
+import { AssessmentLoader } from '@/components/assessment-loader';
 
 type FilterStatus = 'all' | 'pending' | 'approved' | 'rejected';
 
@@ -12,7 +12,7 @@ export default function AdminDashboardPage() {
   const [filter, setFilter] = useState<FilterStatus>('all');
   const [selectedApplication, setSelectedApplication] = useState<any>(null);
   const [reviewNotes, setReviewNotes] = useState('');
-  
+
   // Fetch applications
   const allApplications = useQuery(api.mentorApplications.list);
   const approveApplication = useMutation(api.mentorApplications.approve);
@@ -20,18 +20,13 @@ export default function AdminDashboardPage() {
 
   if (!allApplications) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <Spinner size="lg" />
-          <p className="mt-4 text-xl font-bold">Loading applications...</p>
-        </div>
-      </div>
+      <AssessmentLoader fullscreen message="Loading applications..." />
     );
   }
 
   // Filter applications based on selected status
-  const filteredApplications = filter === 'all' 
-    ? allApplications 
+  const filteredApplications = filter === 'all'
+    ? allApplications
     : allApplications.filter(app => app.status === filter);
 
   // Count by status
@@ -44,9 +39,9 @@ export default function AdminDashboardPage() {
 
   const handleApprove = async (id: string) => {
     try {
-      await approveApplication({ 
+      await approveApplication({
         id: id as any,
-        reviewNotes: reviewNotes || undefined 
+        reviewNotes: reviewNotes || undefined
       });
       setSelectedApplication(null);
       setReviewNotes('');
@@ -58,9 +53,9 @@ export default function AdminDashboardPage() {
 
   const handleReject = async (id: string) => {
     try {
-      await rejectApplication({ 
+      await rejectApplication({
         id: id as any,
-        reviewNotes: reviewNotes || undefined 
+        reviewNotes: reviewNotes || undefined
       });
       setSelectedApplication(null);
       setReviewNotes('');
@@ -107,11 +102,10 @@ export default function AdminDashboardPage() {
             <button
               key={status}
               onClick={() => setFilter(status)}
-              className={`px-6 py-3 font-bold uppercase border-3 border-black shadow-brutal whitespace-nowrap ${
-                filter === status
+              className={`px-6 py-3 font-bold uppercase border-3 border-black shadow-brutal whitespace-nowrap ${filter === status
                   ? 'bg-primary text-white'
                   : 'bg-white text-gray-700 hover:bg-gray-100'
-              }`}
+                }`}
             >
               {status} ({counts[status]})
             </button>
@@ -147,9 +141,9 @@ export default function AdminDashboardPage() {
                               {app.phone}
                             </span>
                             {app.linkedin && (
-                              <a 
-                                href={app.linkedin} 
-                                target="_blank" 
+                              <a
+                                href={app.linkedin}
+                                target="_blank"
                                 rel="noopener noreferrer"
                                 className="inline-flex items-center gap-2 text-sm font-bold text-blue-600 hover:underline"
                               >
@@ -159,7 +153,7 @@ export default function AdminDashboardPage() {
                               </a>
                             )}
                           </div>
-                          
+
                           <div className="grid md:grid-cols-2 gap-3 mb-3">
                             <div>
                               <span className="text-xs font-black uppercase text-gray-600 block mb-1">Current Role</span>
@@ -189,7 +183,7 @@ export default function AdminDashboardPage() {
                               <span className="text-xs font-black uppercase text-gray-600 block mb-2">Can Help With</span>
                               <div className="flex flex-wrap gap-2">
                                 {app.focusAreas.map((area, idx) => (
-                                  <span 
+                                  <span
                                     key={idx}
                                     className="px-2 py-1 bg-gray-100 border-2 border-black text-xs font-bold"
                                   >
@@ -209,11 +203,10 @@ export default function AdminDashboardPage() {
                         </div>
 
                         {/* Status Badge */}
-                        <div className={`px-4 py-2 border-3 border-black font-black uppercase text-sm whitespace-nowrap ${
-                          app.status === 'pending' ? 'bg-yellow-200' :
-                          app.status === 'approved' ? 'bg-green-200' :
-                          'bg-red-200'
-                        }`}>
+                        <div className={`px-4 py-2 border-3 border-black font-black uppercase text-sm whitespace-nowrap ${app.status === 'pending' ? 'bg-yellow-200' :
+                            app.status === 'approved' ? 'bg-green-200' :
+                              'bg-red-200'
+                          }`}>
                           {app.status === 'pending' && <Clock className="w-4 h-4 inline mr-1" />}
                           {app.status === 'approved' && <CheckCircle className="w-4 h-4 inline mr-1" />}
                           {app.status === 'rejected' && <XCircle className="w-4 h-4 inline mr-1" />}
@@ -230,9 +223,9 @@ export default function AdminDashboardPage() {
                           <div className="text-sm text-gray-600 font-semibold mb-4">
                             <span className="inline-flex items-center gap-1">
                               <Calendar className="w-4 h-4" />
-                              Submitted {new Date(app.submittedAt).toLocaleDateString('en-US', { 
-                                year: 'numeric', 
-                                month: 'long', 
+                              Submitted {new Date(app.submittedAt).toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: 'long',
                                 day: 'numeric',
                                 hour: '2-digit',
                                 minute: '2-digit'

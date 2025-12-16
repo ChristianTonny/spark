@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { GraduationCap, BookOpen, Briefcase } from 'lucide-react';
 import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { AssessmentLoader } from '@/components/assessment-loader';
 
 type Role = 'student' | 'educator' | 'mentor';
 
@@ -141,7 +142,7 @@ function SignUpRoleSelectionInner() {
 
 export default function SignUpRoleSelection() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center p-4"><div className="container mx-auto max-w-6xl text-center font-bold">Loading…</div></div>}>
+    <Suspense fallback={<AssessmentLoader fullscreen message="Loading..." />}>
       <SignUpRoleSelectionInner />
     </Suspense>
   );

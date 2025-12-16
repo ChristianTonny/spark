@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { useQuery } from 'convex/react';
 import { api } from '../../convex/_generated/api';
-import { Spinner } from '@/components/loading-skeleton';
+import { AssessmentLoader } from '@/components/assessment-loader';
 
 function LearnInner() {
   const searchParams = useSearchParams();
@@ -37,12 +37,7 @@ function LearnInner() {
 
   if (career === undefined) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <Spinner size="lg" />
-          <p className="mt-4 text-xl font-bold">Loading learning plan...</p>
-        </div>
-      </div>
+      <AssessmentLoader fullscreen message="Loading learning plan..." />
     );
   }
 
@@ -67,12 +62,12 @@ function LearnInner() {
   const resources =
     (career as any).resources && Array.isArray((career as any).resources)
       ? ((career as any).resources as Array<{
-          name: string;
-          type: string;
-          rating: number;
-          description: string;
-          url?: string;
-        }>)
+        name: string;
+        type: string;
+        rating: number;
+        description: string;
+        url?: string;
+      }>)
       : [];
 
   return (
@@ -167,12 +162,7 @@ export default function LearnPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-background flex items-center justify-center">
-          <div className="text-center">
-            <Spinner size="lg" />
-            <p className="mt-4 text-xl font-bold">Loading...</p>
-          </div>
-        </div>
+        <AssessmentLoader fullscreen message="Loading..." />
       }
     >
       <LearnInner />

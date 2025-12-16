@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { ArrowLeft, Bookmark, X, Plus, TrendingUp } from 'lucide-react';
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
-import { Spinner } from '@/components/loading-skeleton';
+import { AssessmentLoader } from '@/components/assessment-loader';
 import { useConvexAuth } from '@/lib/hooks/useConvexAuth';
 import { useToast } from '@/lib/use-toast';
 import { ToastContainer } from '@/components/toast-container';
@@ -31,7 +31,7 @@ function CareerComparisonContent() {
 
   const bookmarkedIds = useQuery(api.savedCareers.getIds, user ? {} : "skip");
   const toggleBookmark = useMutation(api.savedCareers.toggle);
-  
+
   // Get schools for selected careers
   const aggregatedSchools = useQuery(
     api.careers.getSchoolsForCareers,
@@ -88,9 +88,7 @@ function CareerComparisonContent() {
 
   if (careers === undefined) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Spinner size="lg" />
-      </div>
+      <AssessmentLoader fullscreen />
     );
   }
 
@@ -222,7 +220,7 @@ function CareerComparisonContent() {
                   ))}
                 </tr>
               ))}
-              
+
               {/* Actions Row */}
               <tr>
                 <td className="p-4 bg-background border-r-3 border-black font-black text-sm">
@@ -241,11 +239,10 @@ function CareerComparisonContent() {
                       </Link>
                       <button
                         onClick={() => handleBookmark(career._id, career.title)}
-                        className={`w-full px-4 py-2 font-bold uppercase text-xs border-3 border-black shadow-brutal-sm hover:shadow-brutal transition-all flex items-center justify-center gap-2 ${
-                          bookmarkedIds?.includes(career._id)
-                            ? 'bg-brutal-yellow text-black'
-                            : 'bg-white text-black'
-                        }`}
+                        className={`w-full px-4 py-2 font-bold uppercase text-xs border-3 border-black shadow-brutal-sm hover:shadow-brutal transition-all flex items-center justify-center gap-2 ${bookmarkedIds?.includes(career._id)
+                          ? 'bg-brutal-yellow text-black'
+                          : 'bg-white text-black'
+                          }`}
                       >
                         <Bookmark className={`w-3 h-3 ${bookmarkedIds?.includes(career._id) ? 'fill-current' : ''}`} />
                         {bookmarkedIds?.includes(career._id) ? 'Saved' : 'Save'}
@@ -271,7 +268,7 @@ function CareerComparisonContent() {
                   <X className="w-4 h-4" />
                 </button>
               </div>
-              
+
               <p className="text-sm font-bold text-gray-700 mb-4">
                 {career.shortDescription}
               </p>
@@ -297,11 +294,10 @@ function CareerComparisonContent() {
                 </Link>
                 <button
                   onClick={() => handleBookmark(career._id, career.title)}
-                  className={`w-full px-4 py-3 font-bold uppercase text-sm border-3 border-black shadow-brutal hover:shadow-brutal-lg transition-all flex items-center justify-center gap-2 ${
-                    bookmarkedIds?.includes(career._id)
-                      ? 'bg-brutal-yellow text-black'
-                      : 'bg-white text-black'
-                  }`}
+                  className={`w-full px-4 py-3 font-bold uppercase text-sm border-3 border-black shadow-brutal hover:shadow-brutal-lg transition-all flex items-center justify-center gap-2 ${bookmarkedIds?.includes(career._id)
+                    ? 'bg-brutal-yellow text-black'
+                    : 'bg-white text-black'
+                    }`}
                 >
                   <Bookmark className={`w-4 h-4 ${bookmarkedIds?.includes(career._id) ? 'fill-current' : ''}`} />
                   {bookmarkedIds?.includes(career._id) ? 'Saved' : 'Save Career'}
@@ -314,8 +310,8 @@ function CareerComparisonContent() {
         {/* School Recommendations */}
         {aggregatedSchools && aggregatedSchools.length > 0 && (
           <div className="mt-8 p-6 bg-white border-3 border-black shadow-brutal">
-            <SchoolRecommendations 
-              schools={aggregatedSchools} 
+            <SchoolRecommendations
+              schools={aggregatedSchools}
               title="Recommended Schools for These Careers"
               maxDisplay={6}
               showViewAll={false}
@@ -359,9 +355,7 @@ function CareerComparisonContent() {
 export default function CareerComparisonPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Spinner size="lg" />
-      </div>
+      <AssessmentLoader fullscreen />
     }>
       <CareerComparisonContent />
     </Suspense>

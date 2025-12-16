@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Sparkles, ArrowRight, Bookmark, RotateCcw, ChevronDown, ChevronUp, Maximize2 } from 'lucide-react';
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
-import { Spinner } from '@/components/loading-skeleton';
+import { AssessmentLoader } from '@/components/assessment-loader';
 import { useConvexAuth } from '@/lib/hooks/useConvexAuth';
 import { useToast } from '@/lib/use-toast';
 import { ToastContainer } from '@/components/toast-container';
@@ -154,13 +154,11 @@ function AssessmentResultsContent() {
   // Show loading state
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <Spinner size="lg" />
-          <p className="mt-4 text-xl font-bold">Loading results...</p>
-          <p className="text-gray-600 font-medium">Finding your career matches</p>
-        </div>
-      </div>
+      <AssessmentLoader
+        fullscreen
+        message="Loading results..."
+        subMessage="Finding your career matches"
+      />
     );
   }
 
@@ -294,7 +292,7 @@ function AssessmentResultsContent() {
           </div>
         )}
         {/* Explore More Section - Combined Strengths + All Matches */}
-        {(strengths?.length > 0 || displayMatches.length > 10) && (
+        {((strengths?.length ?? 0) > 0 || displayMatches.length > 10) && (
           <div className="bg-white border-3 border-black p-6 md:p-8 hover:shadow-brutal transition-all">
             <h2 className="text-2xl md:text-3xl font-black uppercase mb-4">Explore More</h2>
 
@@ -576,12 +574,7 @@ function AssessmentResultsContent() {
 export default function AssessmentResultsPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <Spinner size="lg" />
-          <p className="mt-4 text-xl font-bold">Loading results...</p>
-        </div>
-      </div>
+      <AssessmentLoader fullscreen message="Loading results..." />
     }>
       <AssessmentResultsContent />
     </Suspense>

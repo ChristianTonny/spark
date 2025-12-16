@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { ArrowRight, Sparkles, Users, Video, Target } from 'lucide-react';
+import { AssessmentLoader } from '@/components/assessment-loader';
 import { useQuery } from "convex/react";
 import { api } from "../convex/_generated/api";
 import { useRouter } from "next/navigation";
@@ -24,13 +25,7 @@ export default function LandingPage() {
   // Loading state
   if (featuredCareers === undefined || categories === undefined || careerCount === undefined) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-pulse">
-            <h1 className="text-4xl font-black mb-4">Loading OpportunityMap...</h1>
-          </div>
-        </div>
-      </div>
+      <AssessmentLoader fullscreen message="Loading OpportunityMap..." />
     );
   }
 

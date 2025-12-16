@@ -5,25 +5,25 @@ export function CareerCardSkeleton() {
     <div className="bg-white border-3 border-brutal-border shadow-brutal animate-pulse">
       {/* Image skeleton */}
       <div className="h-48 bg-gray-200 border-b-3 border-brutal-border" />
-      
+
       {/* Content */}
       <div className="p-6 space-y-4">
         {/* Title */}
         <div className="h-8 bg-gray-200 rounded w-3/4" />
-        
+
         {/* Description */}
         <div className="space-y-2">
           <div className="h-4 bg-gray-200 rounded w-full" />
           <div className="h-4 bg-gray-200 rounded w-5/6" />
         </div>
-        
+
         {/* Skills */}
         <div className="flex gap-2">
           <div className="h-6 bg-gray-200 rounded w-16" />
           <div className="h-6 bg-gray-200 rounded w-20" />
           <div className="h-6 bg-gray-200 rounded w-14" />
         </div>
-        
+
         {/* Footer */}
         <div className="pt-4 border-t-3 border-gray-200 flex justify-between items-center">
           <div className="h-6 bg-gray-200 rounded w-24" />
@@ -48,7 +48,7 @@ export function MentorCardSkeleton() {
           </div>
         </div>
       </div>
-      
+
       {/* Content */}
       <div className="p-6 space-y-4">
         {/* Stats */}
@@ -56,13 +56,13 @@ export function MentorCardSkeleton() {
           <div className="h-6 bg-gray-200 rounded w-16" />
           <div className="h-6 bg-gray-200 rounded w-20" />
         </div>
-        
+
         {/* Bio */}
         <div className="space-y-2">
           <div className="h-4 bg-gray-200 rounded w-full" />
           <div className="h-4 bg-gray-200 rounded w-4/5" />
         </div>
-        
+
         {/* Button */}
         <div className="h-12 bg-gray-200 rounded border-3 border-black" />
       </div>
@@ -106,7 +106,7 @@ export function CareerDetailSkeleton() {
           <div className="h-8 bg-gray-200 rounded w-32" />
           <div className="h-12 bg-gray-200 rounded w-3/4" />
           <div className="h-6 bg-gray-200 rounded w-full" />
-          
+
           {/* Key Info Grid */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[1, 2, 3, 4].map((i) => (
@@ -175,15 +175,10 @@ export function Spinner({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
 }
 
 // Loading overlay for full screen
+import { AssessmentLoader } from './assessment-loader';
+
 export function LoadingOverlay({ message = 'Loading...' }: { message?: string }) {
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-white p-8 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-        <div className="flex flex-col items-center gap-4">
-          <Spinner size="lg" />
-          <p className="text-lg font-bold">{message}</p>
-        </div>
-      </div>
-    </div>
+    <AssessmentLoader fullscreen message={message} />
   );
 }

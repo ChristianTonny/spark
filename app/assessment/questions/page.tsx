@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, ArrowRight, Check } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, RotateCcw, Play } from 'lucide-react';
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
-import { Spinner } from '@/components/loading-skeleton';
+import { AssessmentLoader } from '@/components/assessment-loader';
 import { useConvexAuth } from '@/lib/hooks/useConvexAuth';
 
 export default function AssessmentQuestionsPage() {
@@ -15,11 +15,33 @@ export default function AssessmentQuestionsPage() {
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [showResumeModal, setShowResumeModal] = useState(false);
+  const [hasCheckedPending, setHasCheckedPending] = useState(false);
 
   // Fetch assessments and careers from Convex
   const assessments = useQuery(api.assessments.list);
   const allCareers = useQuery(api.careers.list);
+  const pendingAssessment = useQuery(api.assessments.getPending);
   const saveResult = useMutation(api.assessments.saveResult);
+  const savePendingProgress = useMutation(api.assessments.savePendingProgress);
+  const clearPending = useMutation(api.assessments.clearPending);
+
+  // Calculate assessment safely at the top level to avoid TDZ issues in callbacks
+  const assessment = (assessments && assessments.length > 0)
+    ? assessments.reduce((latest, current) =>
+      current.questionCount > latest.questionCount ? current : latest
+    )
+    : null;
+
+  // Check for pending assessment on load
+  useEffect(() => {
+    if (authLoading || pendingAssessment === undefined || hasCheckedPending) return;
+
+    if (pendingAssessment && user) {
+      setShowResumeModal(true);
+    }
+    setHasCheckedPending(true);
+  }, [authLoading, pendingAssessment, user, hasCheckedPending]);
 
   // Resume a pending assessment save after sign-in
   useEffect(() => {
@@ -63,14 +85,52 @@ export default function AssessmentQuestionsPage() {
     }
   }, [authLoading, user, isSaving, router, saveResult]);
 
-  if (assessments === undefined || allCareers === undefined) {
+  // Handle resuming from pending assessment
+  const handleResume = useCallback(() => {
+    if (pendingAssessment) {
+      setAnswers(pendingAssessment.answers as Record<string, number>);
+      setCurrentQuestion(pendingAssessment.currentQuestion);
+      setShowResumeModal(false);
+    }
+  }, [pendingAssessment]);
+
+  // Handle starting fresh (clear pending)
+  const handleStartFresh = useCallback(async () => {
+    if (pendingAssessment && assessment) {
+      await clearPending({ assessmentId: assessment._id });
+    }
+    setAnswers({});
+    setCurrentQuestion(0);
+    setSelectedOption(null);
+    setShowResumeModal(false);
+  }, [pendingAssessment, clearPending, assessment]);
+
+  // Auto-save progress (debounced)
+  const saveProgress = useCallback(async (newAnswers: Record<string, number>, questionIndex: number) => {
+    if (!user || !assessment) return;
+
+    try {
+      await savePendingProgress({
+        assessmentId: assessment._id,
+        answers: newAnswers,
+        currentQuestion: questionIndex,
+      });
+    } catch (error) {
+      console.error("Failed to save progress:", error);
+    }
+  }, [user, savePendingProgress, assessment]);
+
+  // Redirect to sign-in if not authenticated
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.push(`/sign-in?returnTo=${encodeURIComponent('/assessment/questions')}`);
+    }
+  }, [authLoading, user, router]);
+
+  // Show loading while checking auth or loading data
+  if (authLoading || !user || assessments === undefined || allCareers === undefined) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <Spinner size="lg" />
-          <p className="mt-4 text-xl font-bold">Loading assessment...</p>
-        </div>
-      </div>
+      <AssessmentLoader fullscreen />
     );
   }
 
@@ -94,10 +154,10 @@ export default function AssessmentQuestionsPage() {
     );
   }
 
-  // Use the assessment with the most questions (should be the 12-question RIASEC one)
-  const assessment = assessments.reduce((latest, current) =>
-    current.questionCount > latest.questionCount ? current : latest
-  );
+  // Use the assessment with the most questions
+  // assessment is already calculated at the top
+  if (!assessment) return null; // Should be handled by early returns above, but for type safety
+
   const questions = assessment.questions;
   const totalQuestions = questions.length;
   const progress = ((currentQuestion + 1) / totalQuestions) * 100;
@@ -114,6 +174,11 @@ export default function AssessmentQuestionsPage() {
         [questions[currentQuestion].id]: selectedOption,
       };
       setAnswers(updatedAnswers);
+
+      // Auto-save progress for authenticated users
+      if (user) {
+        saveProgress(updatedAnswers, currentQuestion + 1);
+      }
 
       // Move to next question or finish
       if (currentQuestion < totalQuestions - 1) {
@@ -176,6 +241,9 @@ export default function AssessmentQuestionsPage() {
             return;
           }
 
+          // Clear pending assessment since we're completing
+          await clearPending({ assessmentId: assessment._id });
+
           const result = await saveResult({
             assessmentId: assessment._id,
             answers: updatedAnswers,
@@ -201,6 +269,31 @@ export default function AssessmentQuestionsPage() {
       setSelectedOption(previousAnswer !== undefined ? previousAnswer : null);
     } else {
       router.push('/assessment');
+    }
+  };
+
+  const handleSaveAndExit = async () => {
+    if (!user) {
+      // For unauthenticated users, just go back
+      router.push('/assessments');
+      return;
+    }
+
+    // Save current answer if selected
+    const currentAnswers = selectedOption !== null
+      ? { ...answers, [questions[currentQuestion].id]: selectedOption }
+      : answers;
+
+    try {
+      await savePendingProgress({
+        assessmentId: assessment._id,
+        answers: currentAnswers,
+        currentQuestion: currentQuestion,
+      });
+      router.push('/assessments');
+    } catch (error) {
+      console.error('Failed to save progress:', error);
+      router.push('/assessments');
     }
   };
 
@@ -240,11 +333,10 @@ export default function AssessmentQuestionsPage() {
                 <button
                   key={index}
                   onClick={() => handleOptionSelect(index)}
-                  className={`w-full p-6 text-left font-bold text-lg border-3 border-black transition-all ${
-                    selectedOption === index
-                      ? 'bg-primary text-white shadow-brutal-lg translate-x-[-4px] translate-y-[-4px]'
-                      : 'bg-white hover:shadow-brutal hover:translate-x-[-2px] hover:translate-y-[-2px]'
-                  }`}
+                  className={`w-full p-6 text-left font-bold text-lg border-3 border-black transition-all ${selectedOption === index
+                    ? 'bg-primary text-white shadow-brutal-lg translate-x-[-4px] translate-y-[-4px]'
+                    : 'bg-white hover:shadow-brutal hover:translate-x-[-2px] hover:translate-y-[-2px]'
+                    }`}
                 >
                   <div className="flex items-center justify-between">
                     <span>{option}</span>
@@ -269,11 +361,10 @@ export default function AssessmentQuestionsPage() {
                   <button
                     key={value}
                     onClick={() => handleOptionSelect(value)}
-                    className={`w-16 h-16 md:w-20 md:h-20 font-black text-2xl border-3 border-black transition-all ${
-                      selectedOption === value
-                        ? 'bg-primary text-white shadow-brutal-lg translate-x-[-4px] translate-y-[-4px]'
-                        : 'bg-white hover:shadow-brutal hover:translate-x-[-2px] hover:translate-y-[-2px]'
-                    }`}
+                    className={`w-16 h-16 md:w-20 md:h-20 font-black text-2xl border-3 border-black transition-all ${selectedOption === value
+                      ? 'bg-primary text-white shadow-brutal-lg translate-x-[-4px] translate-y-[-4px]'
+                      : 'bg-white hover:shadow-brutal hover:translate-x-[-2px] hover:translate-y-[-2px]'
+                      }`}
                   >
                     {value + 1}
                   </button>
@@ -296,6 +387,8 @@ export default function AssessmentQuestionsPage() {
             Back
           </button>
 
+
+
           <button
             onClick={handleNext}
             disabled={selectedOption === null}
@@ -316,16 +409,52 @@ export default function AssessmentQuestionsPage() {
         </p>
       </div>
 
-      {/* Saving Overlay */}
-      {isSaving && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white border-3 border-black shadow-brutal-lg p-8 text-center">
-            <Spinner size="lg" />
-            <p className="mt-4 text-xl font-bold">Analyzing your responses...</p>
-            <p className="text-gray-600 font-medium">Finding your perfect career matches</p>
+      {/* Resume Modal */}
+      {showResumeModal && pendingAssessment && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white border-3 border-black shadow-brutal-lg p-8 max-w-md w-full">
+            <h3 className="text-2xl font-black mb-4">Continue Where You Left Off?</h3>
+            <p className="text-gray-700 mb-2">
+              You have an assessment in progress:
+            </p>
+            <div className="bg-gray-100 border-2 border-black p-4 mb-6">
+              <p className="font-bold">{pendingAssessment.assessmentTitle}</p>
+              <p className="text-sm text-gray-600">
+                {pendingAssessment.currentQuestion} of {pendingAssessment.totalQuestions} questions answered
+              </p>
+              <p className="text-xs text-gray-500 mt-1">
+                Last saved: {new Date(pendingAssessment.lastUpdatedAt).toLocaleDateString()}
+              </p>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={handleStartFresh}
+                className="flex-1 px-4 py-3 bg-white text-black font-bold uppercase border-3 border-black shadow-brutal hover:shadow-brutal-lg transition-all flex items-center justify-center gap-2"
+              >
+                <RotateCcw className="w-4 h-4" />
+                Start Fresh
+              </button>
+              <button
+                onClick={handleResume}
+                className="flex-1 px-4 py-3 bg-primary text-white font-bold uppercase border-3 border-black shadow-brutal hover:shadow-brutal-lg transition-all flex items-center justify-center gap-2"
+              >
+                <Play className="w-4 h-4" />
+                Continue
+              </button>
+            </div>
           </div>
         </div>
+      )}
+
+      {/* Saving Overlay */}
+      {isSaving && (
+        <AssessmentLoader
+          fullscreen
+          message="Analyzing..."
+          subMessage="Finding your perfect career matches"
+        />
       )}
     </div>
   );
 }
+

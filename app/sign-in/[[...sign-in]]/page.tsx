@@ -3,6 +3,7 @@
 import { SignIn } from "@clerk/nextjs";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
+import { AssessmentLoader } from "@/components/assessment-loader";
 
 function SignInInner() {
   const searchParams = useSearchParams();
@@ -51,9 +52,7 @@ export default function SignInPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-          <div className="w-full max-w-md text-center font-bold">Loading…</div>
-        </div>
+        <AssessmentLoader fullscreen message="Loading..." />
       }
     >
       <SignInInner />
