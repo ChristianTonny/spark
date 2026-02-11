@@ -1,11 +1,12 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowRight, Sparkles, Users, Video, Target } from 'lucide-react';
+import { ArrowRight, Sparkles, Users, Video, Target, ChevronRight } from 'lucide-react';
 import { useQuery } from "convex/react";
 import { api } from "../convex/_generated/api";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { useAnimatedCounter } from "../hooks/useAnimatedCounter";
 
 export default function LandingPage() {
   const router = useRouter();
@@ -77,33 +78,7 @@ export default function LandingPage() {
 
             {/* Right: Stats Card */}
             <div className="relative mt-8 lg:mt-0">
-              <div className="bg-brutal-blue text-white p-6 sm:p-8 border-3 border-brutal-border shadow-brutal-xl">
-                <div className="space-y-5 sm:space-y-6">
-                  <div className="flex items-center gap-3 sm:gap-4 pb-5 sm:pb-6 border-b-3 border-white/30">
-                    <Sparkles className="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0" />
-                    <div>
-                      <p className="text-2xl sm:text-3xl font-black">100+</p>
-                      <p className="text-sm sm:text-base font-bold uppercase">Career Paths</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-3 sm:gap-4 pb-5 sm:pb-6 border-b-3 border-white/30">
-                    <Users className="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0" />
-                    <div>
-                      <p className="text-2xl sm:text-3xl font-black">50+</p>
-                      <p className="text-sm sm:text-base font-bold uppercase">Mentors</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-3 sm:gap-4">
-                    <Video className="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0" />
-                    <div>
-                      <p className="text-2xl sm:text-3xl font-black">1,000+</p>
-                      <p className="text-sm sm:text-base font-bold uppercase">Career Chats</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <StatsCard />
 
               {/* Decorative element - hidden on small screens */}
               <div className="hidden sm:block absolute -z-10 -right-4 -bottom-4 w-full h-full bg-brutal-yellow border-3 border-brutal-border"></div>
@@ -120,49 +95,66 @@ export default function LandingPage() {
             <p className="text-base sm:text-lg text-gray-700">Three simple steps to discover your future</p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8">
-            {/* Step 1 */}
-            <div className="group">
-              <div className="bg-brutal-bg p-6 sm:p-8 border-3 border-brutal-border shadow-brutal hover:shadow-brutal-lg active:shadow-none transition-all">
-                <div className="mb-4 sm:mb-6">
-                  <span className="inline-flex w-14 h-14 sm:w-16 sm:h-16 bg-brutal-orange text-white text-2xl sm:text-3xl font-black border-3 border-brutal-border items-center justify-center shadow-brutal-sm">
-                    1
-                  </span>
-                </div>
-                <h3 className="text-lg sm:text-xl font-black mb-2 sm:mb-3">Explore</h3>
-                <p className="text-sm sm:text-base text-gray-700">
-                  Browse 100+ careers with videos, salary info, and education requirements
-                </p>
-              </div>
+          <div className="relative">
+            {/* Connecting line - visible on md screens and up */}
+            <div className="hidden md:block absolute top-[4.5rem] left-[calc(16.67%+2rem)] right-[calc(16.67%+2rem)] h-1 bg-brutal-border z-0">
+              <div className="absolute left-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-brutal-orange border-2 border-brutal-border rounded-full"></div>
+              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 bg-brutal-blue border-2 border-brutal-border rounded-full"></div>
+              <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-brutal-yellow border-2 border-brutal-border rounded-full"></div>
             </div>
 
-            {/* Step 2 */}
-            <div className="group sm:mt-0 md:mt-8">
-              <div className="bg-brutal-bg p-6 sm:p-8 border-3 border-brutal-border shadow-brutal hover:shadow-brutal-lg active:shadow-none transition-all">
-                <div className="mb-4 sm:mb-6">
-                  <span className="inline-flex w-14 h-14 sm:w-16 sm:h-16 bg-brutal-blue text-white text-2xl sm:text-3xl font-black border-3 border-brutal-border items-center justify-center shadow-brutal-sm">
-                    2
-                  </span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8">
+              {/* Step 1 */}
+              <div className="group relative">
+                <div className="bg-brutal-bg p-6 sm:p-8 border-3 border-brutal-border shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-2px] hover:translate-y-[-2px] active:shadow-none transition-all relative z-10">
+                  <div className="mb-4 sm:mb-6">
+                    <span className="inline-flex w-14 h-14 sm:w-16 sm:h-16 bg-brutal-orange text-white text-2xl sm:text-3xl font-black border-3 border-brutal-border items-center justify-center shadow-brutal-sm">
+                      1
+                    </span>
+                  </div>
+                  <h3 className="text-lg sm:text-xl font-black mb-2 sm:mb-3">Explore</h3>
+                  <p className="text-sm sm:text-base text-gray-700">
+                    Browse 100+ careers with videos, salary info, and education requirements
+                  </p>
                 </div>
-                <h3 className="text-lg sm:text-xl font-black mb-2 sm:mb-3">Assess</h3>
-                <p className="text-sm sm:text-base text-gray-700">
-                  Take assessments to discover careers matching your interests and skills
-                </p>
+                {/* Arrow indicator - mobile only */}
+                <div className="flex justify-center my-4 sm:hidden">
+                  <ChevronRight className="w-8 h-8 text-brutal-orange rotate-90" />
+                </div>
               </div>
-            </div>
 
-            {/* Step 3 */}
-            <div className="group sm:col-span-2 md:col-span-1">
-              <div className="bg-brutal-bg p-6 sm:p-8 border-3 border-brutal-border shadow-brutal hover:shadow-brutal-lg active:shadow-none transition-all">
-                <div className="mb-4 sm:mb-6">
-                  <span className="inline-flex w-14 h-14 sm:w-16 sm:h-16 bg-brutal-yellow text-brutal-text text-2xl sm:text-3xl font-black border-3 border-brutal-border items-center justify-center shadow-brutal-sm">
-                    3
-                  </span>
+              {/* Step 2 */}
+              <div className="group sm:mt-0 md:mt-8 relative">
+                <div className="bg-brutal-bg p-6 sm:p-8 border-3 border-brutal-border shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-2px] hover:translate-y-[-2px] active:shadow-none transition-all relative z-10">
+                  <div className="mb-4 sm:mb-6">
+                    <span className="inline-flex w-14 h-14 sm:w-16 sm:h-16 bg-brutal-blue text-white text-2xl sm:text-3xl font-black border-3 border-brutal-border items-center justify-center shadow-brutal-sm">
+                      2
+                    </span>
+                  </div>
+                  <h3 className="text-lg sm:text-xl font-black mb-2 sm:mb-3">Assess</h3>
+                  <p className="text-sm sm:text-base text-gray-700">
+                    Take assessments to discover careers matching your interests and skills
+                  </p>
                 </div>
-                <h3 className="text-lg sm:text-xl font-black mb-2 sm:mb-3">Connect</h3>
-                <p className="text-sm sm:text-base text-gray-700">
-                  Book 15-min video chats with professionals to learn what jobs are really like
-                </p>
+                {/* Arrow indicator - mobile only */}
+                <div className="flex justify-center my-4 sm:hidden">
+                  <ChevronRight className="w-8 h-8 text-brutal-blue rotate-90" />
+                </div>
+              </div>
+
+              {/* Step 3 */}
+              <div className="group sm:col-span-2 md:col-span-1 relative">
+                <div className="bg-brutal-bg p-6 sm:p-8 border-3 border-brutal-border shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-2px] hover:translate-y-[-2px] active:shadow-none transition-all relative z-10">
+                  <div className="mb-4 sm:mb-6">
+                    <span className="inline-flex w-14 h-14 sm:w-16 sm:h-16 bg-brutal-yellow text-brutal-text text-2xl sm:text-3xl font-black border-3 border-brutal-border items-center justify-center shadow-brutal-sm">
+                      3
+                    </span>
+                  </div>
+                  <h3 className="text-lg sm:text-xl font-black mb-2 sm:mb-3">Connect</h3>
+                  <p className="text-sm sm:text-base text-gray-700">
+                    Book 15-min video chats with professionals to learn what jobs are really like
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -239,17 +231,38 @@ export default function LandingPage() {
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
-            {categories.map((category) => (
-              <Link
-                key={category}
-                href={`/careers?category=${encodeURIComponent(category)}`}
-                className="group p-4 sm:p-5 md:p-6 min-h-[80px] sm:min-h-[90px] bg-brutal-bg border-3 border-brutal-border shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-2px] hover:translate-y-[-2px] active:shadow-none transition-all flex items-center justify-center text-center"
-              >
-                <p className="font-black text-sm sm:text-base md:text-lg group-hover:text-brutal-orange transition-colors break-words">
-                  {category}
-                </p>
-              </Link>
-            ))}
+            {categories.map((category, index) => {
+              // Rotating accent colors for visual variety
+              const accentColors = [
+                'hover:bg-brutal-orange/10 hover:border-brutal-orange',
+                'hover:bg-brutal-blue/10 hover:border-brutal-blue',
+                'hover:bg-brutal-yellow/30 hover:border-brutal-yellow',
+                'hover:bg-brutal-green/10 hover:border-brutal-green',
+                'hover:bg-brutal-pink/10 hover:border-brutal-pink',
+                'hover:bg-brutal-purple/10 hover:border-brutal-purple',
+              ];
+              const textColors = [
+                'group-hover:text-brutal-orange',
+                'group-hover:text-brutal-blue',
+                'group-hover:text-brutal-text',
+                'group-hover:text-brutal-text',
+                'group-hover:text-brutal-pink',
+                'group-hover:text-brutal-purple',
+              ];
+              const colorIndex = index % accentColors.length;
+
+              return (
+                <Link
+                  key={category}
+                  href={`/careers?category=${encodeURIComponent(category)}`}
+                  className={`group p-4 sm:p-5 md:p-6 min-h-[80px] sm:min-h-[90px] bg-brutal-bg border-3 border-brutal-border shadow-brutal hover:shadow-brutal-lg hover:translate-x-[-2px] hover:translate-y-[-2px] active:shadow-none transition-all flex items-center justify-center text-center ${accentColors[colorIndex]}`}
+                >
+                  <p className={`font-black text-sm sm:text-base md:text-lg transition-colors break-words ${textColors[colorIndex]}`}>
+                    {category}
+                  </p>
+                </Link>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -328,6 +341,49 @@ export default function LandingPage() {
           </div>
         </div>
       </footer>
+    </div>
+  );
+}
+
+// Animated Stats Card Component
+function StatsCard() {
+  const careerPaths = useAnimatedCounter(100, { duration: 1500, suffix: '+' });
+  const mentors = useAnimatedCounter(50, { duration: 1500, delay: 200, suffix: '+' });
+  const chats = useAnimatedCounter(1000, { duration: 2000, delay: 400, suffix: '+' });
+
+  return (
+    <div className="bg-brutal-blue text-white p-6 sm:p-8 border-3 border-brutal-border shadow-brutal-xl">
+      <div className="space-y-5 sm:space-y-6">
+        <div ref={careerPaths.ref} className="flex items-center gap-3 sm:gap-4 pb-5 sm:pb-6 border-b-3 border-white/30">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0 bg-white/20 border-2 border-white/40 flex items-center justify-center">
+            <Sparkles className="w-6 h-6 sm:w-7 sm:h-7" />
+          </div>
+          <div>
+            <p className="text-2xl sm:text-3xl font-black tabular-nums">{careerPaths.displayValue}</p>
+            <p className="text-sm sm:text-base font-bold uppercase">Career Paths</p>
+          </div>
+        </div>
+
+        <div ref={mentors.ref} className="flex items-center gap-3 sm:gap-4 pb-5 sm:pb-6 border-b-3 border-white/30">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0 bg-white/20 border-2 border-white/40 flex items-center justify-center">
+            <Users className="w-6 h-6 sm:w-7 sm:h-7" />
+          </div>
+          <div>
+            <p className="text-2xl sm:text-3xl font-black tabular-nums">{mentors.displayValue}</p>
+            <p className="text-sm sm:text-base font-bold uppercase">Mentors</p>
+          </div>
+        </div>
+
+        <div ref={chats.ref} className="flex items-center gap-3 sm:gap-4">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0 bg-white/20 border-2 border-white/40 flex items-center justify-center">
+            <Video className="w-6 h-6 sm:w-7 sm:h-7" />
+          </div>
+          <div>
+            <p className="text-2xl sm:text-3xl font-black tabular-nums">{chats.displayValue}</p>
+            <p className="text-sm sm:text-base font-bold uppercase">Career Chats</p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
