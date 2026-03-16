@@ -38,6 +38,9 @@ export interface PathwayStep {
   estimatedCost?: number;
 }
 
+// NOTE: Prefer using Doc<"careers"> from "@/convex/_generated/dataModel" for
+// Convex query results — it is always in sync with the schema.
+// This interface is kept for legacy/non-Convex consumers only.
 export interface Career {
   id: string;
   title: string;
@@ -52,14 +55,28 @@ export interface Career {
   requiredEducation: string; // "Bachelor's Degree", "Diploma", etc.
   requiredSkills: string[];
   careerPath: PathwayStep[];
-  professionalsAvailable: string[]; // Professional IDs
   relatedCareers: string[]; // Career IDs
-  sponsoredBy?: {
-    companyName: string;
-    companyLogo: string;
-  };
   views?: number;
   saves?: number;
+  // RIASEC + assessment matching fields
+  interestProfile?: {
+    realistic: number; investigative: number; artistic: number;
+    social: number; enterprising: number; conventional: number;
+  };
+  valueProfile?: {
+    impact: number; income: number; autonomy: number;
+    balance: number; growth: number; stability: number;
+  };
+  personalityProfile?: {
+    openness: number; conscientiousness: number; extraversion: number;
+  };
+  workEnvironment?: { teamSize: string; pace: string };
+  // Cost analysis
+  costAnalysis?: {
+    totalCostMin: number;
+    totalCostMax: number;
+    breakdown: Array<{ stage: string; duration: string; costMin: number; costMax: number; description: string }>;
+  };
 }
 
 export interface Professional {

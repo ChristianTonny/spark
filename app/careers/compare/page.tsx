@@ -11,7 +11,9 @@ import { useConvexAuth } from '@/lib/hooks/useConvexAuth';
 import { useToast } from '@/lib/use-toast';
 import { ToastContainer } from '@/components/toast-container';
 import { SchoolRecommendations } from '@/components/SchoolRecommendations';
-import type { Id } from "@/convex/_generated/dataModel";
+import type { Id, Doc } from "@/convex/_generated/dataModel";
+
+type CareerDoc = Doc<"careers">;
 
 function CareerComparisonContent() {
   const searchParams = useSearchParams();
@@ -98,18 +100,18 @@ function CareerComparisonContent() {
   const comparisonRows = [
     {
       label: 'Salary Range',
-      getValue: (career: any) => `${(career.salaryMin / 1000000).toFixed(1)}M - ${(career.salaryMax / 1000000).toFixed(1)}M RWF/year`,
+      getValue: (career: CareerDoc) => `${(career.salaryMin / 1000000).toFixed(1)}M - ${(career.salaryMax / 1000000).toFixed(1)}M RWF/year`,
     },
     {
       label: 'Cost to Entry',
-      getValue: (career: any) => {
+      getValue: (career: CareerDoc) => {
         if (!career.costAnalysis) return 'Not specified';
         return `${(career.costAnalysis.totalCostMin / 1000000).toFixed(1)}M - ${(career.costAnalysis.totalCostMax / 1000000).toFixed(1)}M RWF`;
       },
     },
     {
       label: 'Education Duration',
-      getValue: (career: any) => {
+      getValue: (career: CareerDoc) => {
         if (!career.costAnalysis?.breakdown) return 'Not specified';
         const stages = career.costAnalysis.breakdown;
         // Extract years from duration strings like "4 years", "3 years"
@@ -122,15 +124,15 @@ function CareerComparisonContent() {
     },
     {
       label: 'Category',
-      getValue: (career: any) => career.category,
+      getValue: (career: CareerDoc) => career.category,
     },
     {
       label: 'Education Required',
-      getValue: (career: any) => career.requiredEducation,
+      getValue: (career: CareerDoc) => career.requiredEducation,
     },
     {
       label: 'Personality Type',
-      getValue: (career: any) => {
+      getValue: (career: CareerDoc) => {
         if (!career.interestProfile) return 'Not specified';
         const scores = career.interestProfile;
         const types = [
@@ -150,7 +152,7 @@ function CareerComparisonContent() {
     },
     {
       label: 'Work Environment',
-      getValue: (career: any) => {
+      getValue: (career: CareerDoc) => {
         if (!career.workEnvironment) return 'Not specified';
         const env = career.workEnvironment;
         return `${env.teamSize || 'N/A'} team, ${env.pace || 'N/A'} pace`;
@@ -158,7 +160,7 @@ function CareerComparisonContent() {
     },
     {
       label: 'Top Skills',
-      getValue: (career: any) => career.requiredSkills?.slice(0, 3).join(', ') || 'Not specified',
+      getValue: (career: CareerDoc) => career.requiredSkills?.slice(0, 3).join(', ') || 'Not specified',
     },
   ];
 
