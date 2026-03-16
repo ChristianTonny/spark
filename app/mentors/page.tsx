@@ -1,18 +1,22 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, Suspense } from 'react';
 import Link from 'next/link';
-import { Search, Star, Calendar, MessageCircle, Award, CheckCircle, Clock } from 'lucide-react';
+import { Search, Star, Calendar, MessageCircle, Award, CheckCircle, Clock, ArrowLeft } from 'lucide-react';
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
-import { MentorCardSkeleton } from '@/components/loading-skeleton';
+import { MentorCardSkeleton, Spinner } from '@/components/loading-skeleton';
 import { EmptyState } from '@/components/error-state';
 import { BookingModal } from '@/components/BookingModal';
 import { ChatDrawer } from '@/components/ChatDrawer';
 import { Id } from "@/convex/_generated/dataModel";
 import { useConvexAuth } from '@/lib/hooks/useConvexAuth';
+import { useSearchParams } from 'next/navigation';
 
-export default function MentorsPage() {
+function MentorsPageContent() {
+  const searchParams = useSearchParams();
+  const careerParam = searchParams.get('career');   // filter by career ID
+  const gapParam = searchParams.get('gap');         // context: skill gap name
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedMentorId, setSelectedMentorId] = useState<Id<"users"> | null>(null);
   const [selectedMentorName, setSelectedMentorName] = useState('');
@@ -52,7 +56,7 @@ export default function MentorsPage() {
 
   const isLoading = allProfessionals === undefined;
 
-  // Sort mentors
+  // Sort mentors — prioritise career match when ?career= param is present
   const sortedProfessionals = useMemo(() => {
     if (!allProfessionals) return [];
 
@@ -63,34 +67,60 @@ export default function MentorsPage() {
       const currentUserId = currentProfessional.userId;
       const currentCareerIds = currentProfessional.careerIds || [];
 
-      // Separate current user from others
       const currentUser = filtered.find(p => p.userId === currentUserId);
       const otherMentors = filtered.filter(p => p.userId !== currentUserId);
 
-      // Sort others by career similarity
       const sortedOthers = otherMentors.sort((a, b) => {
         const aMatchCount = (a.careerIds || []).filter(id => currentCareerIds.includes(id)).length;
         const bMatchCount = (b.careerIds || []).filter(id => currentCareerIds.includes(id)).length;
-        return bMatchCount - aMatchCount; // Higher match count first
+        return bMatchCount - aMatchCount;
       });
 
-      // Return current user first, then similar mentors
       return currentUser ? [currentUser, ...sortedOthers] : sortedOthers;
     }
 
+    // When a career param is present, bubble mentors with that career to the top
+    if (careerParam) {
+      filtered = [...filtered].sort((a, b) => {
+        const aHas = (a.careerIds || []).includes(careerParam) ? 1 : 0;
+        const bHas = (b.careerIds || []).includes(careerParam) ? 1 : 0;
+        return bHas - aHas;
+      });
+    }
+
     return filtered;
-  }, [allProfessionals, currentProfessional, user]);
+  }, [allProfessionals, currentProfessional, user, careerParam]);
 
   return (
     <div className="min-h-screen bg-background py-6 sm:py-8">
       <div className="container mx-auto px-3 sm:px-4 max-w-7xl">
         {/* Header */}
         <div className="mb-6 sm:mb-8">
+          {(careerParam || gapParam) && (
+            <Link
+              href="/skills"
+              className="inline-flex items-center gap-2 text-sm font-bold text-gray-600 hover:text-black mb-4"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back to Job Readiness
+            </Link>
+          )}
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black mb-3 sm:mb-4 uppercase">Browse Mentors</h1>
           <p className="text-base sm:text-lg md:text-xl font-bold text-gray-700">
             Connect with professionals for focused 60-minute sessions packed with real-world advice
           </p>
         </div>
+
+        {/* Context banner — shown when arriving from /skills */}
+        {gapParam && (
+          <div className="mb-6 p-4 bg-brutal-yellow border-3 border-black shadow-brutal">
+            <p className="font-black text-sm uppercase">Skill gap context</p>
+            <p className="font-bold text-gray-800 mt-1">
+              Looking for mentors who can help you learn <span className="underline">{gapParam}</span>.
+              Book a session to get personalised guidance.
+            </p>
+          </div>
+        )}
 
         {/* Search Bar */}
         <div className="mb-6 sm:mb-8">
@@ -467,5 +497,17 @@ function MessageMentorButton({
       <MessageCircle className="w-4 h-4" />
       Message Mentor
     </button>
+  );
+}
+
+export default function MentorsPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Spinner size="lg" />
+      </div>
+    }>
+      <MentorsPageContent />
+    </Suspense>
   );
 }
