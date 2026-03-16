@@ -513,14 +513,16 @@ function AssessmentResultsContent() {
                   <div className="w-10 h-10 bg-brutal-green border-2 border-black flex items-center justify-center">
                     <span className="text-xl font-black text-black">4</span>
                   </div>
-                  <h3 className="text-xl font-black">Start Learning</h3>
+                  <h3 className="text-xl font-black">Check Job Readiness</h3>
                 </div>
                 <p className="text-sm font-bold text-gray-700 mb-3">
-                  Begin building skills relevant to your top careers through online courses and projects.
+                  See which Rwanda jobs you qualify for today and get a personalised skill gap + learning plan.
                 </p>
-                <button className="px-4 py-2 bg-gray-200 text-gray-600 font-bold text-sm border-2 border-black cursor-not-allowed" disabled>
-                  Coming Soon
-                </button>
+                <Link href={`/skills?career=${displayMatches[0].career?._id ?? ''}`}>
+                  <button className="px-4 py-2 bg-black text-white font-bold text-sm border-2 border-black hover:shadow-brutal transition-all flex items-center gap-2">
+                    Check Your Job Readiness →
+                  </button>
+                </Link>
               </div>
             </div>
           </div>

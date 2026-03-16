@@ -46,6 +46,7 @@ export type JobListingInput = {
   _id: string;
   title: string;
   company: string;
+  location: string;
   industry: string;
   salaryMin: number;
   salaryMax: number;
