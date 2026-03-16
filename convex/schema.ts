@@ -814,6 +814,7 @@ export default defineSchema({
     source: v.union(v.literal("ai"), v.literal("fallback")),
     fallbackReason: v.optional(v.string()),
     recommendations: v.any(),
+    marketInsightsData: v.optional(v.any()), // legacy SkillSync field
     createdAt: v.number(),
   })
     .index("by_user", ["userId"])
