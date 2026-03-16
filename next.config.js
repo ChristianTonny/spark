@@ -6,6 +6,10 @@ const nextConfig = {
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },
   reactStrictMode: true,
+  turbopack: {
+    // Fix workspace root inference for Next.js 16 + Turbopack
+    root: '.',
+  },
 };
 
 module.exports = nextConfig;
