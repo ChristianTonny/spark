@@ -11,6 +11,7 @@
     "seed": "powershell -ExecutionPolicy Bypass -File ./scripts/seed-all.ps1"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.79.0",
     "@clerk/nextjs": "^6.36.2",
     "@hookform/resolvers": "^5.2.2",
     "@radix-ui/react-checkbox": "^1.0.4",
