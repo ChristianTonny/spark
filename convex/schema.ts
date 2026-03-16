@@ -806,29 +806,14 @@ export default defineSchema({
     .index("by_user_version", ["userId", "version"]),
 
   // Analysis results — AI + fallback job match recommendations
+  // recommendations is v.any() to remain compatible with legacy SkillSync documents
+  // that may have a different salaryProjection shape. Shape is enforced at the app layer.
   skillAnalyses: defineTable({
     userId: v.optional(v.id("users")),
     profileVersion: v.number(),
     source: v.union(v.literal("ai"), v.literal("fallback")),
     fallbackReason: v.optional(v.string()),
-    recommendations: v.object({
-      skillGaps: v.array(v.object({
-        skillName: v.string(),
-        category: v.string(),
-        importance: v.union(v.literal("critical"), v.literal("important"), v.literal("nice-to-have")),
-        salaryImpact: v.number(),
-        opportunityCount: v.number(),
-        estimatedWeeksToLearn: v.number(),
-        resources: v.array(v.string()), // resourceIds
-      })),
-      currentOpportunityIds: v.array(v.string()),  // jobListing IDs (score >= 0.7)
-      nextLevelOpportunityIds: v.array(v.string()), // jobListing IDs (score 0.4-0.7)
-      salaryProjection: v.object({
-        currentBaseline: v.number(),
-        potentialWithGaps: v.number(),
-        currency: v.string(),
-      }),
-    }),
+    recommendations: v.any(),
     createdAt: v.number(),
   })
     .index("by_user", ["userId"])
