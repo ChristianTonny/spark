@@ -703,4 +703,145 @@ export default defineSchema({
     .index("by_tier", ["partnershipTier"])
     .index("by_featured", ["featured", "partnershipTier"])
     .index("by_active", ["isActive"]),
+
+  // ─── SkillSync tables ─────────────────────────────────────────────────────
+
+  // Rwanda job listings for skill-to-job matching
+  jobListings: defineTable({
+    title: v.string(),
+    company: v.string(),
+    location: v.string(),
+    industry: v.string(),
+    salaryMin: v.number(),       // In RWF
+    salaryMax: v.number(),       // In RWF
+    currency: v.string(),        // "RWF" | "USD"
+    requiredSkills: v.array(v.string()),
+    preferredSkills: v.array(v.string()),
+    level: v.union(
+      v.literal("entry"),
+      v.literal("mid"),
+      v.literal("senior"),
+      v.literal("lead")
+    ),
+    jobType: v.string(),         // "full-time" | "contract" | "part-time"
+    isRemote: v.boolean(),
+    description: v.optional(v.string()),
+    postedAt: v.number(),        // Unix timestamp
+    source: v.string(),          // "curated-rwanda" | "partner" etc.
+    active: v.boolean(),
+    externalId: v.optional(v.string()), // Source system reference
+  })
+    .index("by_active", ["active"])
+    .index("by_industry", ["industry"])
+    .index("by_level", ["level"])
+    .index("by_external_id", ["externalId"]),
+
+  // Skill taxonomy — categories with demand and salary impact
+  skillTaxonomy: defineTable({
+    categoryId: v.string(),      // "web-dev" | "data" | "marketing" etc.
+    name: v.string(),
+    description: v.string(),
+    demandLevel: v.union(
+      v.literal("very-high"),
+      v.literal("high"),
+      v.literal("medium"),
+      v.literal("low")
+    ),
+    avgSalaryImpact: v.number(), // In RWF (incremental salary boost)
+    skills: v.array(v.object({
+      id: v.string(),
+      name: v.string(),
+      aliases: v.optional(v.array(v.string())), // Alternative names for fuzzy matching
+    })),
+  }).index("by_category_id", ["categoryId"]),
+
+  // Learning resources — curated courses, articles, videos
+  learningResources: defineTable({
+    resourceId: v.string(),
+    title: v.string(),
+    provider: v.string(),
+    type: v.union(
+      v.literal("video"),
+      v.literal("course"),
+      v.literal("article"),
+      v.literal("tutorial"),
+      v.literal("project"),
+      v.literal("certification")
+    ),
+    url: v.string(),
+    duration: v.optional(v.string()),  // "2 hours", "4 weeks"
+    difficulty: v.union(
+      v.literal("beginner"),
+      v.literal("intermediate"),
+      v.literal("advanced")
+    ),
+    cost: v.union(v.literal("free"), v.literal("paid")),
+    rating: v.optional(v.number()),    // 1-5
+    tags: v.array(v.string()),         // Skill IDs this resource covers
+  }).index("by_resource_id", ["resourceId"]),
+
+  // Skill profiles — user-submitted skill sets for job matching
+  skillProfiles: defineTable({
+    userId: v.optional(v.id("users")), // null for anonymous (one-time, not persisted long-term)
+    sessionId: v.optional(v.string()), // For anonymous tracking if needed
+    skills: v.array(v.object({
+      id: v.string(),
+      name: v.string(),
+      category: v.string(),
+      level: v.union(
+        v.literal("beginner"),
+        v.literal("intermediate"),
+        v.literal("advanced"),
+        v.literal("expert")
+      ),
+      yearsExperience: v.optional(v.number()),
+    })),
+    experienceText: v.optional(v.string()),
+    preferredIndustries: v.array(v.string()),
+    targetCareerId: v.optional(v.string()), // From assessment context
+    version: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_user", ["userId"])
+    .index("by_user_version", ["userId", "version"]),
+
+  // Analysis results — AI + fallback job match recommendations
+  skillAnalyses: defineTable({
+    userId: v.optional(v.id("users")),
+    profileVersion: v.number(),
+    source: v.union(v.literal("ai"), v.literal("fallback")),
+    fallbackReason: v.optional(v.string()),
+    recommendations: v.object({
+      skillGaps: v.array(v.object({
+        skillName: v.string(),
+        category: v.string(),
+        importance: v.union(v.literal("critical"), v.literal("important"), v.literal("nice-to-have")),
+        salaryImpact: v.number(),
+        opportunityCount: v.number(),
+        estimatedWeeksToLearn: v.number(),
+        resources: v.array(v.string()), // resourceIds
+      })),
+      currentOpportunityIds: v.array(v.string()),  // jobListing IDs (score >= 0.7)
+      nextLevelOpportunityIds: v.array(v.string()), // jobListing IDs (score 0.4-0.7)
+      salaryProjection: v.object({
+        currentBaseline: v.number(),
+        potentialWithGaps: v.number(),
+        currency: v.string(),
+      }),
+    }),
+    createdAt: v.number(),
+  })
+    .index("by_user", ["userId"])
+    .index("by_user_created", ["userId", "createdAt"]),
+
+  // Learning progress — per-user resource completion tracking
+  learningProgress: defineTable({
+    userId: v.id("users"),          // Only authenticated users track progress
+    targetSkill: v.string(),        // Skill name being learned
+    completedResourceIds: v.array(v.string()),
+    minutesSpent: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_user", ["userId"])
+    .index("by_user_skill", ["userId", "targetSkill"]),
 });
